@@ -3,6 +3,7 @@
 	import Title from "@ui/settings/components/primitives/Title.svelte";
 	import { getCategoryParts } from "@ui/window/utils";
 	import SettingRenderer from "@renderers/setting/SettingRenderer.svelte";
+	import SettingsGroup from "@primitives/SettingsGroup.svelte";
 
 	let {
 		items = [],
@@ -25,7 +26,7 @@
 	{:else}
 		{@const category = item}
 		{@const parts = getCategoryParts(category.category)}
-		<div class="styleshift-category-frame styleshift-settings-group" data-category={parts.text}>
+		<SettingsGroup className="styleshift-category-frame" attrs={{ "data-category": parts.text }}>
 			<Title
 				text={parts.text}
 				icon={parts.icon}
@@ -38,7 +39,7 @@
 					<SettingRenderer {setting} {category} highlight={searchQuery} layout={category.layout} />
 				{/each}
 			</div>
-		</div>
+		</SettingsGroup>
 	{/if}
 {/each}
 
@@ -47,16 +48,6 @@
 		height: 1px;
 		background: var(--fg-opacity-10);
 		margin: 20px 0 10px;
-	}
-
-	.styleshift-settings-group {
-		display: flex;
-		flex-direction: column;
-		gap: 10px;
-		padding: 10px;
-		background: var(--fg-opacity-05);
-		border-radius: 20px;
-		container: settings-group / inline-size;
 	}
 
 	.styleshift-settings-items {

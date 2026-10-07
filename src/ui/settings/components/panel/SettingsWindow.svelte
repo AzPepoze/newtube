@@ -1,7 +1,8 @@
 <script lang="ts">
 	import SettingsListRenderer from "@renderers/list/SettingsListRenderer.svelte";
 	import type { Category, SeparateCategory } from "@settings/types/styleshiftTypes";
-	import LeftTitle from "@ui/settings/components/primitives/LeftTitle.svelte";
+	import SidebarNavItem from "@primitives/SidebarNavItem.svelte";
+	import SidebarScrollLayout from "@ui/shared/SidebarScrollLayout.svelte";
 	import { getCategoryParts } from "@ui/window/utils";
 	import Search from "../primitives/Search.svelte";
 	import { SettingsWindowController } from "./SettingsWindowController.svelte";
@@ -57,13 +58,16 @@
 </script>
 
 <div class="styleshift-settings-main" class:skip-animation={skipAnimation}>
-	{#if showCategoryList}
-		<div
-			bind:this={controller.leftSidebar}
-			class="styleshift-sidebar styleshift-scrollable"
-			data-left="true"
-			style:width={`${controller.sidebarWidth}px`}
-		>
+	<SidebarScrollLayout
+		attribute="data-category"
+		bind:activeValue={controller.activeCategoryLabel}
+		sidebarWidth={controller.sidebarWidth}
+		showSidebar={showCategoryList}
+		sidebarClass="styleshift-sidebar styleshift-scrollable"
+		contentClass="styleshift-settings-list styleshift-scrollable"
+		bind:sidebarEl={controller.leftSidebar}
+	>
+		{#snippet sidebar({ scrollTo })}
 			{#each controller.sidebarData as item, i (i)}
 				{#if controller.isHeaderItem(item)}
 					<div
@@ -76,63 +80,53 @@
 				{:else}
 					{@const category = item}
 					{@const parts = getCategoryParts(category.category)}
-					<button
-						class="styleshift-sidebar-item-wrapper"
-						use:controller.setupDragAndDrop={category}
+					<SidebarNavItem
+						category={category.category}
+						selected={controller.activeCategoryLabel === parts.text}
+						{isDeveloperMode}
+						editable={category.editable}
+						onSelect={() => scrollTo(parts.text)}
+						onMove={(dir) => controller.moveCategory(category, dir)}
+						action={(node, arg) => controller.setupDragAndDrop(node, arg)}
+						actionArg={category}
 						style="animation-delay: {skipAnimation ? '0ms' : i * 50 + 'ms'};"
-						onclick={() => controller.scrollToCategory(parts)}
-					>
-						<LeftTitle
-							category={category.category}
-							selected={controller.activeCategoryLabel === parts.text}
-							{isDeveloperMode}
-							editable={category.editable}
-							onMove={(dir) => controller.moveCategory(category, dir)}
-						/>
-					</button>
+					/>
 				{/if}
 			{/each}
 
 			{#if isDeveloperMode && isDevModulesLoaded}
 				<button class="styleshift-add-category-button" onclick={controller.handleAddCategory}> + </button>
 			{/if}
-		</div>
-		<div
-			class="styleshift-resize-handle"
-			role="button"
-			tabindex="0"
-			aria-label="Resize sidebar"
-			title="Drag to resize sidebar"
-			onmousedown={controller.handleResizeStart}
-		></div>
-	{/if}
+		{/snippet}
 
-	<div class="styleshift-content">
-		<Search bind:value={controller.searchQuery} />
+		{#snippet resizer()}
+			<div
+				class="styleshift-resize-handle"
+				role="button"
+				tabindex="0"
+				aria-label="Resize sidebar"
+				title="Drag to resize sidebar"
+				onmousedown={controller.handleResizeStart}
+			></div>
+		{/snippet}
 
-		<div
-			bind:this={controller.scrollContainer}
-			class="styleshift-scrollable styleshift-settings-list"
-			onscroll={controller.handleScroll}
-		>
-			{#if controller.buildInItemsData.length > 0}
-				<SettingsListRenderer
-					items={controller.buildInItemsData}
-					searchQuery={controller.searchQuery}
-					{isDeveloperMode}
-				/>
-			{/if}
+		{#snippet header()}
+			<Search bind:value={controller.searchQuery} />
+		{/snippet}
 
-			{#if controller.addOnItemsData.length > 0}
-				<div class="styleshift-section-header">ADD-ON</div>
-				<SettingsListRenderer
-					items={controller.addOnItemsData}
-					searchQuery={controller.searchQuery}
-					{isDeveloperMode}
-				/>
-			{/if}
-		</div>
-	</div>
+		{#if controller.buildInItemsData.length > 0}
+			<SettingsListRenderer
+				items={controller.buildInItemsData}
+				searchQuery={controller.searchQuery}
+				{isDeveloperMode}
+			/>
+		{/if}
+
+		{#if controller.addOnItemsData.length > 0}
+			<div class="styleshift-section-header">ADD-ON</div>
+			<SettingsListRenderer items={controller.addOnItemsData} searchQuery={controller.searchQuery} {isDeveloperMode} />
+		{/if}
+	</SidebarScrollLayout>
 </div>
 
 <style lang="scss">
@@ -148,12 +142,8 @@
 	}
 
 	.styleshift-settings-main {
-		display: flex;
-		flex-direction: row;
-		gap: 5px;
 		width: 100%;
 		height: 100%;
-		overflow: hidden;
 	}
 
 	.styleshift-resize-handle {
@@ -169,28 +159,8 @@
 		}
 	}
 
-	.styleshift-sidebar {
-		min-width: 150px;
-		width: 250px;
+	:global(.styleshift-sidebar) {
 		background: var(--category-left-bg);
-		display: flex;
-		flex-direction: column;
-		gap: 5px;
-	}
-
-	.styleshift-sidebar-item-wrapper {
-		background: transparent;
-		border: none;
-		padding: 0;
-		text-align: left;
-		cursor: pointer;
-		width: 100%;
-		display: block;
-		animation: sidebar-animation 0.2s both;
-
-		:global(.skip-animation) & {
-			animation: none;
-		}
 	}
 
 	.styleshift-add-category-button {
@@ -295,22 +265,8 @@
 		}
 	}
 
-	.styleshift-content {
-		flex: 1;
-		display: flex;
-		flex-direction: column;
-		gap: 10px;
-		height: 100%;
-		overflow: hidden;
-		min-width: 300px;
-	}
-
-	.styleshift-settings-list {
-		flex: 1;
-		display: flex;
-		flex-direction: column;
+	:global(.styleshift-settings-list) {
 		gap: 20px;
-		overflow-y: auto;
 		padding-inline: 20px;
 		padding-bottom: 50px;
 	}

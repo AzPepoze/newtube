@@ -17,7 +17,6 @@ export interface SettingsWindowProps {
 export class SettingsWindowController {
 	// State
 	searchQuery = $state("");
-	scrollContainer = $state<HTMLElement | null>(null);
 	leftSidebar = $state<HTMLElement | null>(null);
 	activeCategoryLabel = $state("");
 	sidebarWidth = $state(200);
@@ -69,6 +68,25 @@ export class SettingsWindowController {
 		return settings.filter((s) => s.type !== "conditionSetting" || this.#props.isDeveloperMode);
 	}
 
+	#categoryLabel(item: Category | SeparateCategory): string {
+		return getCategoryParts((item as Category).category).text;
+	}
+
+	#findCategoryIndex(categories: (Category | SeparateCategory)[], label: string): number {
+		return categories.findIndex((item) => !this.isHeaderItem(item) && this.#categoryLabel(item) === label);
+	}
+
+	#insertDevCategory(categories: (Category | SeparateCategory)[], devCategory: Category | SeparateCategory) {
+		const anchorLabel = (devCategory as Category & { insertAfter?: string }).insertAfter;
+		const anchorIndex = anchorLabel ? this.#findCategoryIndex(categories, anchorLabel) : -1;
+
+		if (anchorIndex >= 0) {
+			categories.splice(anchorIndex + 1, 0, devCategory);
+			return;
+		}
+		categories.push(devCategory);
+	}
+
 	#mergeDevItems(
 		categories: (Category | SeparateCategory)[],
 		allCategories: (Category | SeparateCategory)[],
@@ -77,20 +95,15 @@ export class SettingsWindowController {
 		if (!this.#props.isDevModulesLoaded || !this.#props.isDeveloperMode) return categories;
 
 		for (const devCategory of this.#props.devOnlyItems.filter((item) => !this.isHeaderItem(item))) {
-			const devLabel = getCategoryParts((devCategory as Category).category).text;
+			const devLabel = this.#categoryLabel(devCategory);
 			const target = categories.find(
-				(item) => !this.isHeaderItem(item) && getCategoryParts((item as Category).category).text === devLabel,
+				(item) => !this.isHeaderItem(item) && this.#categoryLabel(item) === devLabel,
 			) as Category;
 
 			if (target) {
-				target.settings = [...target.settings, ...devCategory.settings];
-			} else if (
-				pushMissing &&
-				!allCategories.some(
-					(item) => !this.isHeaderItem(item) && getCategoryParts((item as Category).category).text === devLabel,
-				)
-			) {
-				categories.push(devCategory);
+				target.settings = [...target.settings, ...(devCategory as Category).settings];
+			} else if (pushMissing && this.#findCategoryIndex(allCategories, devLabel) === -1) {
+				this.#insertDevCategory(categories, devCategory);
 			}
 		}
 		return categories;
@@ -159,21 +172,6 @@ export class SettingsWindowController {
 		clearDropTargets();
 	}
 
-	handleScroll = () => {
-		if (!this.scrollContainer) return;
-		const containerRect = this.scrollContainer.getBoundingClientRect();
-		const activeFrame = Array.from(this.scrollContainer.querySelectorAll(".styleshift-category-frame")).find(
-			(frame) => {
-				const rect = frame.getBoundingClientRect();
-				return rect.top <= containerRect.top + 100 && rect.bottom > containerRect.top + 100;
-			},
-		) as HTMLElement;
-
-		if (activeFrame?.dataset.category) {
-			this.activeCategoryLabel = activeFrame.dataset.category;
-		}
-	};
-
 	handleResizeStart = (event: MouseEvent) => {
 		event.preventDefault();
 		const startX = event.clientX;
@@ -181,9 +179,6 @@ export class SettingsWindowController {
 
 		const onMouseMove = (moveEvent: MouseEvent) => {
 			this.sidebarWidth = Math.max(100, startWidth + (moveEvent.clientX - startX));
-			if (this.leftSidebar) {
-				this.leftSidebar.style.width = `${this.sidebarWidth}px`;
-			}
 		};
 
 		const onMouseUp = () => {
@@ -197,13 +192,5 @@ export class SettingsWindowController {
 
 	handleAddCategory = () => {
 		void this.#props.onAddCategory();
-	};
-
-	scrollToCategory = (parts: { text: string }) => {
-		const target = this.scrollContainer?.querySelector(`.styleshift-category-frame[data-category="${parts.text}"]`);
-		if (target) {
-			target.scrollIntoView({ behavior: "smooth" });
-			this.activeCategoryLabel = parts.text;
-		}
 	};
 }
