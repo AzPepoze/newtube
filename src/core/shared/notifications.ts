@@ -27,11 +27,15 @@ export async function createNotification({
 	title = "StyleShift",
 	content = "",
 	timeout = 3000,
+	variant = "info",
 }) {
 	logger.info("extension", title, content);
 
 	const notificationFrame = await settingsUi.settingFrame(true, false, { x: false, y: true });
 	notificationFrame.classList.add("styleshift-notification");
+	if (variant !== "info") {
+		notificationFrame.classList.add(`styleshift-notification-${variant}`);
+	}
 	setTimeout(() => globalNotificationContainer.append(notificationFrame), 1);
 
 	let iconUi: any = null;
@@ -80,7 +84,7 @@ export async function createNotification({
 	if (timeout === 0) {
 		const closeUi = await settingsUi.settingFrame(true, false, { x: true, y: true });
 		closeUi.className += " styleshift-notification-close";
-		closeUi.textContent = "X";
+		closeUi.textContent = "✕";
 		closeUi.onclick = close;
 		notificationFrame.append(closeUi);
 	}
@@ -119,6 +123,7 @@ export async function createError(content: any) {
 		title: "StyleShift Error",
 		content: typeof content === "object" ? content.message : String(content),
 		timeout: 10000,
+		variant: "error",
 	});
 }
 
@@ -138,6 +143,7 @@ export async function createWarning(content: string) {
 		title: "StyleShift Warning",
 		content: content,
 		timeout: 5000,
+		variant: "warning",
 	});
 }
 
@@ -157,5 +163,6 @@ export async function createSuccess(content: string) {
 		title: "StyleShift",
 		content: content,
 		timeout: 3000,
+		variant: "success",
 	});
 }

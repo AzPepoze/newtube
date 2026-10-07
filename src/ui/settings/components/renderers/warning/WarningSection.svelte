@@ -42,7 +42,7 @@
 			{#if isLocked}
 				<div class="warning-item">
 					<div class="icon-box">
-						<Icon name="lock" size={16} color="var(--theme-error)" />
+						<Icon name="lock" size={16} color="var(--callout-accent)" />
 					</div>
 					<span class="message">{lockMessage || "This setting is currently locked."}</span>
 				</div>
@@ -51,7 +51,7 @@
 			{#if !requirementsMet && controller.unmetRequirements.length > 0}
 				<div class="warning-item">
 					<div class="icon-box">
-						<Icon name="warning" size={18} color="var(--theme-warning)" />
+						<Icon name="warning" size={18} color="var(--callout-accent)" />
 					</div>
 					<div class="requirement-content">
 						<span class="title">Missing Requirements:</span>
@@ -75,17 +75,22 @@
 
 <style lang="scss">
 	.styleshift-warning-section {
+		--callout-accent: #ffd08a;
+		--callout-bg: rgba(255, 208, 138, 0.1);
+		--callout-border: rgba(255, 208, 138, 0.45);
+		--callout-tint: rgba(255, 208, 138, 0.2);
 		margin-top: 12px;
 		padding: 12px 16px;
-		background: var(--theme-warning-10);
-		border: 1px solid var(--theme-warning-20);
+		background: var(--callout-bg);
+		border: 1px solid var(--callout-border);
 		border-radius: 12px;
-		box-shadow: 0 4px 15px var(--shadow-subtle);
 		animation: slideIn 0.3s ease-out;
 
 		&.is-locked {
-			background: var(--theme-error-10);
-			border-color: var(--theme-error-20);
+			--callout-accent: #ff9e9e;
+			--callout-bg: rgba(255, 158, 158, 0.1);
+			--callout-border: rgba(255, 158, 158, 0.45);
+			--callout-tint: rgba(255, 158, 158, 0.2);
 		}
 	}
 
@@ -102,12 +107,13 @@
 
 		.icon-box {
 			flex-shrink: 0;
-			width: 20px;
+			width: 24px;
 			height: 24px;
 			display: flex;
 			align-items: center;
 			justify-content: center;
-			filter: drop-shadow(0 2px 4px var(--shadow-subtle));
+			border-radius: 50%;
+			background: var(--callout-tint);
 		}
 
 		.message {

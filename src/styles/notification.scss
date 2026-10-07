@@ -5,6 +5,8 @@
 		opacity: 1;
 		max-height: 1000px;
 		padding: 12px;
+		margin-bottom: 10px;
+		transform: scale(1) translateX(0);
 	}
 	100% {
 		opacity: 0;
@@ -12,6 +14,8 @@
 		min-height: 0;
 		height: 0;
 		padding: 0;
+		margin-bottom: 0;
+		transform: scale(0.9) translateX(24px);
 	}
 }
 
@@ -20,11 +24,15 @@
 		opacity: 0;
 		max-height: 0;
 		padding: 0;
+		margin-bottom: 0;
+		transform: scale(0.9) translateX(24px);
 	}
 	100% {
 		opacity: 1;
 		max-height: 1000px;
 		padding: 12px;
+		margin-bottom: 10px;
+		transform: scale(1) translateX(0);
 	}
 }
 
@@ -40,7 +48,6 @@
 		padding: 20px;
 		bottom: 0;
 		overflow-y: auto;
-		gap: 10px;
 	}
 
 	.styleshift-notification {
@@ -53,6 +60,8 @@
 		display: flex;
 		flex-direction: row !important;
 		align-items: center !important;
+		flex-shrink: 0;
+		margin-bottom: 10px;
 		pointer-events: all;
 		height: max-content;
 		overflow: hidden;
@@ -65,14 +74,25 @@
 		padding: 12px;
 		box-sizing: border-box;
 
-		&.styleshift-notification-error {
-			border-left: 4px solid var(--theme-error);
+		&.styleshift-notification-success {
+			--noti-accent: #4caf50;
 		}
 		&.styleshift-notification-warning {
-			border-left: 4px solid var(--theme-warning);
+			--noti-accent: #ff9800;
 		}
-		&.styleshift-notification-success {
-			border-left: 4px solid var(--theme-success, #00c851);
+		&.styleshift-notification-error {
+			--noti-accent: #f44336;
+		}
+
+		&.styleshift-notification-success,
+		&.styleshift-notification-warning,
+		&.styleshift-notification-error {
+			border: 1px solid color-mix(in srgb, var(--noti-accent) 35%, transparent);
+			background: linear-gradient(
+				to right,
+				color-mix(in srgb, var(--noti-accent) 22%, var(--window-bg)),
+				var(--window-bg) 70%
+			);
 		}
 
 		.styleshift-notification-icon {
@@ -114,14 +134,25 @@
 
 		.styleshift-notification-close {
 			cursor: pointer;
-			width: 30px;
+			width: 28px;
+			height: 28px;
+			flex: 0 0 28px;
+			padding: 0;
 			display: flex;
 			justify-content: center;
 			align-items: center;
-			color: var(--font-color);
+			border-radius: 8px;
+			color: var(--fg-opacity-60);
+			font-size: 14px;
+			line-height: 1;
 			user-select: none;
+			transition:
+				background 0.2s ease,
+				color 0.2s ease;
+
 			&:hover {
-				background: red;
+				background: var(--fg-opacity-10);
+				color: var(--text-primary);
 			}
 		}
 	}
