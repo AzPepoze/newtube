@@ -52,7 +52,7 @@ export const thumbnailCategory: Category = {
 			type: "numberSlide",
 			id: "ThumbnailTimeHeight",
 			hoverPreview: {
-				selectors: ["ytd-thumbnail-overlay-time-status-renderer", "ytd-thumbnail-overlay-bottom-panel-renderer"],
+				selectors: ["yt-thumbnail-bottom-overlay-view-model", "yt-thumbnail-overlay-badge-view-model"],
 			},
 			name: "Time Height",
 			description: "Adjusts the vertical size of the timestamp indicator.",
@@ -63,8 +63,8 @@ export const thumbnailCategory: Category = {
 			varCss: "--nt-timestamp-height",
 			unit: "px",
 			constantCss: `
-                ytd-thumbnail-overlay-time-status-renderer,
-                ytd-thumbnail-overlay-bottom-panel-renderer {
+                yt-thumbnail-bottom-overlay-view-model,
+                yt-thumbnail-overlay-badge-view-model {
                     height: var(--nt-timestamp-height, 12px) !important;
                 }
             `,
@@ -72,12 +72,13 @@ export const thumbnailCategory: Category = {
 		{
 			type: "checkbox",
 			id: "ThumbnailTimeBorderEnabled",
-			hoverPreview: { selectors: ["ytd-thumbnail-overlay-time-status-renderer"] },
+			hoverPreview: { selectors: ["yt-thumbnail-bottom-overlay-view-model", "yt-thumbnail-overlay-badge-view-model"] },
 			name: "Time Borders",
 			description: "Applies borders or shadows to the thumbnail time indicator based on your global settings.",
 			value: true,
 			enableCss: `
-                ytd-thumbnail-overlay-time-status-renderer {
+                yt-thumbnail-bottom-overlay-view-model,
+                yt-thumbnail-overlay-badge-view-model {
                     box-shadow: var(--nt-global-shadow) !important;
                     border: var(--nt-global-outline) !important;
                 }
@@ -138,12 +139,14 @@ export const thumbnailCategory: Category = {
 			value: true,
 			enableCss: `
                 ytd-thumbnail:hover,
-                ytd-playlist-thumbnail:hover {
+                ytd-playlist-thumbnail:hover,
+                yt-thumbnail-view-model:hover {
                     outline: var(--nt-hover-border-width, 1px) solid var(--nt-hover-color) !important;
                     box-shadow: 0 0 15px var(--nt-hover-color) !important;
                 }
                 ytd-thumbnail:active,
-                ytd-playlist-thumbnail:active {
+                ytd-playlist-thumbnail:active,
+                yt-thumbnail-view-model:active {
                     outline-color: var(--nt-click-color) !important;
                 }
             `,
