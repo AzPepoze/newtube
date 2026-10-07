@@ -5,6 +5,15 @@
 	import { setAndSave } from "@ui/settings/settingsApi";
 	import Description from "../base/Description.svelte";
 
+	type CropMode = "vertical" | "horizontal" | "both";
+	type BarSide = "top" | "bottom" | "left" | "right";
+
+	const OPTIONS: { id: CropMode; label: string; bars: BarSide[]; experimental?: boolean }[] = [
+		{ id: "vertical", label: "Vertical", bars: ["top", "bottom"] },
+		{ id: "horizontal", label: "Horizontal", bars: ["left", "right"], experimental: true },
+		{ id: "both", label: "Both", bars: ["top", "bottom", "left", "right"] },
+	];
+
 	let {
 		setting,
 		disabled = false,
@@ -13,7 +22,7 @@
 		disabled?: boolean;
 	} = $props();
 
-	let value = $state<"vertical" | "horizontal" | "both">("vertical");
+	let value = $state<CropMode>("vertical");
 
 	async function init() {
 		if (setting.id) {
@@ -21,24 +30,24 @@
 			if (stored === "vertical" || stored === "horizontal" || stored === "both") {
 				value = stored;
 			} else if (setting.value) {
-				value = setting.value as "vertical" | "horizontal" | "both";
+				value = setting.value as CropMode;
 			}
 		} else if (setting.value) {
-			value = setting.value as "vertical" | "horizontal" | "both";
+			value = setting.value as CropMode;
 		}
 	}
 	init();
 
 	$effect(() => {
 		if (!setting.id && setting.value !== undefined) {
-			value = setting.value as "vertical" | "horizontal" | "both";
+			value = setting.value as CropMode;
 		}
 	});
 
 	const name = $derived(setting.name || "Crop Direction");
 	const description = $derived(setting.description || "Choose direction for black bar removal.");
 
-	async function selectMode(mode: "vertical" | "horizontal" | "both") {
+	async function selectMode(mode: CropMode) {
 		if (disabled) return;
 		value = mode;
 		if (setting.id) {
@@ -53,75 +62,36 @@
 <div class="styleshift-blackbars-options-container">
 	<Description {name} {description} />
 
-	<div class="styleshift-blackbars-grid">
-		<!-- Vertical Option -->
-		<button
-			type="button"
-			class="styleshift-blackbars-card"
-			class:selected={value === "vertical"}
-			class:disabled
-			onclick={() => selectMode("vertical")}
-		>
-			<div class="styleshift-blackbars-preview vertical-crop">
-				<div class="bar bar-top"></div>
-				<div class="content-area">
-					<svg viewBox="0 0 24 24" width="16" height="16" fill="currentColor">
-						<path d="M8 5v14l11-7z" />
-					</svg>
+	<div class="styleshift-blackbars-grid" role="radiogroup" aria-label={name}>
+		{#each OPTIONS as option (option.id)}
+			<button
+				type="button"
+				class="styleshift-blackbars-card"
+				class:selected={value === option.id}
+				class:disabled
+				role="radio"
+				aria-checked={value === option.id}
+				aria-label={option.label}
+				onclick={() => selectMode(option.id)}
+			>
+				<div class="preview" data-mode={option.id}>
+					{#each option.bars as side (side)}
+						<span class="bar bar-{side}"></span>
+					{/each}
 				</div>
-				<div class="bar bar-bottom"></div>
-			</div>
-			<div class="card-label">
-				<span>Vertical</span>
-			</div>
-		</button>
 
-		<!-- Horizontal Option (Experimental) -->
-		<button
-			type="button"
-			class="styleshift-blackbars-card"
-			class:selected={value === "horizontal"}
-			class:disabled
-			onclick={() => selectMode("horizontal")}
-		>
-			<div class="styleshift-blackbars-preview horizontal-crop">
-				<div class="bar bar-left"></div>
-				<div class="content-area">
-					<svg viewBox="0 0 24 24" width="16" height="16" fill="currentColor">
-						<path d="M8 5v14l11-7z" />
-					</svg>
+				<div class="card-label">
+					<span>{option.label}</span>
+					{#if option.experimental}<span class="experimental-badge">Experimental</span>{/if}
 				</div>
-				<div class="bar bar-right"></div>
-			</div>
-			<div class="card-label">
-				<span>Horizontal</span>
-				<span class="experimental-badge">Experimental</span>
-			</div>
-		</button>
 
-		<!-- Both Option -->
-		<button
-			type="button"
-			class="styleshift-blackbars-card"
-			class:selected={value === "both"}
-			class:disabled
-			onclick={() => selectMode("both")}
-		>
-			<div class="styleshift-blackbars-preview both-crop">
-				<div class="bar bar-top"></div>
-				<div class="bar bar-bottom"></div>
-				<div class="bar bar-left"></div>
-				<div class="bar bar-right"></div>
-				<div class="content-area">
-					<svg viewBox="0 0 24 24" width="16" height="16" fill="currentColor">
-						<path d="M8 5v14l11-7z" />
+				<span class="check" aria-hidden="true">
+					<svg viewBox="0 0 24 24" width="13" height="13" fill="none" stroke="currentColor" stroke-width="3.5">
+						<path d="M5 13l4 4L19 7" stroke-linecap="round" stroke-linejoin="round" />
 					</svg>
-				</div>
-			</div>
-			<div class="card-label">
-				<span>Both</span>
-			</div>
-		</button>
+				</span>
+			</button>
+		{/each}
 	</div>
 </div>
 
@@ -141,6 +111,7 @@
 	}
 
 	.styleshift-blackbars-card {
+		position: relative;
 		display: flex;
 		flex-direction: column;
 		align-items: center;
@@ -150,19 +121,31 @@
 		border-radius: 12px;
 		padding: 10px;
 		cursor: pointer;
-		transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1);
 		outline: none;
+		transition:
+			transform 0.25s cubic-bezier(0.34, 1.56, 0.64, 1),
+			border-color 0.25s ease,
+			background 0.25s ease,
+			box-shadow 0.25s ease;
 
 		&:hover:not(.disabled) {
-			border-color: rgba(255, 255, 255, 0.3);
-			transform: translateY(-2px);
+			border-color: var(--fg-opacity-30);
 			background: var(--bg-overlay-30);
+			transform: translateY(-3px);
+		}
+
+		&:focus-visible {
+			border-color: var(--theme-0);
+			box-shadow: 0 0 0 2px var(--theme-0-20);
 		}
 
 		&.selected {
-			border-color: rgba(255, 255, 255, 0.8);
-			background: rgba(255, 255, 255, 0.15);
-			box-shadow: 0 0 12px rgba(255, 255, 255, 0.2);
+			border-color: var(--theme-0);
+			background: var(--theme-0-10);
+			box-shadow:
+				0 0 0 1px var(--theme-0-30),
+				0 8px 20px var(--shadow-color);
+			animation: card-pop 0.4s cubic-bezier(0.34, 1.56, 0.64, 1);
 
 			.card-label span {
 				color: var(--text-primary);
@@ -176,63 +159,64 @@
 		}
 	}
 
-	.styleshift-blackbars-preview {
+	.preview {
 		position: relative;
 		width: 100%;
 		aspect-ratio: 16 / 9;
-		background: #111;
 		border-radius: 6px;
 		overflow: hidden;
-		display: flex;
-		align-items: center;
-		justify-content: center;
-		box-shadow: inset 0 0 4px rgba(0, 0, 0, 0.8);
+		background: var(--bg-overlay-60);
+		box-shadow: inset 0 0 6px rgba(0, 0, 0, 0.6);
+	}
 
-		.content-area {
-			display: flex;
-			align-items: center;
-			justify-content: center;
-			color: rgba(255, 255, 255, 0.7);
-			z-index: 1;
+	.bar {
+		position: absolute;
+		z-index: 2;
+		background: var(--theme-error-30);
+		border: 1px dashed var(--theme-error);
+
+		&.bar-top {
+			top: 0;
+			left: 0;
+			right: 0;
+			height: 24%;
+			border-width: 0 0 1px 0;
+			animation: crop-vertical 3.2s ease-in-out infinite;
 		}
 
-		.bar {
-			position: absolute;
-			background: rgba(255, 68, 68, 0.6);
-			backdrop-filter: blur(1px);
-			z-index: 2;
+		&.bar-bottom {
+			bottom: 0;
+			left: 0;
+			right: 0;
+			height: 24%;
+			border-width: 1px 0 0 0;
+			animation: crop-vertical 3.2s ease-in-out infinite;
+		}
 
-			&.bar-top {
-				top: 0;
-				left: 0;
-				right: 0;
-				height: 22%;
-				border-bottom: 1px dashed rgba(255, 255, 255, 0.5);
-			}
+		&.bar-left {
+			top: 0;
+			left: 0;
+			bottom: 0;
+			width: 24%;
+			border-width: 0 1px 0 0;
+			animation: crop-horizontal 3.2s ease-in-out infinite;
+		}
 
-			&.bar-bottom {
-				bottom: 0;
-				left: 0;
-				right: 0;
-				height: 22%;
-				border-top: 1px dashed rgba(255, 255, 255, 0.5);
-			}
+		&.bar-right {
+			top: 0;
+			right: 0;
+			bottom: 0;
+			width: 24%;
+			border-width: 0 0 0 1px;
+			animation: crop-horizontal 3.2s ease-in-out infinite;
+		}
+	}
 
-			&.bar-left {
-				top: 0;
-				left: 0;
-				bottom: 0;
-				width: 22%;
-				border-right: 1px dashed rgba(255, 255, 255, 0.5);
-			}
-
-			&.bar-right {
-				top: 0;
-				right: 0;
-				bottom: 0;
-				width: 22%;
-				border-left: 1px dashed rgba(255, 255, 255, 0.5);
-			}
+	.styleshift-blackbars-card:hover:not(.disabled) {
+		.preview {
+			box-shadow:
+				inset 0 0 6px rgba(0, 0, 0, 0.6),
+				0 0 0 1px var(--fg-opacity-20);
 		}
 	}
 
@@ -247,6 +231,7 @@
 			font-size: 12px;
 			color: var(--fg-opacity-80);
 			font-weight: 500;
+			transition: color 0.25s ease;
 		}
 	}
 
@@ -260,5 +245,75 @@
 		color: var(--theme-warning) !important;
 		text-transform: uppercase;
 		letter-spacing: 0.5px;
+	}
+
+	.check {
+		position: absolute;
+		top: 8px;
+		right: 8px;
+		width: 20px;
+		height: 20px;
+		display: flex;
+		align-items: center;
+		justify-content: center;
+		border-radius: 50%;
+		color: var(--text-primary);
+		background: var(--theme-0);
+		box-shadow: 0 2px 8px var(--shadow-color);
+		opacity: 0;
+		transform: scale(0.4);
+		transition:
+			opacity 0.2s ease,
+			transform 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
+	}
+
+	.styleshift-blackbars-card.selected .check {
+		opacity: 1;
+		transform: scale(1);
+	}
+
+	@keyframes crop-vertical {
+		0%,
+		100% {
+			height: 24%;
+			opacity: 1;
+		}
+		50% {
+			height: 10%;
+			opacity: 1;
+		}
+	}
+
+	@keyframes crop-horizontal {
+		0%,
+		100% {
+			width: 24%;
+			opacity: 1;
+		}
+		50% {
+			width: 10%;
+			opacity: 1;
+		}
+	}
+
+	@keyframes card-pop {
+		0% {
+			transform: scale(1);
+		}
+		45% {
+			transform: scale(1.03);
+		}
+		100% {
+			transform: scale(1);
+		}
+	}
+
+	@media (prefers-reduced-motion: reduce) {
+		.styleshift-blackbars-card,
+		.bar,
+		.check {
+			transition: none !important;
+			animation: none !important;
+		}
 	}
 </style>
