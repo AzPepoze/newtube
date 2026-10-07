@@ -3,6 +3,7 @@ a.thumbnail > .ytcd-basic-item-large-image,
 ytcp-thumbnail-with-title,
 ytd-playlist-thumbnail,
 ytd-thumbnail:not(.player-container-background-image),
+yt-thumbnail-view-model,
 .thumbnail-container.ytd-notification-renderer,
 yt-img-shadow.ytd-channel-renderer,
 #author-thumbnail.ytd-commesimplebox-renderer,
@@ -11,6 +12,7 @@ div.html5-video-player:not(.ytp-fullscreen) .html5-video-container,
 .ytp-preview:not(.ytp-text-detail) span.ytp-tooltip-text-no-title,
 ytd-thumbnail-overlay-side-panel-renderer,
 ytd-thumbnail-overlay-bottom-panel-renderer,
+yt-thumbnail-bottom-overlay-view-model,
 .ytp-popup.ytp-settings-menu,
 .iv-drawer,
 .ytp-cards-teaser-box,
@@ -52,21 +54,25 @@ yt-confirm-dialog-renderer[dialog],
 ytd-compact-playlist-renderer:hover>div>ytd-playlist-thumbnail,
 ytd-compact-video-renderer:hover>div>ytd-thumbnail,
 ytd-compact-radio-renderer:hover>div>ytd-thumbnail,
-ytd-thumbnail.ytd-rich-grid-media:hover
+ytd-thumbnail.ytd-rich-grid-media:hover,
+yt-lockup-view-model:hover,
+yt-lockup-view-model:hover yt-thumbnail-view-model
 {   
 	outline: solid;
 	outline-color: var(--nt-hover-color) !important;
 	outline-width: var(--nt-hover-border-width) !important;
 }
 
-ytd-thumbnail.ytd-rich-grid-media:active
+ytd-thumbnail.ytd-rich-grid-media:active,
+yt-lockup-view-model:active
 {   
 	box-shadow: var(--nt-border-minus) 0 var(--nt-click-color), 0 var(--nt-border-width) var(--nt-click-color), var(--nt-border-width) 0 var(--nt-click-color), 0 var(--nt-border-minus) var(--nt-click-color) !important;
 }
 
 ytd-compact-playlist-renderer:active>div>ytd-playlist-thumbnail,
 ytd-compact-video-renderer:active>div>ytd-thumbnail,
-ytd-compact-radio-renderer:active>div>ytd-thumbnail
+ytd-compact-radio-renderer:active>div>ytd-thumbnail,
+yt-lockup-view-model:active
 {
 	outline: var(--nt-border-width) solid var(--nt-click-color) !important;
 }

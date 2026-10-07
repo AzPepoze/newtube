@@ -16,8 +16,7 @@
 			"@ui/*": ["../src/ui/*"],
 			"@settings/*": ["../src/settings/*"],
 			"@extensions/*": ["../src/extensions/*"],
-			"@shared/*": ["../src/shared/*"],
-			"@functions/*": ["../src/core/shared/extensionHelpers.ts"]
+			"@shared/*": ["../src/shared/*"]
 		}
 	},
 	"include": ["../src/core/shared/extensionHelpers.ts"],

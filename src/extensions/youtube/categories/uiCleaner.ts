@@ -39,7 +39,8 @@ export const uiCleanerCategory: Category = {
 			description: "Removes the background from the channel banner header.",
 			value: true,
 			enableCss: `
-                #page-header-container.ytd-tabbed-page-header {
+                #page-header-container.ytd-tabbed-page-header,
+                yt-page-header-view-model {
                     background: transparent !important;
                 }
             `,

@@ -101,7 +101,7 @@
 		gap: 7px;
 
 		:global(.styleshift-description-icon) {
-			filter: brightness(0) invert(1);
+			filter: var(--icon-filter);
 		}
 	}
 

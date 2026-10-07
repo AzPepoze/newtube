@@ -40,6 +40,7 @@
 	--font-color-dim: rgba(255, 255, 255, 0.5);
 	--border-color: rgba(255, 255, 255, 0.08);
 	--shadow-color: rgba(0, 0, 0, 0.5);
+	--icon-filter: brightness(0) invert(1);
 
 	/* --- Content / Foreground Opacity Scale --- */
 	--fg-opacity-02: rgba(255, 255, 255, 0.02);
@@ -48,6 +49,7 @@
 	--fg-opacity-06: rgba(255, 255, 255, 0.06);
 	--fg-opacity-08: rgba(255, 255, 255, 0.08);
 	--fg-opacity-10: rgba(255, 255, 255, 0.1);
+	--fg-opacity-12: rgba(255, 255, 255, 0.12);
 	--fg-opacity-15: rgba(255, 255, 255, 0.15);
 	--fg-opacity-17: rgba(255, 255, 255, 0.17);
 	--fg-opacity-20: rgba(255, 255, 255, 0.2);
@@ -159,6 +161,7 @@
 	--font-color-dim: rgba(0, 0, 0, 0.5);
 	--border-color: rgba(0, 0, 0, 0.08);
 	--shadow-color: rgba(0, 0, 0, 0.1);
+	--icon-filter: none;
 
 	/* Full Foreground Opacity Scale for Light Mode (Dark values) */
 	--fg-opacity-02: rgba(0, 0, 0, 0.02);
@@ -167,6 +170,7 @@
 	--fg-opacity-06: rgba(0, 0, 0, 0.06);
 	--fg-opacity-08: rgba(0, 0, 0, 0.08);
 	--fg-opacity-10: rgba(0, 0, 0, 0.05);
+	--fg-opacity-12: rgba(0, 0, 0, 0.12);
 	--fg-opacity-15: rgba(0, 0, 0, 0.1);
 	--fg-opacity-17: rgba(0, 0, 0, 0.12);
 	--fg-opacity-20: rgba(0, 0, 0, 0.1);

@@ -8,7 +8,6 @@ export const esbuildAliases = {
 	"@settings": path.join(SRC, "settings"),
 	"@extensions": path.join(SRC, "extensions"),
 	"@shared": path.join(SRC, "shared"),
-	"@functions": path.join(SRC, "core/shared/extensionHelpers.ts"),
 };
 
 export const esbuildLoaders = {

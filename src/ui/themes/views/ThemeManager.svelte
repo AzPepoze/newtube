@@ -294,7 +294,7 @@
 		container-type: inline-size;
 		width: 100%;
 		height: 100%;
-		min-height: 520px;
+		min-height: 0;
 		position: relative;
 		overflow: hidden;
 	}
@@ -329,6 +329,7 @@
 		overflow-y: auto;
 		padding-right: 5px;
 		flex: 1;
+		min-height: 0;
 
 		&::-webkit-scrollbar {
 			width: 6px;

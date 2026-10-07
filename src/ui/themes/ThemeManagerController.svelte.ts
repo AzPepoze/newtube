@@ -1,3 +1,4 @@
+import { logger } from "@/shared/logger";
 import { SvelteMap, SvelteSet } from "svelte/reactivity";
 import { enterPrompt } from "@core/shared/dialogs";
 import { createNotification } from "@core/shared/notifications";
@@ -190,7 +191,7 @@ export class ThemeManagerController {
 				this.availableTags = await res.json();
 			}
 		} catch (e) {
-			console.error("Failed to fetch store tags", e);
+			logger.error("store", "Failed to fetch store tags", e);
 		}
 	}
 
@@ -237,7 +238,7 @@ export class ThemeManagerController {
 				this.storeError = await parseResponseError(res);
 			}
 		} catch (e) {
-			console.error("Store fetch failed", e);
+			logger.error("store", "Store fetch failed", e);
 			this.storeError = e instanceof Error && e.message ? e.message : "Check your connection and try again.";
 		} finally {
 			this.isLoadingStore = false;
@@ -273,7 +274,7 @@ export class ThemeManagerController {
 				this.storeError = await parseResponseError(res);
 			}
 		} catch (e) {
-			console.error("Store page fetch failed", e);
+			logger.error("store", "Store page fetch failed", e);
 			this.storeError = e instanceof Error && e.message ? e.message : "Check your connection and try again.";
 		} finally {
 			this.isLoadingStore = false;

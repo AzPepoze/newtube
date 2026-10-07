@@ -156,7 +156,7 @@
 		&:hover:not(.selected):not(.is-header) {
 			background: var(--fg-opacity-10);
 			margin-left: 5px;
-			color: white;
+			color: var(--font-color);
 		}
 
 		&:active:not(.is-header) {

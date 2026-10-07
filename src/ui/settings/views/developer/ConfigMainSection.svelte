@@ -1,7 +1,7 @@
 <script lang="ts">
 	import { logger } from "@/shared/logger";
 	import { settingsUi } from "../../settingsApi";
-	import { applyPropertyUpdate as applyUpdate } from "./handler";
+	import { applyPropertyUpdate as applyUpdate } from "../../handler";
 
 	let { setting, props, updateUi = () => {} } = $props();
 

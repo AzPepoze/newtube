@@ -26,11 +26,13 @@
 		}
 	});
 	function handleKeyDown(e: KeyboardEvent) {
-		if (e.key === "Escape") {
+		if (e.key === "Escape" && isOpen) {
 			onClose();
 		}
 	}
 </script>
+
+<svelte:window onkeydown={handleKeyDown} />
 
 {#if isOpen && mounted}
 	<div
@@ -47,7 +49,6 @@
 			style="width: {width};"
 			transition:scale={{ duration: 300, start: 0.9, easing: backOut }}
 			onclick={(e) => e.stopPropagation()}
-			onkeydown={(e) => e.stopPropagation()}
 			role="presentation"
 		>
 			{@render children()}
@@ -67,7 +68,7 @@
 		display: flex;
 		justify-content: center;
 		align-items: center;
-		z-index: 20000;
+		z-index: 1000000;
 	}
 
 	.styleshift-modal-content {
@@ -81,5 +82,7 @@
 		flex-direction: column;
 		gap: 20px;
 		box-shadow: 0 20px 50px var(--shadow-color);
+		max-height: 90vh;
+		overflow: auto;
 	}
 </style>

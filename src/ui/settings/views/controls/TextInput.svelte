@@ -87,7 +87,7 @@
 	.styleshift-input {
 		width: -webkit-fill-available;
 		background: var(--text-editor-bg);
-		color: white;
+		color: var(--font-color);
 		border-radius: 20px;
 		padding: 10px 20px;
 		font-family: inherit;

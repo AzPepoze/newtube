@@ -2,6 +2,7 @@ export const accentIntegrationCss = `
 .ytp-menuitem-icon path:not([fill="none"]),
 .ytd-thumbnail-overlay-hover-text-renderer path,
 .ytd-thumbnail-overlay-bottom-panel-renderer path,
+yt-thumbnail-bottom-overlay-view-model path,
 .ytSearchboxComponentInnerSearchIcon path,
 svg path[fill="#FF0000"],
 svg [fill="#FF0000"],
@@ -90,6 +91,7 @@ yt-list-item-view-model > div:hover,
 }
 
 #progress.ytd-thumbnail-overlay-resume-playback-renderer,
+#progress.yt-thumbnail-overlay-badge-view-model,
 .ytProgressBarLineProgressBarPlayed {
 	background: linear-gradient(-70deg, var(--nt-theme-color), var(--nt-theme-transparent) ) !important;
 }
@@ -112,7 +114,7 @@ yt-chip-cloud-chip-renderer[selected] #chip-container {
 	color: var(--nt-theme-color) !important;
 }
 
-ytd-author-commebadge-renderer,
+ytd-author-comment-badge-renderer,
 yt-dynamic-text-view-model{
 	background: var(--nt-theme-accent) !important;
 }

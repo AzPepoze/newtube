@@ -21,9 +21,16 @@ export const WATCH_DETAILS_SELECTOR = "#below";
 export const WATCH_SIDEBAR_SELECTOR = "#secondary";
 export const TOP_LEFT_ICON_SELECTOR = "ytd-masthead ytd-topbar-logo-renderer";
 export const COLOR_THEME_SELECTOR = "ytd-app";
-export const FONT_SELECTOR = "ytd-watch-metadata #title h1 yt-formatted-string";
+export const FONT_SELECTOR = "#video-title, ytd-watch-metadata #title h1 yt-formatted-string";
 export const SCROLLBAR_SELECTOR = "ytd-app";
 export const BACKGROUND_SELECTOR = "ytd-app";
 export const SIDEBAR_SELECTOR = "#guide-content, ytd-mini-guide-renderer";
 export const THUMBNAIL_SELECTOR = "ytd-playlist-thumbnail, yt-thumbnail-view-model";
+export const THUMBNAIL_TIME_SELECTORS = [
+	"ytd-thumbnail-overlay-time-status-renderer",
+	"ytd-thumbnail-overlay-bottom-panel-renderer",
+	"yt-thumbnail-bottom-overlay-view-model",
+	"yt-thumbnail-overlay-badge-view-model",
+];
+export const THUMBNAIL_TIME_SELECTOR = THUMBNAIL_TIME_SELECTORS.join(", ");
 export const SEARCH_SELECTOR = "ytd-masthead yt-searchbox, ytd-masthead ytd-searchbox";

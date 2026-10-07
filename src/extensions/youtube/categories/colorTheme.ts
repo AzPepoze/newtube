@@ -106,9 +106,11 @@ export const colorThemeCategory: Category = {
 			constantCss: `
                 ytd-watch-flexy,
                 #video-title,
+                ytd-watch-metadata #title h1 yt-formatted-string,
                 .ytLockupMetadataViewModelTitle,
                 .ytd-video-primary-info-renderer,
-                .ytd-video-secondary-info-renderer {
+                .ytd-video-secondary-info-renderer,
+                ytd-watch-metadata {
                     color: var(--nt-text-primary) !important;
                 }
             `,
@@ -123,8 +125,10 @@ export const colorThemeCategory: Category = {
 			constantCss: `
                 #metadata-line,
                 .ytd-video-meta-block,
+                yt-content-metadata-view-model,
                 #description-text,
                 .ytd-comment-renderer,
+                ytd-comment-view-model,
                 .yt-formatted-string[is-empty] {
                     color: var(--nt-text-secondary) !important;
                 }
@@ -151,7 +155,8 @@ export const colorThemeCategory: Category = {
 			value: "#ffffffff",
 			varCss: "--nt-text-timestamp",
 			constantCss: `
-                ytd-thumbnail-overlay-time-status-renderer {
+                ytd-thumbnail-overlay-time-status-renderer,
+                yt-thumbnail-bottom-overlay-view-model {
                     color: var(--nt-text-timestamp) !important;
                 }
             `,

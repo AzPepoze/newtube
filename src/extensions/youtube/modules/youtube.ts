@@ -253,7 +253,7 @@ function notifyListeners<T>(listeners: ((value: T) => void)[], value: T, label: 
 		try {
 			callback(value);
 		} catch (error) {
-			console.error(`Error in YouTube ${label} listener:`, error);
+			logger.error("youtube", `Error in YouTube ${label} listener:`, error);
 		}
 	});
 }

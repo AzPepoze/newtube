@@ -4,6 +4,7 @@
 	import { NEWTUBE_STORE_THEMES_URL } from "@extensions/youtube/constants";
 	import Button from "@controls/Button.svelte";
 	import Icon from "@base/Icon.svelte";
+	import { logger } from "@shared/logger";
 	import CapsuleTabs from "@ui/window/views/CapsuleTabs.svelte";
 	import { onMount } from "svelte";
 	import { fade, scale } from "svelte/transition";
@@ -78,7 +79,7 @@
 				const base64 = btoa(encodeURIComponent(jsonStr));
 				url = `${baseUrl}?data=${base64}`;
 			} catch (e) {
-				console.error("Failed to encode theme preview payload", e);
+				logger.error("Theme", "Failed to encode theme preview payload", e);
 				url = baseUrl;
 			}
 		}
@@ -110,7 +111,7 @@
 				"*",
 			);
 		} catch (e) {
-			console.warn("Could not postMessage to preview iframe", e);
+			logger.warn("Theme", "Could not postMessage to preview iframe", e);
 		}
 	}
 
@@ -271,7 +272,7 @@
 		inset: 0;
 		width: 100vw;
 		height: 100vh;
-		z-index: 999999;
+		z-index: 900000;
 		background: var(--bg-overlay-60);
 		backdrop-filter: blur(16px);
 		display: flex;

@@ -31,6 +31,8 @@
 		left: 50%;
 		transform: translateX(-50%);
 		height: 50px;
+		max-width: calc(100vw - 40px);
+		overflow-x: auto;
 		background: var(--bg-overlay-60);
 		backdrop-filter: blur(10px);
 		border: 1px solid var(--fg-opacity-10);
@@ -58,6 +60,7 @@
 		transition: all 0.2s;
 		pointer-events: auto;
 		white-space: nowrap;
+		flex-shrink: 0;
 
 		&:hover {
 			background: var(--fg-opacity-10);

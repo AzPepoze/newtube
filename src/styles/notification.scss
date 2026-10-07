@@ -40,7 +40,7 @@
 	.styleshift-notification-container {
 		right: 0;
 		position: absolute;
-		width: 400px;
+		width: min(400px, calc(100% - 40px));
 		height: 100%;
 		pointer-events: none;
 		display: flex;

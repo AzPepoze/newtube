@@ -1,5 +1,4 @@
 import { sequencedTask } from "@/core/shared/utilities";
-import {} from "@core/shared/domHelpers";
 import { applyDrag } from "@core/shared/eventHelpers";
 import { getRootValue } from "@core/storage/manager";
 import { triggerSettingUpdate } from "@settings/engine/functions";
@@ -7,7 +6,7 @@ import { type Category, type CategoryNameWithIcon } from "@settings/types/styles
 import { settingsUi } from "@ui/settings/settingsApi";
 import { getCategoryParts } from "@ui/window/utils";
 import { mount, unmount } from "svelte";
-import { setupLeftTitleAnimation } from "../../settingsManager";
+import { setupLeftTitleAnimation } from "./settingsManager";
 
 import DropdownComponent from "@controls/Dropdown.svelte";
 import CodeEditorComponent from "@editor/CodeEditor.svelte";

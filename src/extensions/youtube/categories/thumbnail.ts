@@ -1,5 +1,11 @@
 import { type Category } from "@settings/types/styleshiftTypes";
-import { THUMBNAIL_DEFAULT_BADGE_SELECTOR, THUMBNAIL_LIVE_BADGE_SELECTOR, THUMBNAIL_SELECTOR } from "./selectors";
+import {
+	THUMBNAIL_DEFAULT_BADGE_SELECTOR,
+	THUMBNAIL_LIVE_BADGE_SELECTOR,
+	THUMBNAIL_SELECTOR,
+	THUMBNAIL_TIME_SELECTOR,
+	THUMBNAIL_TIME_SELECTORS,
+} from "./selectors";
 
 export const thumbnailCategory: Category = {
 	category: { icon: "image_search", label: "Thumbnail & Clip Cover" },
@@ -8,7 +14,7 @@ export const thumbnailCategory: Category = {
 		{
 			type: "numberSlide",
 			id: "ThumbnailTimeCornerRadius",
-			hoverPreview: { selectors: ["yt-thumbnail-bottom-overlay-view-model"] },
+			hoverPreview: { selectors: THUMBNAIL_TIME_SELECTORS },
 			name: "Time Corner Radius",
 			description: "Adjusts the corner roundness of the video duration timestamp shown on thumbnails.",
 			value: 10,
@@ -16,17 +22,17 @@ export const thumbnailCategory: Category = {
 			max: 30,
 			step: 1,
 			varCss: "--nt-timestamp-radius",
-			constantCss: `yt-thumbnail-bottom-overlay-view-model { border-radius: var(--nt-timestamp-radius, 10px) !important; }`,
+			constantCss: `${THUMBNAIL_TIME_SELECTOR} { border-radius: var(--nt-timestamp-radius, 10px) !important; }`,
 		},
 		{
 			type: "color",
 			id: "ThumbnailTimeBackgroundColor",
-			hoverPreview: { selectors: [THUMBNAIL_DEFAULT_BADGE_SELECTOR] },
+			hoverPreview: { selectors: ["ytd-thumbnail-overlay-time-status-renderer", THUMBNAIL_DEFAULT_BADGE_SELECTOR] },
 			name: "Time Background",
 			description: "Sets the background color of the duration timestamp on video thumbnails.",
 			value: "#00000080",
 			varCss: "--nt-timestamp-bg",
-			constantCss: `${THUMBNAIL_DEFAULT_BADGE_SELECTOR} { background-color: var(--nt-timestamp-bg, #00000080) !important; }`,
+			constantCss: `ytd-thumbnail-overlay-time-status-renderer, ${THUMBNAIL_DEFAULT_BADGE_SELECTOR} { background-color: var(--nt-timestamp-bg, #00000080) !important; }`,
 		},
 		{
 			type: "color",
@@ -51,9 +57,7 @@ export const thumbnailCategory: Category = {
 		{
 			type: "numberSlide",
 			id: "ThumbnailTimeHeight",
-			hoverPreview: {
-				selectors: ["yt-thumbnail-bottom-overlay-view-model", "yt-thumbnail-overlay-badge-view-model"],
-			},
+			hoverPreview: { selectors: THUMBNAIL_TIME_SELECTORS },
 			name: "Time Height",
 			description: "Adjusts the vertical size of the timestamp indicator.",
 			value: 20,
@@ -62,27 +66,19 @@ export const thumbnailCategory: Category = {
 			step: 1,
 			varCss: "--nt-timestamp-height",
 			unit: "px",
-			constantCss: `
-                yt-thumbnail-bottom-overlay-view-model,
-                yt-thumbnail-overlay-badge-view-model {
-                    height: var(--nt-timestamp-height, 12px) !important;
-                }
-            `,
+			constantCss: `${THUMBNAIL_TIME_SELECTOR} { height: var(--nt-timestamp-height, 12px) !important; }`,
 		},
 		{
 			type: "checkbox",
 			id: "ThumbnailTimeBorderEnabled",
-			hoverPreview: { selectors: ["yt-thumbnail-bottom-overlay-view-model", "yt-thumbnail-overlay-badge-view-model"] },
+			hoverPreview: { selectors: THUMBNAIL_TIME_SELECTORS },
 			name: "Time Borders",
 			description: "Applies borders or shadows to the thumbnail time indicator based on your global settings.",
 			value: true,
-			enableCss: `
-                yt-thumbnail-bottom-overlay-view-model,
-                yt-thumbnail-overlay-badge-view-model {
-                    box-shadow: var(--nt-global-shadow) !important;
-                    border: var(--nt-global-outline) !important;
-                }
-            `,
+			enableCss: `${THUMBNAIL_TIME_SELECTOR} {
+				box-shadow: var(--nt-global-shadow) !important;
+				border: var(--nt-global-outline) !important;
+			}`,
 		},
 		{
 			type: "checkbox",

@@ -2,11 +2,11 @@ import { rearrangeSelector } from "@core/shared/domHelpers";
 import { type Setting } from "@settings/types/styleshiftTypes";
 import { settingsUi } from "@ui/settings/settingsApi";
 
-import AddSettingButtonComponent from "./AddSettingButton.svelte";
-import ConfigMainSectionComponent from "./ConfigMainSection.svelte";
-import ConfigSubSectionComponent from "./ConfigSubSection.svelte";
-import DevSettingSectionComponent from "./DevSettingSection.svelte";
-import KeyboardShortcutsComponent from "./KeyboardShortcuts.svelte";
+import AddSettingButtonComponent from "./views/developer/AddSettingButton.svelte";
+import ConfigMainSectionComponent from "./views/developer/ConfigMainSection.svelte";
+import ConfigSubSectionComponent from "./views/developer/ConfigSubSection.svelte";
+import DevSettingSectionComponent from "./views/developer/DevSettingSection.svelte";
+import KeyboardShortcutsComponent from "./views/developer/KeyboardShortcuts.svelte";
 
 export async function settingDeveloperTextEditor(
 	parent: HTMLElement,

@@ -2,7 +2,7 @@
 	import { createSettingPreset, isSettingKind } from "@settings/registry/defaultItems";
 	import { addSetting } from "@settings/registry/items";
 	import Button from "../controls/Button.svelte";
-	import * as mainSettingUi from "../controls/controls";
+	import * as mainSettingUi from "../../controls";
 	import Dropdown from "../controls/Dropdown.svelte";
 
 	let { categorySettings } = $props();

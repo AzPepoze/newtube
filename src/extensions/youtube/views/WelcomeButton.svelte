@@ -64,7 +64,7 @@
 
 	button.highlight {
 		color: white;
-		border-color: var(--theme-0-Light);
+		border-color: var(--theme-0-light);
 		background: var(--theme-0);
 		box-shadow: 0 15px 42px var(--theme-0-40);
 	}
@@ -85,7 +85,7 @@
 	}
 
 	button.highlight:hover {
-		background: var(--theme-0-Light);
+		background: var(--theme-0-light);
 	}
 	button.secondary:hover {
 		color: white;
@@ -96,7 +96,7 @@
 		transition-duration: 0.08s;
 	}
 	button:focus-visible {
-		outline: 3px solid var(--theme-0-Light);
+		outline: 3px solid var(--theme-0-light);
 		outline-offset: 5px;
 	}
 

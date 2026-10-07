@@ -1,8 +1,8 @@
 import { saveToStorage } from "@core/storage/manager";
 import type { Setting } from "@settings/types/styleshiftTypes";
-import * as mainSettingUi from "./views/controls/controls";
-import * as developerSettingUi from "./views/developer/developer";
-import * as advanceSettingUi from "./views/base/base";
+import * as mainSettingUi from "./controls";
+import * as developerSettingUi from "./developer";
+import * as advanceSettingUi from "./base";
 import * as render from "./renderer";
 import * as windows from "./windows";
 

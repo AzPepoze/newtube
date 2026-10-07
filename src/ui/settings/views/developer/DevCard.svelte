@@ -56,7 +56,7 @@
 		padding: 14px 18px;
 		background: transparent;
 		border: none;
-		color: white;
+		color: var(--font-color);
 		cursor: pointer;
 		font-weight: 600;
 		font-size: 14px;

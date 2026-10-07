@@ -1,5 +1,6 @@
 <script lang="ts">
 	import { refreshExtensionState } from "@core/index";
+	import { logger } from "@/shared/logger";
 	import type { Setting } from "@settings/types/styleshiftTypes";
 	import CapsuleTabs from "@ui/window/views/CapsuleTabs.svelte";
 	import { fade, fly } from "svelte/transition";
@@ -82,7 +83,7 @@
 							try {
 								(setting as any).options = JSON.parse(val);
 							} catch (_e) {
-								console.error("Invalid JSON for options");
+								logger.error("config", "Invalid JSON for options");
 							}
 						},
 					],

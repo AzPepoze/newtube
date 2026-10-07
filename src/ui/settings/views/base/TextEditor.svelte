@@ -25,7 +25,7 @@
 		min-height: 100px;
 		background: var(--fg-opacity-05);
 		border: 1px solid var(--fg-opacity-10);
-		color: white;
+		color: var(--font-color);
 		border-radius: 8px;
 		padding: 10px;
 		font-family: "Fira Code", monospace;

@@ -273,7 +273,7 @@
 	.styleshift-file-name {
 		font-size: 13px;
 		font-weight: 600;
-		color: white;
+		color: var(--font-color);
 		background: var(--fg-opacity-05);
 		padding: 8px 20px;
 		border-radius: 20px;
@@ -354,7 +354,7 @@
 		background: var(--bg-overlay-30);
 		border: 1px grey solid;
 		border-radius: 20px;
-		color: white;
+		color: var(--font-color);
 		font-size: 13px;
 		outline: none;
 		transition: all 0.2s;

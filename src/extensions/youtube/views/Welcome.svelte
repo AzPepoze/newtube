@@ -267,7 +267,7 @@
 		padding: 5px 8px;
 		border: 1px solid var(--theme-0-30);
 		border-radius: 6px;
-		color: var(--theme-0-Text);
+		color: var(--theme-0-text);
 		background: var(--theme-0-15);
 		font:
 			700 12px ui-monospace,

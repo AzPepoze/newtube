@@ -6,7 +6,7 @@
 	import { fade, fly } from "svelte/transition";
 	import { settingsUi } from "../../settingsApi";
 	import DevCard from "./DevCard.svelte";
-	import { handleLogicUpdate } from "./handler";
+	import { handleLogicUpdate } from "../../handler";
 
 	let { setting, runType, extArray = ["function", "css"], onUpdateConfig, isWorkspace = false } = $props();
 
