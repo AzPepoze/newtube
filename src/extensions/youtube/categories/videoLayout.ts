@@ -67,7 +67,9 @@ export const videoLayoutCategory: Category = {
 			step: 10,
 			varCss: "--nt-playlist-height-normal",
 			constantCss: `
-				#items.ytd-playlist-panel-renderer {
+				#items.ytd-playlist-panel-renderer,
+				#container.ytd-playlist-panel-renderer,
+				ytd-playlist-panel-renderer#playlist {
 					max-height: var(--nt-playlist-height-normal, 600px) !important;
 				}
     		`,
@@ -83,7 +85,9 @@ export const videoLayoutCategory: Category = {
 			step: 10,
 			varCss: "--nt-playlist-height-theater",
 			constantCss: `
-				ytd-watch-flexy[theater] #items.ytd-playlist-panel-renderer {
+				ytd-watch-flexy[theater] #items.ytd-playlist-panel-renderer,
+				ytd-watch-flexy[theater] #container.ytd-playlist-panel-renderer,
+				ytd-watch-flexy[theater] ytd-playlist-panel-renderer#playlist {
 					max-height: var(--nt-playlist-height-theater, 800px) !important;
 				}
     		`,

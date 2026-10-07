@@ -10,15 +10,6 @@ export const videoPlayerCategory: Category = {
 	selector: PLAYER_SELECTOR,
 	settings: [
 		{
-			type: "checkbox",
-			id: "RemoveVideoPlayerBackground",
-			name: "Remove Player Background",
-			description:
-				"Makes the video player's base background transparent. Essential for seeing custom page backgrounds and 'Video Ambient' effects behind the player.",
-			value: true,
-			enableCss: `.html5-video-player { background: transparent !important; }`,
-		},
-		{
 			type: "numberSlide",
 			id: "VideoPlayerCornerRadius",
 			name: "Player Roundness",
@@ -31,6 +22,9 @@ export const videoPlayerCategory: Category = {
 			varCss: "--nt-player-radius",
 			constantCss: `
 				.html5-video-player {
+					border-radius: var(--nt-player-radius, 20px) !important;
+				}
+				#movie_player .ytp-cued-thumbnail-overlay {
 					border-radius: var(--nt-player-radius, 20px) !important;
 				}
 			`,

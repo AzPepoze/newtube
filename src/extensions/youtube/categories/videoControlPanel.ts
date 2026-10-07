@@ -100,8 +100,8 @@ export const videoControlPanelCategory: Category = {
 			description: "Automatically hides the control bar when your mouse is not moving over the player.",
 			value: true,
 			disableCss: `
-                div.html5-video-player:not(.ytp-fullscreen):not(.ytp-embed):not(.ytp-livebadge-color):not(.ytp-live).ytp-autohide .ytp-gradient-bottom,
-                div.html5-video-player:not(.ytp-fullscreen):not(.ytp-embed):not(.ytp-livebadge-color):not(.ytp-live).ytp-autohide .ytp-chrome-bottom {
+                div.html5-video-player:not(.ytp-fullscreen):not(.ytp-embed):not(.ytp-live).ytp-autohide .ytp-gradient-bottom,
+                div.html5-video-player:not(.ytp-fullscreen):not(.ytp-embed):not(.ytp-live).ytp-autohide .ytp-chrome-bottom {
                     opacity: 1 !important;
                     pointer-events: auto !important;
                 }
@@ -235,10 +235,10 @@ export const videoControlPanelCategory: Category = {
 			description:
 				"Sets the background color for groups of buttons within the control bar, such as the play button or volume control.",
 			value: "#5bbdff20",
-			varCss: "--nt-theme-control-panel-button-group",
+			varCss: "--nt-player-button-group-bg",
 			constantCss: `
-				:root {
-					--yt-spec-overlay-background-medium-light: var(--nt-theme-control-panel-button-group) !important;
+				#movie_player {
+					--yt-spec-overlay-background-medium-light: var(--nt-player-button-group-bg) !important;
 				}
     		`,
 		},
@@ -251,7 +251,7 @@ export const videoControlPanelCategory: Category = {
 			value: "#5bbdff20",
 			varCss: "--nt-theme-control-panel-hover",
 			constantCss: `
-				:root {
+				#movie_player {
 					--yt-spec-overlay-button-secondary: var(--nt-theme-control-panel-hover) !important;
 				}
     		`,
@@ -263,7 +263,13 @@ export const videoControlPanelCategory: Category = {
 			name: "Popup Color",
 			description: "Customizes the background color for all in-player popups.",
 			value: "#00000080",
-			varCss: "--nt-timestamp-bg",
+			varCss: "--nt-player-popup-bg",
+			constantCss: `
+				#movie_player .ytp-popup,
+				#movie_player .ytp-settings-menu {
+					background-color: var(--nt-player-popup-bg) !important;
+				}
+			`,
 		},
 		{
 			type: "numberSlide",

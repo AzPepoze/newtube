@@ -175,7 +175,7 @@ export const animationCategory: Category = {
 					animation: fadeInRight 0.2s ease-out forwards;
 				}
 
-				.ytSearchboxComponentSuggestionsContainer {
+				.ytSearchboxComponentSuggestionsContainer:not([hidden]) {
 					opacity: 0;
 					display: block !important;
 					animation: fadeInUp 0.3s ease-out forwards;

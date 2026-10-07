@@ -4,6 +4,12 @@ import { registerSettingListener } from "@settings/engine/functions";
 import { createElement, ELEMENTS, getElement, hideElement, removeElement, showElement } from "./helpers";
 import { type IModeHandler } from "./types";
 
+// Shorts thumbnails are 16:9 letterboxes with baked-in black bars; use the vertical frame instead.
+function getThumbnailUrl(videoId: string): string {
+	const frame = window.location.pathname.startsWith("/shorts/") ? "oar2" : "maxresdefault";
+	return `https://i.ytimg.com/vi/${videoId}/${frame}.jpg`;
+}
+
 class ImageBackgroundMode implements IModeHandler {
 	private tintElement: HTMLElement | null = null;
 	private imageElement: HTMLElement | null = null;
@@ -52,7 +58,7 @@ class ImageBackgroundMode implements IModeHandler {
 		if (backgroundMode === "Thumbnail") {
 			const videoId = getYoutubeVideoId();
 			if (videoId) {
-				this.bgImage.src = `https://i.ytimg.com/vi/${videoId}/maxresdefault.jpg`;
+				this.bgImage.src = getThumbnailUrl(videoId);
 				return;
 			}
 		}
@@ -65,9 +71,9 @@ class ImageBackgroundMode implements IModeHandler {
 		if (!el || !this.bgImage.width) return;
 
 		const bgBound = el.getBoundingClientRect();
-		if (!bgBound.height) return;
+		if (!bgBound.width || !bgBound.height) return;
 
-		const imageBackgroundHeight = (this.bgImage.height / this.bgImage.width) * window.innerWidth;
+		const imageBackgroundHeight = (this.bgImage.height / this.bgImage.width) * bgBound.width;
 		const zoomValue = (await getUserSetting("BackgroundImageSize")) || 100;
 
 		el.style.backgroundSize =

@@ -45,7 +45,7 @@ function isMainVideo(video: HTMLVideoElement): boolean {
 	if (!video.isConnected || !isYoutubeVideoPage) return false;
 
 	const player = video.closest("ytd-player, .html5-video-player");
-	if (!player || player.id !== "movie_player") return false;
+	if (!player || (player.id !== "movie_player" && player.id !== "shorts-player")) return false;
 
 	const context = player.getAttribute("context") || "";
 	const className = player.className || "";
@@ -72,10 +72,16 @@ export async function getVideoElement(): Promise<HTMLVideoElement | null> {
 	const allVideos = Array.from(document.querySelectorAll("video"));
 	const candidates = allVideos.filter(isMainVideo);
 
-	// Prefer the movie_player if available
+	// Shorts renders the active player in #shorts-player; #movie_player is an empty placeholder there.
+	const isShorts = window.location.pathname.startsWith("/shorts/");
+	const activePlayerVideo = isShorts
+		? (document.querySelector("#shorts-player video") as HTMLVideoElement | null)
+		: (document.querySelector("#movie_player video") as HTMLVideoElement | null);
+
 	videoElement =
-		(document.querySelector("#movie_player video") as HTMLVideoElement) ||
+		activePlayerVideo ||
 		candidates.find((v) => v.closest("#movie_player")) ||
+		candidates.find((v) => v.closest("#shorts-player")) ||
 		candidates[0] ||
 		null;
 
