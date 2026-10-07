@@ -8,7 +8,7 @@ import {
 } from "./selectors";
 
 export const thumbnailCategory: Category = {
-	category: { icon: "image_search", label: "Thumbnail & Clip Cover" },
+	category: { icon: "image_search", label: "Thumbnail" },
 	selector: THUMBNAIL_SELECTOR,
 	settings: [
 		{
@@ -16,7 +16,7 @@ export const thumbnailCategory: Category = {
 			id: "ThumbnailTimeCornerRadius",
 			hoverPreview: { selectors: THUMBNAIL_TIME_SELECTORS },
 			name: "Time Corner Radius",
-			description: "Adjusts the corner roundness of the video duration timestamp shown on thumbnails.",
+			description: "Adjusts the corner roundness of the video duration timestamp on video and playlist thumbnails.",
 			value: 10,
 			min: 0,
 			max: 30,
@@ -131,7 +131,7 @@ export const thumbnailCategory: Category = {
 			id: "ThumbnailHoverOverlayEnabled",
 			hoverPreview: { selectors: ["ytd-thumbnail", "ytd-playlist-thumbnail", "yt-thumbnail-view-model"] },
 			name: "Hover Glow Effect",
-			description: "Adds a glowing border or shadow when you hover over a video thumbnail.",
+			description: "Adds a glowing border or shadow when you hover over a video or playlist thumbnail.",
 			value: true,
 			enableCss: `
                 ytd-thumbnail:hover,
@@ -198,7 +198,7 @@ export const thumbnailCategory: Category = {
 			id: "ThumbnailLoadAnimationEnabled",
 			hoverPreview: { selectors: ["yt-lockup-view-model", "ytd-video-renderer"] },
 			name: "Load Animation",
-			description: "Adds a smooth fade and lift effect when thumbnails first appear on the page.",
+			description: "Adds a smooth fade and lift effect when video thumbnails first appear on the page.",
 			value: true,
 			enableCss: `
 				@keyframes thumbnailXLoadAnimation {

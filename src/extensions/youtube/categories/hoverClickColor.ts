@@ -13,8 +13,15 @@ export const hoverClickColorCategory: Category = {
 			varCss: "--nt-hover-bg",
 			constantCss: `
                 .ytp-menuitem:hover,
-				#endpoint.yt-simple-endpoint.ytd-guide-entry-renderer:hover
-				{
+                .ytp-menuitem[aria-checked="true"]:hover,
+                #endpoint.yt-simple-endpoint.ytd-guide-entry-renderer:hover,
+                ytd-guide-entry-renderer:hover,
+                ytd-mini-guide-entry-renderer:hover,
+                ytd-compact-link-renderer:hover,
+                ytd-menu-service-item-renderer:hover,
+                ytd-multi-page-menu-section-renderer #items > *:hover,
+                tp-yt-paper-item:hover
+                {
                     background-color: var(--nt-hover-bg) !important;
                 }
             `,

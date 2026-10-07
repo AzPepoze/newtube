@@ -2,6 +2,24 @@ import { type Category } from "@settings/types/styleshiftTypes";
 import { disableTopLeftIconChanger, enableTopLeftIconChanger } from "../features/topLeftIcon";
 import { TOP_LEFT_ICON_SELECTOR } from "./selectors";
 
+// Restores the wordmark and play symbol to their native colors so the global
+// Accent Integration fill rule only recolors the play button.
+const LOGO_NATIVE_PARTS_CSS = `
+    #logo-icon svg [id^="youtube-paths"] path,
+    #logo-icon svg > g:nth-child(2) path {
+        fill: currentColor !important;
+    }
+    #logo-icon svg > g:first-child > path:nth-child(2) {
+        fill: #fff !important;
+    }
+`;
+
+const LOGO_PLAY_BUTTON_SELECTOR = `
+    #logo-icon svg > g:first-child > path:first-child,
+    #logo-icon svg path[fill="#FF0033"],
+    #logo-icon svg path[fill="#FF0000"]
+`;
+
 export const topLeftIconCategory: Category = {
 	category: { icon: "featured_video", label: "Top-Left Icon" },
 	selector: TOP_LEFT_ICON_SELECTOR,
@@ -44,13 +62,30 @@ export const topLeftIconCategory: Category = {
 			id: "EnableTopLeftIconSyncTheme",
 			name: "Sync Logo Color",
 			description:
-				"Makes the default YouTube logo match your main theme color. This setting is ignored if a 'Custom Logo' is enabled.",
+				"Makes the play button of the default YouTube logo match your main theme color. The play symbol and wordmark keep their native colors. This setting is ignored if a 'Custom Logo' is enabled.",
 			value: true,
 			enableCss: `
-                #logo-icon.ytd-topbar-logo-renderer .yt-spec-icon-shape-fill {
+                ${LOGO_NATIVE_PARTS_CSS}
+                ${LOGO_PLAY_BUTTON_SELECTOR} {
                     fill: var(--nt-theme-color, #FF0000) !important;
                 }
             `,
+			disableCss: `
+                ${LOGO_NATIVE_PARTS_CSS}
+                ${LOGO_PLAY_BUTTON_SELECTOR} {
+                    fill: var(--nt-logo-play-color, #FF0000) !important;
+                }
+            `,
+			require: { EnableCustomTopLeftIcon: false },
+		},
+		{
+			type: "color",
+			id: "TopLeftIconPlayTriangleColor",
+			name: "Logo Play Button Color",
+			description:
+				"Sets the color of the play button in the default YouTube logo when 'Sync Logo Color' is off. Defaults to YouTube red and stays independent of your main theme color.",
+			value: "#FF0000",
+			varCss: "--nt-logo-play-color",
 			require: { EnableCustomTopLeftIcon: false },
 		},
 		{

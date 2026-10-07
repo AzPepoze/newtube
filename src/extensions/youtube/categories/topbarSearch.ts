@@ -1,6 +1,8 @@
 import { type Category } from "@settings/types/styleshiftTypes";
 import { SEARCH_SELECTOR } from "./selectors";
 
+let topbarScrollHandler: (() => void) | null = null;
+
 export const topbarSearchCategory: Category = {
 	category: { icon: "search", label: "Topbar & Search" },
 	selector: SEARCH_SELECTOR,
@@ -15,9 +17,9 @@ export const topbarSearchCategory: Category = {
 			value: true,
 			enableFunction: function () {
 				const masthead = document.querySelector("#background.ytd-masthead") as HTMLElement;
-				if (!masthead) return;
+				if (!masthead || topbarScrollHandler) return;
 
-				const handleScroll = () => {
+				topbarScrollHandler = () => {
 					if (window.scrollY > 0) {
 						masthead.classList.add("scrolled");
 					} else {
@@ -25,7 +27,15 @@ export const topbarSearchCategory: Category = {
 					}
 				};
 
-				window.addEventListener("scroll", handleScroll);
+				window.addEventListener("scroll", topbarScrollHandler);
+			},
+			disableFunction: function () {
+				if (topbarScrollHandler) {
+					window.removeEventListener("scroll", topbarScrollHandler);
+					topbarScrollHandler = null;
+				}
+				const masthead = document.querySelector("#background.ytd-masthead") as HTMLElement;
+				if (masthead) masthead.classList.remove("scrolled");
 			},
 			enableCss: `
                 #masthead #background.ytd-masthead {
@@ -78,6 +88,16 @@ export const topbarSearchCategory: Category = {
 			description: "Sets the background highlight color when navigating through the search suggestion dropdown menu.",
 			value: "#ffffffff",
 			varCss: "--nt-search-bg-hover",
+			constantCss: `
+                .ytSuggestionComponentSuggestion:hover,
+                .ytSuggestionComponentSuggestion[aria-selected="true"],
+                .ytSuggestionComponentSuggestion [aria-selected="true"],
+                ytd-searchbox-spt .sbsb_c > li:hover,
+                ytd-searchbox-spt .sbsb_c > li[aria-selected="true"],
+                ytd-searchbox-spt .sbsb_c > li.selected {
+                    background-color: var(--nt-search-bg-hover) !important;
+                }
+            `,
 		},
 		{
 			type: "checkbox",

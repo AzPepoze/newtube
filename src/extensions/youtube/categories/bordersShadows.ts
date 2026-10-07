@@ -48,12 +48,21 @@ export const bordersShadowsCategory: Category = {
 		{
 			type: "color",
 			id: "GlobalBorderColor",
-			name: "Effect Color",
+			name: "Outline Color",
 			description:
-				"Sets the color for both the global outlines and the glow shadows. Best paired with your primary theme color.",
+				"Sets the color of the global outlines. It is also used as a fallback for the shadow glow when no Shadow Color is set.",
 			value: "#099DFF80",
 			varCss: "--nt-border-color",
 			require: { GlobalStyleType: ["Out", "Sha"] },
+		},
+		{
+			type: "color",
+			id: "ThemeShadowColor",
+			name: "Shadow Color",
+			description: "Sets the color of the glow in Shadow mode. Only visible while 'Style Mode' is set to 'Shadow'.",
+			value: "#659aff80",
+			varCss: "--nt-theme-shadow",
+			require: { GlobalStyleType: ["Sha"] },
 		},
 		{
 			type: "numberSlide",

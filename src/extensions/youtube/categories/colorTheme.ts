@@ -124,8 +124,10 @@ export const colorThemeCategory: Category = {
 			varCss: "--nt-text-secondary",
 			constantCss: `
                 #metadata-line,
+                #metadata-line span,
                 .ytd-video-meta-block,
                 yt-content-metadata-view-model,
+                .ytContentMetadataViewModelMetadataRow,
                 #description-text,
                 .ytd-comment-renderer,
                 ytd-comment-view-model,
@@ -156,7 +158,10 @@ export const colorThemeCategory: Category = {
 			varCss: "--nt-text-timestamp",
 			constantCss: `
                 ytd-thumbnail-overlay-time-status-renderer,
-                yt-thumbnail-bottom-overlay-view-model {
+                yt-thumbnail-bottom-overlay-view-model,
+                badge-shape.ytBadgeShapeThumbnailDefault,
+                badge-shape.yt-badge-shape--thumbnail-default,
+                .ytBadgeShapeThumbnailDefault .ytBadgeShapeText {
                     color: var(--nt-text-timestamp) !important;
                 }
             `,
@@ -182,20 +187,14 @@ export const colorThemeCategory: Category = {
 			value: "#00000000",
 			varCss: "--nt-sidebar-bg",
 			constantCss: `
+                #guide-content,
                 #guide-inner-content.ytd-app,
+                #guide-renderer,
+                ytd-guide-renderer,
                 ytd-mini-guide-renderer {
                     background: var(--nt-sidebar-bg) !important;
                 }
             `,
-		},
-		{
-			type: "color",
-			id: "ThemeShadowColor",
-			name: "Theme Shadow",
-			description:
-				"Customizes the shadow color used for thumbnails and panels. Works best when matched with your theme color.",
-			value: "#659aff80",
-			varCss: "--nt-theme-shadow",
 		},
 		{
 			type: "color",
