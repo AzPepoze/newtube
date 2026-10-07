@@ -9,6 +9,7 @@ import { showUserConfirmation } from "@ui/window/windowFactory";
 export type Theme = {
 	themeId: string;
 	themeName: string;
+	ownerId?: string;
 	currentSettings?: { [key: string]: string };
 	addOnStyleShiftItems?: any[];
 	images?: string[];
@@ -26,6 +27,7 @@ function createThemeObject(id: string, name: string, data: any): Theme {
 		addOnStyleShiftItems: data.addOnStyleShiftItems,
 		images: data.images,
 		coverImage: data.coverImage,
+		ownerId: data.ownerId,
 		downloads: data.downloads,
 		rating: data.rating,
 		ratingCount: data.ratingCount,

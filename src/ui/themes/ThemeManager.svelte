@@ -125,6 +125,7 @@
 							name={theme.themeName}
 							preview={controller.getThemePreview(theme)}
 							rawTheme={theme}
+							creator={theme.ownerId ? controller.creatorProfiles[theme.ownerId] : undefined}
 							isActive={controller.activeThemeId === theme.themeId}
 							isLoading={controller.loadingThemeId === theme.themeId}
 							animationDelay={i * 50}
@@ -146,6 +147,7 @@
 							name={theme.themeName}
 							preview={controller.getThemePreview(theme)}
 							rawTheme={theme}
+							creator={theme.ownerId ? controller.creatorProfiles[theme.ownerId] : undefined}
 							isActive={controller.activeThemeId === theme.themeId}
 							isLoading={controller.loadingThemeId === theme.themeId}
 							isStoreItem={true}

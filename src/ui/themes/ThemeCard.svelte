@@ -16,6 +16,7 @@
 		isLoading = false,
 		isStoreItem = false,
 		isInstalled = false,
+		creator,
 		animationDelay = 0,
 		onApply,
 		onApplyLivePreview,
@@ -32,6 +33,7 @@
 		isLoading?: boolean;
 		isStoreItem?: boolean;
 		isInstalled?: boolean;
+		creator?: { displayName: string; avatarUrl: string; profileUrl: string };
 		animationDelay?: number;
 		onApply: (id: string) => void;
 		onApplyLivePreview?: (theme: any) => void;
@@ -166,8 +168,22 @@
 			{/if}
 
 			<div class="title-overlay">
-				<div class="title-container" title={name}>
+				<div class="title-container" class:has-creator={creator} title={name}>
 					<span class="theme-name">{name}</span>
+					{#if creator}
+						<a
+							class="creator-profile"
+							href={creator.profileUrl}
+							target="_blank"
+							rel="noopener noreferrer"
+							aria-label={`Open ${creator.displayName}'s profile`}
+							onclick={(event) => event.stopPropagation()}
+							onkeydown={(event) => event.stopPropagation()}
+						>
+							<img src={creator.avatarUrl} alt="" />
+							<span class="creator-name">{creator.displayName}</span>
+						</a>
+					{/if}
 				</div>
 				{#if isStoreItem && (rawTheme?.downloads != null || rawTheme?.rating != null)}
 					<div class="stats-container">
@@ -285,7 +301,8 @@
 		overflow: visible;
 		margin-bottom: 5px;
 
-		&:hover {
+		&:hover,
+		&:focus-within {
 			.theme-card {
 				border-color: var(--fg-opacity-20);
 				box-shadow: 0 8px 25px var(--shadow-color);
@@ -298,10 +315,10 @@
 				box-shadow: 0 8px 20px var(--shadow-color);
 			}
 
-			.theme-name {
-				white-space: normal;
-				word-break: break-word;
-				text-overflow: clip;
+			.creator-name {
+				opacity: 1;
+				transform: translateY(0);
+				max-height: 18px;
 			}
 		}
 	}
@@ -526,6 +543,13 @@
 		width: 100%;
 		display: flex;
 		align-items: center;
+		min-width: 0;
+
+		&.has-creator {
+			padding-left: 34px;
+			min-height: 38px;
+			align-items: flex-start;
+		}
 
 		.theme-name {
 			font-weight: 600;
@@ -537,6 +561,52 @@
 			width: 100%;
 			text-shadow: 0 2px 4px rgba(0, 0, 0, 0.8);
 		}
+	}
+
+	.creator-profile {
+		position: absolute;
+		left: 0;
+		bottom: 0;
+		display: block;
+		width: 100%;
+		height: 28px;
+		color: inherit;
+		pointer-events: auto;
+		text-decoration: none;
+		outline-offset: 3px;
+
+		img {
+			position: absolute;
+			left: 0;
+			bottom: 0;
+			width: 26px;
+			height: 26px;
+			border: 1px solid rgba(255, 255, 255, 0.65);
+			border-radius: 50%;
+			background: rgba(0, 0, 0, 0.45);
+			object-fit: cover;
+			box-shadow: 0 1px 4px rgba(0, 0, 0, 0.55);
+		}
+	}
+
+	.creator-name {
+		position: absolute;
+		left: 34px;
+		bottom: 0;
+		max-width: calc(100% - 34px);
+		max-height: 0;
+		overflow: hidden;
+		color: rgba(255, 255, 255, 0.88);
+		font-size: 11px;
+		line-height: 18px;
+		text-overflow: ellipsis;
+		white-space: nowrap;
+		opacity: 0;
+		transform: translateY(-6px);
+		transition:
+			opacity 0.2s ease,
+			transform 0.25s ease,
+			max-height 0.25s ease;
 	}
 
 	.card-actions-drawer {

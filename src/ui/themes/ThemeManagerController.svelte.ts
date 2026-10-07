@@ -1,4 +1,4 @@
-import { SvelteSet } from "svelte/reactivity";
+import { SvelteMap, SvelteSet } from "svelte/reactivity";
 import { enterPrompt } from "@core/shared/dialogs";
 import { createNotification } from "@core/shared/notifications";
 import { getRootValue, persistCachedDataToStorage } from "@core/storage/manager";
@@ -19,6 +19,72 @@ import {
 	normalizeStoreThemePayload,
 	type Tag,
 } from "@core/theme/parser";
+
+export type CreatorProfile = {
+	id: string;
+	displayName: string;
+	avatarUrl: string;
+	profileUrl: string;
+};
+
+const CREATOR_PROFILE_CACHE_TTL = 5 * 60 * 1000;
+const creatorProfileCache = new SvelteMap<string, { profile: CreatorProfile; expiresAt: number }>();
+const creatorProfileRequests = new SvelteMap<string, Promise<CreatorProfile | null>>();
+
+function isHttpUrl(value: unknown): value is string {
+	if (typeof value !== "string" || !value.trim()) return false;
+	try {
+		const url = new URL(value);
+		return url.protocol === "http:" || url.protocol === "https:";
+	} catch {
+		return false;
+	}
+}
+
+function parseCreatorProfile(data: unknown, ownerId: string): CreatorProfile | null {
+	if (!data || typeof data !== "object" || Array.isArray(data)) return null;
+	const profile = data as Record<string, unknown>;
+	if (
+		profile.id !== ownerId ||
+		typeof profile.displayName !== "string" ||
+		!profile.displayName.trim() ||
+		!isHttpUrl(profile.avatarUrl) ||
+		!isHttpUrl(profile.profileUrl)
+	) {
+		return null;
+	}
+
+	return {
+		id: profile.id,
+		displayName: profile.displayName.trim(),
+		avatarUrl: profile.avatarUrl,
+		profileUrl: profile.profileUrl,
+	};
+}
+
+async function getCreatorProfile(ownerId: string): Promise<CreatorProfile | null> {
+	const cached = creatorProfileCache.get(ownerId);
+	if (cached && cached.expiresAt > Date.now()) return cached.profile;
+
+	const inFlight = creatorProfileRequests.get(ownerId);
+	if (inFlight) return inFlight;
+
+	const request = (async () => {
+		try {
+			const res = await fetch(`${STYLESHIFT_STORE_API_URL}/users/${encodeURIComponent(ownerId)}`);
+			if (!res.ok) return null;
+			const profile = parseCreatorProfile(await res.json(), ownerId);
+			if (profile) creatorProfileCache.set(ownerId, { profile, expiresAt: Date.now() + CREATOR_PROFILE_CACHE_TTL });
+			return profile;
+		} catch {
+			return null;
+		} finally {
+			creatorProfileRequests.delete(ownerId);
+		}
+	})();
+	creatorProfileRequests.set(ownerId, request);
+	return request;
+}
 
 async function parseResponseError(res: Response): Promise<string> {
 	try {
@@ -52,6 +118,7 @@ export class ThemeManagerController {
 
 	availableTags = $state<Tag[]>([]);
 	selectedTag = $state<string>("");
+	creatorProfiles = $state<Record<string, CreatorProfile>>({});
 
 	private backupSettings: any = null;
 	private originalActiveTheme: string | null = null;
@@ -68,9 +135,27 @@ export class ThemeManagerController {
 
 	async loadThemes() {
 		this.themes = (await getRootValue("themes")) || [];
+		void this.loadCreatorProfiles(this.themes);
 		this.backupSettings = JSON.parse(JSON.stringify(await getRootValue("currentSettings")));
 		this.originalActiveTheme = await getRootValue("activeTheme");
 		await this.refreshActiveTheme();
+	}
+
+	private async loadCreatorProfiles(themes: Theme[]) {
+		const ownerIds = [
+			...new SvelteSet(themes.map((theme) => theme.ownerId).filter((ownerId): ownerId is string => Boolean(ownerId))),
+		];
+		const profiles = await Promise.all(
+			ownerIds.map(async (ownerId) => [ownerId, await getCreatorProfile(ownerId)] as const),
+		);
+		const resolved = profiles.filter((entry): entry is readonly [string, CreatorProfile] => entry[1] !== null);
+		const ownerIdsToRefresh = new SvelteSet(ownerIds);
+		this.creatorProfiles = {
+			...Object.fromEntries(
+				Object.entries(this.creatorProfiles).filter(([ownerId]) => !ownerIdsToRefresh.has(ownerId)),
+			),
+			...Object.fromEntries(resolved),
+		};
 	}
 
 	async refreshActiveTheme() {
@@ -124,6 +209,7 @@ export class ThemeManagerController {
 					}
 
 					this.storeTotal = pagination.total;
+					void this.loadCreatorProfiles(mappedItems);
 					this.hasMoreStore = pagination.hasMore;
 					this.storeError = null;
 				}
@@ -158,6 +244,7 @@ export class ThemeManagerController {
 					const items = extractListFromResponse(data);
 					const pagination = extractPaginationFromResponse(data, items.length);
 					this.storeThemes = items.map((t) => normalizeStoreThemePayload(t));
+					void this.loadCreatorProfiles(this.storeThemes);
 					this.storeTotal = pagination.total;
 					this.hasMoreStore = pagination.hasMore;
 					this.storeError = null;
