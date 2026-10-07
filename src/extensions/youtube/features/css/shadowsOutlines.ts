@@ -55,7 +55,6 @@ ytd-compact-playlist-renderer:hover>div>ytd-playlist-thumbnail,
 ytd-compact-video-renderer:hover>div>ytd-thumbnail,
 ytd-compact-radio-renderer:hover>div>ytd-thumbnail,
 ytd-thumbnail.ytd-rich-grid-media:hover,
-yt-lockup-view-model:hover,
 yt-lockup-view-model:hover yt-thumbnail-view-model
 {   
 	outline: solid;
@@ -63,16 +62,14 @@ yt-lockup-view-model:hover yt-thumbnail-view-model
 	outline-width: var(--nt-hover-border-width) !important;
 }
 
-ytd-thumbnail.ytd-rich-grid-media:active,
-yt-lockup-view-model:active
+ytd-thumbnail.ytd-rich-grid-media:active
 {   
 	box-shadow: var(--nt-border-minus) 0 var(--nt-click-color), 0 var(--nt-border-width) var(--nt-click-color), var(--nt-border-width) 0 var(--nt-click-color), 0 var(--nt-border-minus) var(--nt-click-color) !important;
 }
 
 ytd-compact-playlist-renderer:active>div>ytd-playlist-thumbnail,
 ytd-compact-video-renderer:active>div>ytd-thumbnail,
-ytd-compact-radio-renderer:active>div>ytd-thumbnail,
-yt-lockup-view-model:active
+ytd-compact-radio-renderer:active>div>ytd-thumbnail
 {
 	outline: var(--nt-border-width) solid var(--nt-click-color) !important;
 }
