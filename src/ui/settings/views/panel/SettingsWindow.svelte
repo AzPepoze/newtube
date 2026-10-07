@@ -5,7 +5,7 @@
 	import SidebarScrollLayout from "@ui/shared/views/SidebarScrollLayout.svelte";
 	import { getCategoryParts } from "@ui/window/utils";
 	import Search from "../base/Search.svelte";
-	import { SettingsWindowController } from "./SettingsWindowController.svelte";
+	import { SettingsWindowController } from "../../SettingsWindowController.svelte";
 
 	let {
 		internalSettings = [],
@@ -213,7 +213,7 @@
 				content: "";
 				flex: 1;
 				height: 1px;
-				background: linear-gradient(to var(--direction, right), var(--fg-opacity-10), transparent);
+				background: linear-gradient(to var(--direction), var(--fg-opacity-10), transparent);
 			}
 
 			&::before {
@@ -253,7 +253,7 @@
 			content: "";
 			flex: 1;
 			height: 1px;
-			background: linear-gradient(to var(--direction, right), var(--fg-opacity-10), transparent);
+			background: linear-gradient(to var(--direction), var(--fg-opacity-10), transparent);
 		}
 
 		&::before {

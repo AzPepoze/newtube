@@ -22,7 +22,7 @@
 	import ConditionStatus from "@renderers/condition/ConditionStatus.svelte";
 	import WarningSection from "@renderers/warning/WarningSection.svelte";
 	import SettingFrame from "@renderers/setting/SettingFrame.svelte";
-	import { SettingRendererController } from "@renderers/setting/SettingRendererController.svelte";
+	import { SettingRendererController } from "../../SettingRendererController.svelte";
 
 	let {
 		setting,

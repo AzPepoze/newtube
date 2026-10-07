@@ -1,7 +1,7 @@
 <script lang="ts">
 	import type { Setting } from "@settings/types/styleshiftTypes";
 	import Icon from "@base/Icon.svelte";
-	import { WarningSectionController } from "./WarningSectionController.svelte";
+	import { WarningSectionController } from "../../WarningSectionController.svelte";
 
 	let {
 		isLocked,

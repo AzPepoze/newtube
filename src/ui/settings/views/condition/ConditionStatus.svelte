@@ -1,6 +1,6 @@
 <script lang="ts">
 	import Icon from "@base/Icon.svelte";
-	import { ConditionStatusController } from "./ConditionStatusController.svelte";
+	import { ConditionStatusController } from "../../ConditionStatusController.svelte";
 
 	let {
 		conditionsMet,

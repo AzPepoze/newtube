@@ -1,5 +1,5 @@
 import { isConditionMet } from "@settings/engine/functions";
-import { formatRequirementValue } from "../shared/requirementUtils";
+import { formatRequirementValue } from "./requirementUtils";
 
 export class ConditionStatusController {
 	conditionsMet = $state(false);

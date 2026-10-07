@@ -1,5 +1,5 @@
 import type { Setting } from "@settings/types/styleshiftTypes";
-import { formatRequirementValue } from "../shared/requirementUtils";
+import { formatRequirementValue } from "./requirementUtils";
 
 export class WarningSectionController {
 	isLocked = $state(false);
