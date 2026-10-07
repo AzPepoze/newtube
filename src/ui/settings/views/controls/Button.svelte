@@ -144,9 +144,9 @@
 
 <style lang="scss">
 	.styleshift-button {
-		--btn-color-top: color-mix(in srgb, color-mix(in srgb, var(--btn-color, #ffffff) 85%, white) 50%, transparent);
-		--btn-color-bottom: color-mix(in srgb, color-mix(in srgb, var(--btn-color, #ffffff) 90%, white) 10%, transparent);
-		--btn-border-color: color-mix(in srgb, var(--btn-color, #ffffff) 40%, white);
+		--btn-color-top: color-mix(in srgb, color-mix(in srgb, var(--btn-color) 85%, white) 50%, transparent);
+		--btn-color-bottom: color-mix(in srgb, color-mix(in srgb, var(--btn-color) 90%, white) 10%, transparent);
+		--btn-border-color: color-mix(in srgb, var(--btn-color) 40%, white);
 
 		display: flex;
 		align-items: center;
@@ -233,7 +233,7 @@
 
 		&:hover {
 			background: var(--fg-opacity-10);
-			color: var(--font-color, white);
+			color: var(--font-color);
 			filter: none;
 		}
 	}
@@ -245,7 +245,7 @@
 
 		&:hover {
 			background: var(--fg-opacity-05);
-			color: var(--font-color, white);
+			color: var(--font-color);
 			filter: none;
 		}
 	}

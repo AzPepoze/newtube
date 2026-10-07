@@ -47,7 +47,7 @@
 		outline: none;
 		cursor: pointer;
 		border: 1px solid var(--fg-opacity-10);
-		background-image: linear-gradient(var(--theme-0, #7f5db7), var(--theme-0, #7f5db7));
+		background-image: linear-gradient(var(--theme-0), var(--theme-0));
 		background-size: var(--progress) 100%;
 		background-repeat: no-repeat;
 		margin: 10px 0;
@@ -57,8 +57,8 @@
 			appearance: none;
 			width: 16px;
 			height: 16px;
-			background: var(--font-color, white);
-			border: 2px solid var(--theme-0, #7f5db7);
+			background: var(--font-color);
+			border: 2px solid var(--theme-0);
 			border-radius: 50%;
 			cursor: pointer;
 			box-shadow: 0 0 10px var(--bg-overlay-30);
@@ -76,7 +76,7 @@
 		}
 
 		&::-moz-range-progress {
-			background: var(--theme-0, #7f5db7);
+			background: var(--theme-0);
 			height: 6px;
 			border-radius: 10px;
 		}
@@ -84,8 +84,8 @@
 		&::-moz-range-thumb {
 			width: 16px;
 			height: 16px;
-			background: var(--font-color, white);
-			border: 2px solid var(--theme-0, #7f5db7);
+			background: var(--font-color);
+			border: 2px solid var(--theme-0);
 			border-radius: 50%;
 			cursor: pointer;
 			box-shadow: 0 0 10px var(--bg-overlay-30);

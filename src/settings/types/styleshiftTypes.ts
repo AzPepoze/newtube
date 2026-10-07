@@ -342,7 +342,11 @@ type PersistedExecutableSettingField =
 	| "uiFunction";
 
 type PersistedSettingReplacedField<T extends SettingKind> =
-	PersistedExecutableSettingField | "options" | "require" | "quickCustomize" | (T extends "custom" ? "value" : never);
+	| PersistedExecutableSettingField
+	| "options"
+	| "require"
+	| "quickCustomize"
+	| (T extends "custom" ? "value" : never);
 
 type PersistedSettingBase<T extends SettingKind> = Omit<SettingByType<T>, PersistedSettingReplacedField<T>>;
 
@@ -358,7 +362,9 @@ type PersistedSettingMetadata = {
 type PersistedSettingOptions<T extends SettingKind> =
 	SettingByType<T> extends { options: Option[] } ? { options: PersistedOption[] } : object;
 
-type PersistedCustomSettingValue<T extends SettingKind> = T extends "custom" ? { value?: PersistedSettingValue } : object;
+type PersistedCustomSettingValue<T extends SettingKind> = T extends "custom"
+	? { value?: PersistedSettingValue }
+	: object;
 
 type PersistedSettingMember<T extends SettingKind> = PersistedSettingBase<T> &
 	PersistedExecutableSettingFields<T> &

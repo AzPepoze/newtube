@@ -168,8 +168,8 @@
 			transition: all 0.2s ease;
 
 			&:hover {
-				background: var(--theme-error, #ff4444);
-				border-color: var(--theme-error, #ff4444);
+				background: var(--theme-error);
+				border-color: var(--theme-error);
 				color: #ffffff;
 				transform: translateY(-1px);
 			}
@@ -208,7 +208,7 @@
 				width: 40px;
 				height: 40px;
 				border: 3px solid rgba(255, 255, 255, 0.1);
-				border-top-color: var(--theme-0, #00ffcc);
+				border-top-color: var(--theme-0);
 				border-radius: 50%;
 				animation: spin 0.8s linear infinite;
 			}

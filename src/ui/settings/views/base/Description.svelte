@@ -116,7 +116,7 @@
 		border: 0;
 		border-radius: 3px;
 		background: transparent;
-		color: var(--text-disabled, currentColor);
+		color: var(--text-disabled);
 		opacity: 0.7;
 		cursor: pointer;
 		pointer-events: auto;

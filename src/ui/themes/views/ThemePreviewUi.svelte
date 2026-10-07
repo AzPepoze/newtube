@@ -37,7 +37,7 @@
 		z-index: 2;
 		width: 85%;
 		height: 85%;
-		background: var(--bg-overlay-10, rgba(0, 0, 0, 0.8));
+		background: var(--bg-overlay-10);
 		border-radius: 6px;
 		display: flex;
 		flex-direction: column;
@@ -69,7 +69,7 @@
 				width: 6px;
 				height: 6px;
 				border-radius: 50%;
-				background: var(--theme-0, #fff);
+				background: var(--theme-0);
 			}
 		}
 

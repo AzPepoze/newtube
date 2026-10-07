@@ -74,7 +74,7 @@
 				setting={{
 					type: "button",
 					name: "Cancel",
-					color: "var(--fg-opacity-20, #646464)",
+					color: "var(--fg-opacity-20)",
 					clickFunction: () => handleAction(onCancel),
 				}}
 			/>

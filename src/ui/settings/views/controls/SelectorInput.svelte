@@ -124,7 +124,7 @@
 
 	.styleshift-input {
 		width: -webkit-fill-available;
-		background: var(--text-editor-bg, var(--bg-overlay-30));
+		background: var(--text-editor-bg);
 		color: white;
 		border-radius: 20px;
 		padding: 12px 20px;
@@ -135,7 +135,7 @@
 		border: 1px gray solid;
 
 		&:focus {
-			border-color: var(--theme-0, #7f5db7);
+			border-color: var(--theme-0);
 			box-shadow: 0 0 15px rgba(127, 93, 183, 0.2);
 		}
 
@@ -149,7 +149,7 @@
 		align-items: center;
 		justify-content: center;
 		gap: 10px;
-		background: var(--theme-0, #7f5db7);
+		background: var(--theme-0);
 		color: white;
 		border: none;
 		border-radius: 20px;

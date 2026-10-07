@@ -301,7 +301,7 @@
 		white-space: nowrap;
 
 		&:hover {
-			background: var(--theme-0, #7f5db7);
+			background: var(--theme-0);
 			color: white; // Theme color is dark enough for white text
 			transform: translateX(5px);
 		}
@@ -310,7 +310,7 @@
 	:global(.selection-overlay) {
 		position: fixed;
 		pointer-events: none;
-		border: 2px solid var(--theme-0, #7f5db7);
+		border: 2px solid var(--theme-0);
 		background: transparent;
 		z-index: 2147483646;
 		box-sizing: border-box;
@@ -337,14 +337,14 @@
 		top: auto !important;
 		bottom: 100% !important;
 		border-top-color: transparent !important;
-		border-bottom-color: var(--theme-0, #7f5db7) !important;
+		border-bottom-color: var(--theme-0) !important;
 	}
 
 	:global(.selector-tooltip) {
 		position: absolute;
 		bottom: calc(100% + 10px);
 		left: 0;
-		background: var(--theme-0, #7f5db7);
+		background: var(--theme-0);
 		color: white;
 		padding: 6px 12px;
 		font-size: 12px;
@@ -361,7 +361,7 @@
 			top: 100%;
 			left: 10px;
 			border: 6px solid transparent;
-			border-top-color: var(--theme-0, #7f5db7);
+			border-top-color: var(--theme-0);
 		}
 	}
 </style>

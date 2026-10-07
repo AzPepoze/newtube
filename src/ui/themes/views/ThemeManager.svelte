@@ -185,7 +185,7 @@
 					type: "button",
 					name: "Store",
 					icon: "storefront",
-					color: "var(--theme-info, #a7ffff)",
+					color: "var(--theme-info)",
 					clickFunction: () => controller.openStore(),
 				}}
 			/>
@@ -319,7 +319,7 @@
 
 	.view-container {
 		display: grid;
-		grid-template-columns: repeat(auto-fill, minmax(var(--theme-card-min-width, 240px), 1fr));
+		grid-template-columns: repeat(auto-fill, minmax(var(--theme-card-min-width), 1fr));
 		gap: 20px;
 		width: 100%;
 	}
@@ -404,7 +404,7 @@
 		position: relative;
 		border: 1px solid var(--fg-opacity-10);
 		border-radius: 16px;
-		background: linear-gradient(to bottom, var(--fg-opacity-05), var(--fg-opacity-02)), var(--bg-main, #111);
+		background: linear-gradient(to bottom, var(--fg-opacity-05), var(--fg-opacity-02)), var(--bg-main);
 		box-shadow: 0 -8px 24px var(--bg-overlay-10);
 
 		.actions-left,

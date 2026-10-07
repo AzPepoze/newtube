@@ -71,7 +71,7 @@
 	}
 
 	.styleshift-modal-content {
-		background: var(--window-bg, var(--bg-main));
+		background: var(--window-bg);
 		backdrop-filter: var(--window-blur) var(--window-saturate);
 		-webkit-backdrop-filter: var(--window-blur) var(--window-saturate);
 		border: 1px solid var(--fg-opacity-10);

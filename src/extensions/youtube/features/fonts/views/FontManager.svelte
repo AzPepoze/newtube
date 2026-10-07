@@ -214,7 +214,7 @@
 			background: var(--fg-opacity-10);
 			border: 1px solid var(--fg-opacity-15);
 			border-radius: 10px;
-			color: var(--fg-opacity-70, rgba(255, 255, 255, 0.7));
+			color: var(--fg-opacity-70);
 		}
 	}
 

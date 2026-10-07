@@ -3,4 +3,4 @@
 	let { text, align = "left" }: { text: string; align?: "left" | "center" | "right" } = $props();
 </script>
 
-<Description {text} {align} style="color: var(--font-color, white);" />
+<Description {text} {align} style="color: var(--font-color);" />

@@ -313,7 +313,7 @@
 
 		&:hover,
 		&.dragging {
-			border-color: var(--theme-0, #7f5db7);
+			border-color: var(--theme-0);
 			background: var(--theme-0-10);
 			transform: translateY(-2px);
 		}
@@ -363,7 +363,7 @@
 		box-sizing: border-box;
 
 		&:focus {
-			border-color: var(--theme-0, #7f5db7);
+			border-color: var(--theme-0);
 			background: var(--bg-overlay-50);
 		}
 

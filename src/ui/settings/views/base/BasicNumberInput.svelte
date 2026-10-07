@@ -22,7 +22,7 @@
 		width: 60px;
 		height: 24px;
 		background: var(--fg-opacity-10);
-		color: var(--font-color, white);
+		color: var(--font-color);
 		border: 1px solid var(--fg-opacity-20);
 		border-radius: 5px;
 		padding: 0 8px;
@@ -33,8 +33,8 @@
 		outline: none;
 
 		&:focus {
-			border-color: var(--theme-0, #7f5db7);
-			box-shadow: 0 0 5px var(--theme-0, #7f5db7);
+			border-color: var(--theme-0);
+			box-shadow: 0 0 5px var(--theme-0);
 		}
 
 		&::-webkit-inner-spin-button,

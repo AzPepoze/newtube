@@ -104,7 +104,7 @@
 	}
 
 	.slider-progress {
-		background: var(--theme-0, #7f5db7);
+		background: var(--theme-0);
 		border-radius: 2px;
 		position: absolute;
 

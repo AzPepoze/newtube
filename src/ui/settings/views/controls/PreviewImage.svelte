@@ -230,7 +230,7 @@
 		box-sizing: border-box;
 
 		&:hover {
-			border-color: var(--theme-0, #7f5db7);
+			border-color: var(--theme-0);
 		}
 	}
 
@@ -246,20 +246,20 @@
 		font-weight: 600;
 		text-transform: uppercase;
 		letter-spacing: 0.5px;
-		color: var(--fg-opacity-60, rgba(255, 255, 255, 0.6));
+		color: var(--fg-opacity-60);
 	}
 
 	.styleshift-preview-stage {
 		position: relative;
 		width: 100%;
 		height: 56px;
-		background: var(--bg-overlay-50, rgba(15, 15, 15, 0.8));
+		background: var(--bg-overlay-50);
 		border-radius: 8px;
 		overflow: hidden;
 		display: flex;
 		align-items: center;
 		justify-content: flex-start;
-		border: 1px dashed var(--fg-opacity-20, rgba(255, 255, 255, 0.2));
+		border: 1px dashed var(--fg-opacity-20);
 	}
 
 	.preset-banner .styleshift-preview-stage {

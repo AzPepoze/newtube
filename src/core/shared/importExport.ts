@@ -2,7 +2,12 @@ import { loadJSZip, jszipInstance as jszip, saveAndRefreshAll } from "@core/runt
 import { initializeRequiredStorageStructures as setNullSave } from "@core/storage/maintenance";
 import { ALLOWED_STORAGE_KEYS, cachedStorageData as savedData } from "@core/storage/manager";
 import { fromPersistedCategory, toPersistedCategory } from "@core/theme/exportConverter";
-import type { PersistedCategory, PersistedCurrentSettings, PersistedSetting, PersistedStyleShiftData } from "@settings/types/persistedSettings";
+import type {
+	PersistedCategory,
+	PersistedCurrentSettings,
+	PersistedSetting,
+	PersistedStyleShiftData,
+} from "@settings/types/persistedSettings";
 import { assertCanonicalPersistedItems, assertNoLegacyPersistedFields } from "@settings/types/persistedSettings";
 import { logger } from "@shared/logger";
 
@@ -33,9 +38,8 @@ export async function importStyleShiftData(styleshiftData: PersistedStyleShiftDa
 		if (addOnItems !== undefined) assertCanonicalPersistedItems(addOnItems);
 		for (const thisKey of ALLOWED_STORAGE_KEYS) {
 			const value = styleshiftData[thisKey as keyof PersistedStyleShiftData];
-			savedData[thisKey] = thisKey === "addOnStyleShiftItems" && Array.isArray(value)
-				? value.map(fromPersistedCategory)
-				: value;
+			savedData[thisKey] =
+				thisKey === "addOnStyleShiftItems" && Array.isArray(value) ? value.map(fromPersistedCategory) : value;
 		}
 
 		await setNullSave();

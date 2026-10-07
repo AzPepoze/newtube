@@ -165,7 +165,7 @@
 		min-width: 220px;
 		max-height: 320px;
 		overflow-y: auto;
-		background: var(--bg-main, #141419);
+		background: var(--bg-main);
 		border: 1px solid var(--fg-opacity-15);
 		border-radius: 14px;
 		padding: 6px;
@@ -201,7 +201,7 @@
 		font-weight: 700;
 		text-transform: uppercase;
 		letter-spacing: 0.05em;
-		color: var(--theme-0, #a260d7);
+		color: var(--theme-0);
 		opacity: 0.9;
 	}
 
@@ -220,7 +220,7 @@
 		border: none;
 		border-radius: 8px;
 		background: transparent;
-		color: var(--font-color-dim, #ccc);
+		color: var(--font-color-dim);
 		font-size: 13px;
 		font-weight: 500;
 		text-align: left;
@@ -229,7 +229,7 @@
 
 		&:hover {
 			background: var(--fg-opacity-10);
-			color: var(--font-color, #fff);
+			color: var(--font-color);
 		}
 
 		&.selected {

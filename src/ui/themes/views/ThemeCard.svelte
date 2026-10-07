@@ -498,7 +498,7 @@
 				transition: all 0.2s ease;
 
 				&.active {
-					background: var(--theme-0, #00ffcc);
+					background: var(--theme-0);
 					transform: scale(1.3);
 				}
 			}
@@ -642,7 +642,7 @@
 		z-index: 1;
 		margin-top: -24px;
 		padding: 32px 12px 10px;
-		background: var(--bg-overlay-80, rgba(20, 20, 25, 0.95));
+		background: var(--bg-overlay-80);
 		backdrop-filter: blur(12px);
 		border-radius: 0 0 16px 16px;
 		border: 1px solid var(--fg-opacity-10);

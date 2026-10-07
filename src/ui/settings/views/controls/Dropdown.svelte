@@ -302,14 +302,14 @@
 		outline: none;
 
 		&:hover {
-			border-color: var(--theme-0, #7f5db7);
+			border-color: var(--theme-0);
 			transform: translateY(-1px);
 			box-shadow: 0 4px 12px var(--bg-overlay-20);
 			filter: brightness(1.5);
 		}
 
 		&.open {
-			border-color: var(--theme-0, #7f5db7);
+			border-color: var(--theme-0);
 			filter: brightness(1.5);
 
 			.arrow {
@@ -393,7 +393,7 @@
 		}
 
 		&.selected {
-			background: var(--theme-0, #7f5db7);
+			background: var(--theme-0);
 			color: #ffffff;
 			font-weight: bold;
 		}

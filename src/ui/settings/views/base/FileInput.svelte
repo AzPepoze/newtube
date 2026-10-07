@@ -40,7 +40,7 @@
 		border: 1px solid var(--fg-opacity-20);
 		border-radius: 8px;
 		padding: 6px 12px;
-		color: var(--font-color, white);
+		color: var(--font-color);
 		cursor: pointer;
 		transition: all 0.2s;
 		font-size: 14px;
@@ -48,7 +48,7 @@
 
 		&:hover {
 			background: var(--fg-opacity-20);
-			border-color: var(--theme-0, #7f5db7);
+			border-color: var(--theme-0);
 		}
 
 		&:active {

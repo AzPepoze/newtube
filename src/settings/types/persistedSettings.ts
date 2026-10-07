@@ -71,7 +71,9 @@ export function assertCanonicalPersistedItems(
 			}
 			assertNoLegacyPersistedFields(setting, `${path}[${categoryIndex}].settings[${settingIndex}]`);
 			if (!isPersistedSettingKind((setting as { type?: unknown }).type)) {
-				throw new TypeError(`${path}[${categoryIndex}].settings[${settingIndex}].type is not a supported setting type.`);
+				throw new TypeError(
+					`${path}[${categoryIndex}].settings[${settingIndex}].type is not a supported setting type.`,
+				);
 			}
 		}
 	}

@@ -80,7 +80,7 @@
 		}
 
 		&:checked {
-			background: var(--theme-0, #7f5db7);
+			background: var(--theme-0);
 
 			&:after {
 				left: calc(100% - 1.5em - 0.15em) !important;

@@ -227,7 +227,7 @@
 <style lang="scss">
 	.styleshift-window-container {
 		position: fixed;
-		background: var(--window-bg, #1e1e1e);
+		background: var(--window-bg);
 		backdrop-filter: var(--window-blur) var(--window-saturate);
 		-webkit-backdrop-filter: var(--window-blur) var(--window-saturate);
 

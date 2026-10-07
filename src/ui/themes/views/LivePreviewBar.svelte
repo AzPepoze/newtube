@@ -42,12 +42,12 @@
 		align-items: center;
 		gap: 20px;
 		padding: 10px 18px;
-		background: var(--bg-overlay-90, rgba(18, 18, 22, 0.92));
+		background: var(--bg-overlay-90);
 		backdrop-filter: blur(16px);
-		border: 1px solid var(--fg-opacity-15, rgba(255, 255, 255, 0.15));
+		border: 1px solid var(--fg-opacity-15);
 		border-radius: 30px;
-		box-shadow: 0 12px 35px var(--shadow-color, rgba(0, 0, 0, 0.65));
-		color: var(--font-color, #ffffff);
+		box-shadow: 0 12px 35px var(--shadow-color);
+		color: var(--font-color);
 		font-family: inherit;
 	}
 
@@ -58,13 +58,13 @@
 		font-size: 13.5px;
 
 		.preview-label {
-			color: var(--font-color-dim, rgba(255, 255, 255, 0.7));
+			color: var(--font-color-dim);
 			font-weight: 500;
 		}
 
 		.theme-name {
 			font-weight: 700;
-			color: var(--font-color, #ffffff);
+			color: var(--font-color);
 			max-width: 200px;
 			white-space: nowrap;
 			overflow: hidden;
@@ -92,13 +92,13 @@
 		}
 
 		.cancel-btn {
-			background: var(--theme-error-10, rgba(255, 60, 60, 0.18));
-			border: 1px solid var(--theme-error-30, rgba(255, 60, 60, 0.4));
-			color: var(--theme-error, #ff5555);
+			background: var(--theme-error-10);
+			border: 1px solid var(--theme-error-30);
+			color: var(--theme-error);
 
 			&:hover {
-				background: var(--theme-error-50, rgba(255, 60, 60, 0.4));
-				color: var(--font-color, #ffffff);
+				background: var(--theme-error-50);
+				color: var(--font-color);
 				transform: translateY(-1px);
 			}
 		}

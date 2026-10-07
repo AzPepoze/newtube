@@ -26,6 +26,9 @@
 	--theme-success-10: rgba(0, 200, 81, 0.1);
 	--theme-success-20: rgba(0, 200, 81, 0.2);
 	--theme-success-50: rgba(0, 200, 81, 0.5);
+	--theme-info: #a7ffff;
+	--theme-warning-15: rgba(255, 187, 51, 0.15);
+	--theme-error-30: rgba(255, 68, 68, 0.3);
 
 	/* --- Default Dark Theme --- */
 	--bg-main: rgba(43, 43, 43, 1);
@@ -68,6 +71,8 @@
 	--bg-overlay-40: rgba(0, 0, 0, 0.4);
 	--bg-overlay-50: rgba(0, 0, 0, 0.5);
 	--bg-overlay-60: rgba(0, 0, 0, 0.6);
+	--bg-overlay-80: rgba(0, 0, 0, 0.8);
+	--bg-overlay-90: rgba(0, 0, 0, 0.9);
 
 	/* --- Semantic Aliases (Explain themselves) --- */
 	--text-primary: var(--fg-opacity-100);
@@ -105,6 +110,13 @@
 	--checkbox-bg: #979797;
 	--slider-track: #969696;
 
+	/* --- Component Defaults (overridden per-instance) --- */
+	--btn-color: #ffffff;
+	--theme-color: var(--theme-0);
+	--direction: right;
+	--setting-bg-blur-amount: 10px;
+	--theme-card-min-width: 240px;
+
 	/* --- Notifications & Callouts --- */
 	--noti-success: #4caf50;
 	--noti-warning: #ff9800;
@@ -127,7 +139,7 @@
 
 .styleshift-main[data-transparent="true"] {
 	--window-bg: rgba(43, 43, 43, 0.8);
-	--window-blur: blur(var(--setting-bg-blur-amount, 10px));
+	--window-blur: blur(var(--setting-bg-blur-amount));
 	--window-saturate: saturate(180%);
 
 	--bg-surface: rgba(255, 255, 255, 0.05);
@@ -178,6 +190,8 @@
 	--bg-overlay-40: rgba(255, 255, 255, 0.4);
 	--bg-overlay-50: rgba(255, 255, 255, 0.5);
 	--bg-overlay-60: rgba(255, 255, 255, 0.6);
+	--bg-overlay-80: rgba(255, 255, 255, 0.8);
+	--bg-overlay-90: rgba(255, 255, 255, 0.9);
 
 	--bg-element-muted: #e0e0e0;
 	--bg-element-muted-strong: #bdbdbd;
