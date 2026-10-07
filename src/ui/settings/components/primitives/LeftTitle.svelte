@@ -16,7 +16,6 @@
 	} = $props();
 	let titleEl: HTMLDivElement = $state(null!);
 
-	// Support both emoji format (old) and object format (new)
 	let parts = $derived(getCategoryParts(category as any));
 
 	onMount(() => {
