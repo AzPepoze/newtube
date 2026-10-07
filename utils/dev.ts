@@ -1,4 +1,4 @@
-import { spawn } from "child_process";
+import { spawn, spawnSync } from "child_process";
 import path from "path";
 
 const args = process.argv.slice(2);
@@ -24,6 +24,15 @@ const commands = [
 ];
 
 console.log(`\nStarting NewTube development environment for ${target}...`);
+
+const templates = spawnSync("bun", ["utils/builder-template.ts"], {
+	stdio: "inherit",
+	cwd: path.join(__dirname, ".."),
+});
+if (templates.status !== 0) {
+	console.error("Template generation failed");
+	process.exit(1);
+}
 
 const names = commands.map((commandItem) => commandItem.name).join(",");
 const colors = commands.map((commandItem) => commandItem.color).join(",");

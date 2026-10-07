@@ -7,6 +7,7 @@ import { getAddOnItems } from "@settings/registry/items";
 import { type Category, type SeparateCategory } from "@settings/types/styleshiftTypes";
 import { toggleCustomize } from "@ui/highlight/highlight";
 import { startQuickCustomize } from "@ui/highlight/quickCustomizeService";
+import { openTutorialOverlay } from "@ui/tutorial/tutorialService";
 import { showThemeManager } from "@ui/themes/themeManagerService";
 import { showTryImportOldNPreset } from "./dangerzone";
 import { showWelcome } from "./welcome";
@@ -96,6 +97,17 @@ const defaultStyleShiftItems: (Category | SeparateCategory)[] = [
 				color: "#3eadad",
 				align: "left",
 				icon: "highlight_alt",
+			},
+			{
+				clickFunction: openTutorialOverlay,
+				type: "button",
+				id: "StyleShiftTutorialButton",
+				name: "Tutorial",
+				description: "Learn how Developer Mode, Quick Customize and Customize Element work together.",
+				fontSize: 15,
+				color: "#ffb020",
+				align: "left",
+				icon: "school",
 			},
 			{
 				clickFunction: openSettingPage,

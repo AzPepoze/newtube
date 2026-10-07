@@ -6,6 +6,7 @@
 	import { fade, fly } from "svelte/transition";
 	import ConfigMainSection from "./ConfigMainSection.svelte";
 	import ConfigSubSection from "./ConfigSubSection.svelte";
+	import DiagnosticsPanel from "./DiagnosticsPanel.svelte";
 
 	let { setting }: { setting: Setting } = $props();
 
@@ -18,6 +19,7 @@
 	const tabs = [
 		{ id: "general", label: "General", icon: "settings" },
 		{ id: "logic", label: "Logic & Code", icon: "code" },
+		{ id: "tools", label: "Tools", icon: "build" },
 	];
 
 	const mainProps = $derived.by(() => {
@@ -190,6 +192,12 @@
 		<nav class="styleshift-config-tabs">
 			<CapsuleTabs options={tabs} bind:activeId={activeTab} />
 		</nav>
+
+		<p class="styleshift-config-hint">
+			{activeTab === "general"
+				? "These fields define what the setting looks like and which users see it."
+				: "Logic & Code runs JavaScript and CSS in the page. Use Run to test a block before saving."}
+		</p>
 	</header>
 
 	<main class="styleshift-config-main-content">
@@ -210,6 +218,14 @@
 				<div class="logic-container-wrapper">
 					<ConfigSubSection {setting} props={subProps} />
 				</div>
+			</div>
+		{:else if activeTab === "tools"}
+			<div
+				class="styleshift-config-tab-content tools-tab"
+				in:fly={{ y: 10, duration: 300, delay: 150 }}
+				out:fade={{ duration: 150 }}
+			>
+				<DiagnosticsPanel />
 			</div>
 		{/if}
 	</main>
@@ -276,6 +292,13 @@
 		gap: 10px;
 	}
 
+	.styleshift-config-hint {
+		margin: 0;
+		font-size: 12px;
+		line-height: 1.5;
+		color: var(--font-color-dim);
+	}
+
 	.styleshift-config-main-content {
 		flex: 1;
 		height: 100%;
@@ -291,6 +314,12 @@
 
 		&.logic-tab {
 			padding: 0;
+		}
+
+		&.tools-tab {
+			display: flex;
+			flex-direction: column;
+			gap: 24px;
 		}
 	}
 

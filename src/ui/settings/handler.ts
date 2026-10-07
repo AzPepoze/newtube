@@ -35,7 +35,9 @@ export async function applyPropertyUpdate(
 		try {
 			finalValue = JSON.parse(newValue);
 		} catch (e) {
-			logger.warn("config", `JSON parse failed for ${property}`, e);
+			// Abort instead of overwriting the object property with the raw (invalid) string.
+			logger.warn("config", `JSON parse failed for ${property}; keeping the previous value`, e);
+			return;
 		}
 	}
 

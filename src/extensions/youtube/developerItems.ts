@@ -3,6 +3,7 @@ import { createError, createNotification, createSuccess, createWarning } from "@
 import { exportThemeWithSelection } from "@core/theme/exporter";
 import { importThemeZipWithWorkflow } from "@core/theme/importer";
 import { type Category } from "@settings/types/styleshiftTypes";
+import { settingsUi } from "@ui/settings/settingsApi";
 import { showAllCurrentSave } from "./dangerzone";
 
 type DevCategory = Category & { insertAfter?: string };
@@ -154,5 +155,5 @@ const devOnlyItems: DevCategory[] = [
 ];
 
 export function getStyleShiftDevOnlyItems() {
-	return devOnlyItems;
+	return [...devOnlyItems, settingsUi.createDiagnosticsDevCategory()];
 }

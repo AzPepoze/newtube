@@ -1,11 +1,12 @@
 import { rearrangeSelector } from "@core/shared/domHelpers";
-import { type Setting } from "@settings/types/styleshiftTypes";
+import { type Category, type Setting } from "@settings/types/styleshiftTypes";
 import { settingsUi } from "@ui/settings/settingsApi";
 
 import AddSettingButtonComponent from "./views/developer/AddSettingButton.svelte";
 import ConfigMainSectionComponent from "./views/developer/ConfigMainSection.svelte";
 import ConfigSubSectionComponent from "./views/developer/ConfigSubSection.svelte";
 import DevSettingSectionComponent from "./views/developer/DevSettingSection.svelte";
+import DiagnosticsPanelComponent from "./views/developer/DiagnosticsPanel.svelte";
 import KeyboardShortcutsComponent from "./views/developer/KeyboardShortcuts.svelte";
 
 export async function settingDeveloperTextEditor(
@@ -124,4 +125,32 @@ export async function keyboardShortcuts() {
 	settingsUi.renderComponent(KeyboardShortcutsComponent, {}, target);
 
 	return { frame: (target.firstElementChild as HTMLDivElement) || target };
+}
+
+function mountDeveloperView(component: any, parent: HTMLElement) {
+	const target = document.createElement("div");
+	settingsUi.mountComponent(component, {}, target);
+	parent.appendChild(target);
+}
+
+/** `custom` setting uiFunction: renders the user-triggered full diagnostics snapshot (#49). */
+export function diagnosticsPanel(parent: HTMLElement) {
+	mountDeveloperView(DiagnosticsPanelComponent, parent);
+}
+
+/** Ready-to-merge Developer-section entry for the diagnostics export. */
+export function createDiagnosticsDevCategory(): Category {
+	return {
+		category: { icon: "bug_report", label: "Diagnostics" },
+		settings: [
+			{
+				id: "CopyDiagnosticsButton",
+				name: "Copy Diagnostics",
+				description:
+					"Collects a replayable JSON snapshot of your layout, CSS and settings for bug reports. Nothing is sent anywhere.",
+				type: "custom",
+				uiFunction: diagnosticsPanel,
+			},
+		],
+	};
 }

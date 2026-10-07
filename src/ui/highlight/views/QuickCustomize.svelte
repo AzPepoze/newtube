@@ -2,10 +2,12 @@
 	import TextInput from "@controls/TextInput.svelte";
 	import CodeEditor from "@editor/CodeEditor.svelte";
 	import Icon from "@base/Icon.svelte";
+	import IconButton from "@base/IconButton.svelte";
 	import SettingsGroup from "@base/SettingsGroup.svelte";
 	import SidebarNavItem from "@base/SidebarNavItem.svelte";
 	import { hoverPreview, type HoverPreviewConfig } from "@ui/settings/hoverPreview";
 	import SidebarScrollLayout from "@ui/shared/views/SidebarScrollLayout.svelte";
+	import { openTutorialOverlay } from "@ui/tutorial/tutorialService";
 	import { logger } from "@shared/logger";
 	import type { QuickCustomizeMetadata, QuickCustomizeMode } from "@settings/types/styleshiftTypes";
 	import { onDestroy, onMount } from "svelte";
@@ -94,16 +96,19 @@
 
 <div class="styleshift-quick-customize-container">
 	<div class="setting-name-header">
-		<TextInput
-			setting={{
-				type: "textInput",
-				name: "Setting Name",
-				value: controller.settingName,
-				id: "",
-				updateFunction: (val) => (controller.settingName = val),
-			}}
-			placeholder={controller.defaultName}
-		/>
+		<div class="name-input">
+			<TextInput
+				setting={{
+					type: "textInput",
+					name: "Setting Name",
+					value: controller.settingName,
+					id: "",
+					updateFunction: (val) => (controller.settingName = val),
+				}}
+				placeholder={controller.defaultName}
+			/>
+		</div>
+		<IconButton icon="help" onClick={openTutorialOverlay} />
 	</div>
 
 	<button class="selector-chip" onclick={copySelector} use:hoverPreview={previewConfig} title="Copy selector">
@@ -197,6 +202,14 @@
 
 	.setting-name-header {
 		padding: 15px 20px 0;
+		display: flex;
+		align-items: center;
+		gap: 10px;
+	}
+
+	.name-input {
+		flex: 1;
+		min-width: 0;
 	}
 
 	.selector-chip {
