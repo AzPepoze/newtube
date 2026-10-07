@@ -78,7 +78,6 @@
 		--callout-accent: var(--callout-warning);
 		--callout-bg: var(--callout-warning-bg);
 		--callout-border: var(--callout-warning-border);
-		--callout-tint: var(--callout-warning-tint);
 		margin-top: 12px;
 		padding: 12px 16px;
 		background: var(--callout-bg);
@@ -90,7 +89,6 @@
 			--callout-accent: var(--callout-error);
 			--callout-bg: var(--callout-error-bg);
 			--callout-border: var(--callout-error-border);
-			--callout-tint: var(--callout-error-tint);
 		}
 	}
 
@@ -112,8 +110,6 @@
 			display: flex;
 			align-items: center;
 			justify-content: center;
-			border-radius: 50%;
-			background: var(--callout-tint);
 		}
 
 		.message {
