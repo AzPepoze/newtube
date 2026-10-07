@@ -11,7 +11,7 @@ import {
 import { settingsUi } from "@ui/settings/settingsApi";
 import { triggerWindowHideAnimation, triggerWindowShowAnimation } from "@ui/window/windowFactory";
 import { unmount } from "svelte";
-import FlyoutPlayer from "./FlyoutPlayer.svelte";
+import FlyoutPlayer from "./views/FlyoutPlayer.svelte";
 
 let isFlyoutEnabled = true;
 let isFlyoutMounted = false;

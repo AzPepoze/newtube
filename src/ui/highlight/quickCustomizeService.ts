@@ -1,7 +1,7 @@
 import { logger } from "@shared/logger";
 import { openSelectorPicker } from "./selectorPicker";
 import { mount, unmount } from "svelte";
-import QuickCustomize from "./QuickCustomize.svelte";
+import QuickCustomize from "./views/QuickCustomize.svelte";
 import { addCategory, addSetting, getAddOnItems } from "@settings/registry/items";
 import { createUniqueId } from "@/core/shared/utilities";
 import { createStyleShiftWindow } from "../window/windowFactory";

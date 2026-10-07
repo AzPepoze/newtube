@@ -1,7 +1,7 @@
 import { mount, unmount } from "svelte";
 
 import { logger } from "@shared/logger";
-import Icon from "@ui/settings/components/primitives/Icon.svelte";
+import Icon from "@base/Icon.svelte";
 import { settingsUi } from "@ui/settings/settingsApi";
 import { globalNotificationContainer, playUiAnimation } from "@ui/window/windowFactory";
 

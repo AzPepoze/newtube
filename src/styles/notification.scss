@@ -75,13 +75,13 @@
 		box-sizing: border-box;
 
 		&.styleshift-notification-success {
-			--noti-accent: #4caf50;
+			--noti-accent: var(--noti-success);
 		}
 		&.styleshift-notification-warning {
-			--noti-accent: #ff9800;
+			--noti-accent: var(--noti-warning);
 		}
 		&.styleshift-notification-error {
-			--noti-accent: #f44336;
+			--noti-accent: var(--noti-error);
 		}
 
 		&.styleshift-notification-success,

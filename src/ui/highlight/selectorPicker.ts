@@ -1,5 +1,5 @@
 import { mount, unmount } from "svelte";
-import SelectorPicker from "./SelectorPicker.svelte";
+import SelectorPicker from "./views/SelectorPicker.svelte";
 import { logger } from "@shared/logger";
 
 let pickerComponent: any = null;

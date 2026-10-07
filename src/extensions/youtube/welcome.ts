@@ -1,7 +1,7 @@
 import { getRootValue, saveRootValue } from "@core/storage/manager";
 import { showUserConfirmation } from "@ui/window/windowFactory";
 import { mount, unmount } from "svelte";
-import Welcome from "./ui/Welcome.svelte";
+import Welcome from "./views/Welcome.svelte";
 
 let welcomeOpen = false;
 

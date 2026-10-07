@@ -21,11 +21,11 @@
 			"@ui/*": ["./src/ui/*"],
 			"@extensions/*": ["./src/extensions/*"],
 			"@shared/*": ["./src/shared/*"],
-			"@renderers/*": ["./src/ui/settings/components/renderers/*"],
-			"@controls/*": ["./src/ui/settings/components/controls/*"],
-			"@primitives/*": ["./src/ui/settings/components/primitives/*"],
-			"@editor/*": ["./src/ui/settings/components/primitives/editor/*"],
-			"@panel/*": ["./src/ui/settings/components/panel/*"]
+			"@renderers/*": ["./src/ui/settings/views/*"],
+			"@controls/*": ["./src/ui/settings/views/controls/*"],
+			"@base/*": ["./src/ui/settings/views/base/*"],
+			"@editor/*": ["./src/ui/settings/views/base/editor/*"],
+			"@panel/*": ["./src/ui/settings/views/panel/*"]
 		}
 	},
 	"include": ["src/**/*.ts", "src/**/*.svelte", "src/**/*.svelte.ts", "utils/**/*.ts", "eslint.config.mts"],

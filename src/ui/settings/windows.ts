@@ -1,7 +1,7 @@
 import { mount } from "svelte";
-import ConfigEditorRenderer from "./components/developer/ConfigEditorRenderer.svelte";
-import ConfigWindow from "./components/developer/ConfigWindow.svelte";
-import SettingsWindow from "./components/panel/SettingsWindow.svelte";
+import ConfigEditorRenderer from "./views/developer/ConfigEditorRenderer.svelte";
+import ConfigWindow from "./views/developer/ConfigWindow.svelte";
+import SettingsWindow from "./views/panel/SettingsWindow.svelte";
 
 export function settingsWindow(props: any, target: HTMLElement) {
 	return mount(SettingsWindow as any, {

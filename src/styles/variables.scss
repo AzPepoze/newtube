@@ -105,6 +105,20 @@
 	--checkbox-bg: #979797;
 	--slider-track: #969696;
 
+	/* --- Notifications & Callouts --- */
+	--noti-success: #4caf50;
+	--noti-warning: #ff9800;
+	--noti-error: #f44336;
+
+	--callout-warning: #ffd08a;
+	--callout-warning-bg: rgba(255, 208, 138, 0.1);
+	--callout-warning-border: rgba(255, 208, 138, 0.45);
+	--callout-warning-tint: rgba(255, 208, 138, 0.2);
+	--callout-error: #ff9e9e;
+	--callout-error-bg: rgba(255, 158, 158, 0.1);
+	--callout-error-border: rgba(255, 158, 158, 0.45);
+	--callout-error-tint: rgba(255, 158, 158, 0.2);
+
 	/* --- Dynamic --- */
 	--window-bg: var(--bg-main);
 	--window-blur: none;
@@ -181,4 +195,14 @@
 	--category-left-title-text-color-selected: var(--theme-0);
 
 	--shadow-color: rgba(0, 0, 0, 0.08);
+
+	/* Callout accents need more contrast on light surfaces */
+	--callout-warning: #c77700;
+	--callout-warning-bg: rgba(199, 119, 0, 0.12);
+	--callout-warning-border: rgba(199, 119, 0, 0.4);
+	--callout-warning-tint: rgba(199, 119, 0, 0.16);
+	--callout-error: #d64545;
+	--callout-error-bg: rgba(214, 69, 69, 0.12);
+	--callout-error-border: rgba(214, 69, 69, 0.4);
+	--callout-error-tint: rgba(214, 69, 69, 0.16);
 }

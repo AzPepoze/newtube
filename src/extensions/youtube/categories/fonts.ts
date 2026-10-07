@@ -1,6 +1,6 @@
 import { type Category } from "@settings/types/styleshiftTypes";
 import { settingsUi } from "@ui/settings/settingsApi";
-import FontManager from "../features/fonts/FontManager.svelte";
+import FontManager from "../features/fonts/views/FontManager.svelte";
 import { FONT_SELECTOR } from "./selectors";
 
 export const fontsCategory: Category = {

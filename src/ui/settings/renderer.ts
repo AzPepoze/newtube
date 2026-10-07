@@ -1,8 +1,8 @@
 import type { Category, Setting } from "@settings/types/styleshiftTypes";
-import Confirm from "@ui/window/components/Confirm.svelte";
-import Prompt from "@ui/window/components/Prompt.svelte";
-import Taskbar from "@ui/window/components/Taskbar.svelte";
-import Window from "@ui/window/components/Window.svelte";
+import Confirm from "@ui/window/views/Confirm.svelte";
+import Prompt from "@ui/window/views/Prompt.svelte";
+import Taskbar from "@ui/window/views/Taskbar.svelte";
+import Window from "@ui/window/views/Window.svelte";
 import { mount, unmount } from "svelte";
 import SettingRenderer from "@renderers/setting/SettingRenderer.svelte";
 import { registerExternalCategory } from "./settingsManager";
