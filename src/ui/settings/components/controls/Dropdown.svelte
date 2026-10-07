@@ -15,12 +15,14 @@
 		isOpen = $bindable(false),
 		triggerEl = $bindable<HTMLElement | null>(null),
 		justMenu = false,
+		inline = false,
 		onClose = () => {},
 	}: {
 		setting: Extract<Setting, { type: "dropdown" }>;
 		isOpen?: boolean;
 		triggerEl?: HTMLElement | null;
 		justMenu?: boolean;
+		inline?: boolean;
 		onClose?: () => void;
 	} = $props();
 
@@ -198,25 +200,27 @@
 </script>
 
 {#if !justMenu}
-	<Description {name} {description} />
-	<div class="styleshift-dropdown-wrapper">
-		<button bind:this={triggerEl} class="styleshift-dropdown-trigger" class:open={isOpen} onclick={toggleDropdown}>
-			<div class="styleshift-dropdown-display">
-				{#each optionsList as option (option.value)}
-					<span class="tester-item" aria-hidden="true">
-						{option.label}
+	<div class="styleshift-dropdown-row" class:inline>
+		<Description {name} {description} />
+		<div class="styleshift-dropdown-wrapper">
+			<button bind:this={triggerEl} class="styleshift-dropdown-trigger" class:open={isOpen} onclick={toggleDropdown}>
+				<div class="styleshift-dropdown-display">
+					{#each optionsList as option (option.value)}
+						<span class="tester-item" aria-hidden="true">
+							{option.label}
+						</span>
+					{/each}
+					<span class="current-value">
+						{currentLabel}
 					</span>
-				{/each}
-				<span class="current-value">
-					{currentLabel}
-				</span>
-			</div>
-			<span class="arrow">▼</span>
-		</button>
+				</div>
+				<span class="arrow">▼</span>
+			</button>
 
-		{#if isOpen}
-			{@render menu()}
-		{/if}
+			{#if isOpen}
+				{@render menu()}
+			{/if}
+		</div>
 	</div>
 {:else if isOpen}
 	{@render menu()}
@@ -257,6 +261,26 @@
 	.styleshift-dropdown-wrapper {
 		position: relative;
 		min-width: 120px;
+	}
+
+	.styleshift-dropdown-row {
+		&.inline {
+			display: flex;
+			align-items: center;
+			justify-content: space-between;
+			gap: 12px;
+			min-width: 0;
+
+			:global(.styleshift-main-description) {
+				min-width: 0;
+			}
+
+			.styleshift-dropdown-wrapper {
+				flex: 1 1 0;
+				min-width: 0;
+				max-width: 60%;
+			}
+		}
 	}
 
 	.styleshift-dropdown-trigger {

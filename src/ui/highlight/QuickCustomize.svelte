@@ -2,6 +2,10 @@
 	import TextInput from "@controls/TextInput.svelte";
 	import CodeEditor from "@editor/CodeEditor.svelte";
 	import Icon from "@primitives/Icon.svelte";
+	import SettingsGroup from "@primitives/SettingsGroup.svelte";
+	import SidebarNavItem from "@primitives/SidebarNavItem.svelte";
+	import { hoverPreview, type HoverPreviewConfig } from "@ui/settings/hoverPreview";
+	import SidebarScrollLayout from "@ui/shared/SidebarScrollLayout.svelte";
 	import { logger } from "@shared/logger";
 	import type { QuickCustomizeMetadata, QuickCustomizeMode } from "@settings/types/styleshiftTypes";
 	import { onDestroy, onMount } from "svelte";
@@ -48,6 +52,16 @@
 		},
 	});
 
+	let copied = $state(false);
+	let previewStatus = $state("");
+
+	const previewConfig: HoverPreviewConfig = {
+		get selectors() {
+			return selector ? [selector] : [];
+		},
+		onStatus: (status) => (previewStatus = status),
+	};
+
 	$effect(() => {
 		controller.selector = selector;
 	});
@@ -56,40 +70,25 @@
 		controller.applyPreview();
 	});
 
-	const controls = [
-		{ id: "background-color", label: "Background", type: "color", icon: "format_color_fill" },
-		{ id: "color", label: "Text Color", type: "color", icon: "title" },
-		{ id: "font-size", label: "Font Size", type: "numberSlide", icon: "text_fields", min: 8, max: 72, unit: "px" },
-		{ id: "opacity", label: "Opacity", type: "numberSlide", icon: "opacity", min: 0, max: 1, step: 0.05 },
-		{
-			id: "border-radius",
-			label: "Rounding",
-			type: "numberSlide",
-			icon: "rounded_corner",
-			min: 0,
-			max: 50,
-			unit: "px",
-		},
-		{
-			id: "display",
-			label: "Visibility",
-			type: "dropdown",
-			icon: "visibility",
-			options: [
-				{ label: "Show", value: "block" },
-				{ label: "Hide", value: "none" },
-			],
-		},
-	];
+	$effect(() => {
+		controller.handleTabChange(controller.activeTab);
+	});
+
+	async function copySelector() {
+		try {
+			await navigator.clipboard.writeText(selector);
+			copied = true;
+			setTimeout(() => (copied = false), 1200);
+		} catch (error) {
+			logger.warn("QuickCustomize", "Failed to copy selector", error);
+		}
+	}
 
 	onMount(() => {
 		logger.debug("QuickCustomize", "Mounted for selector", selector);
 	});
 	onDestroy(() => {
 		controller.destroy();
-	});
-	$effect(() => {
-		controller.handleTabChange(controller.activeTab);
 	});
 </script>
 
@@ -107,14 +106,12 @@
 		/>
 	</div>
 
-	<div class="selector-info">
-		<div class="icon-box">
-			<Icon name="code" size={20} color="var(--text-primary)" />
-		</div>
-		<div class="info-text">
-			<span class="selector-name">{selector}</span>
-		</div>
-	</div>
+	<button class="selector-chip" onclick={copySelector} use:hoverPreview={previewConfig} title="Copy selector">
+		<Icon name="code" size={16} color="currentColor" />
+		<span class="selector-text">{selector}</span>
+		{#if previewStatus}<span class="preview-status">{previewStatus}</span>{/if}
+		<Icon name={copied ? "check" : "content_copy"} size={14} color="currentColor" />
+	</button>
 
 	<div class="tabs-wrapper">
 		<CapsuleTabs
@@ -128,15 +125,39 @@
 
 	<div class="modal-content">
 		{#if controller.activeTab === "basic"}
-			<div class="basic-controls-list">
-				{#each controls as control (control.id)}
-					<QuickControlRow
-						ctrl={control}
-						bind:value={controller.basicStyles[control.id]}
-						bind:enabled={controller.enabledStyles[control.id]}
-					/>
+			<SidebarScrollLayout
+				attribute="data-group"
+				bind:activeValue={controller.activeGroup}
+				sidebarWidth={200}
+				sidebarClass="styleshift-sidebar styleshift-scrollable"
+				contentClass="quick-group-list"
+			>
+				{#snippet sidebar({ scrollTo, activeValue })}
+					{#each controller.groups as group (group.id)}
+						<SidebarNavItem
+							category={{ icon: group.icon, label: group.label }}
+							selected={activeValue === group.id}
+							onSelect={() => scrollTo(group.id)}
+						/>
+					{/each}
+				{/snippet}
+
+				{#each controller.groups as group (group.id)}
+					<SettingsGroup attrs={{ "data-group": group.id }}>
+						<div class="group-header">
+							<Icon name={group.icon} size={16} color="currentColor" />
+							<span>{group.label}</span>
+						</div>
+						{#each controller.groupControls(group.id) as control (control.id)}
+							<QuickControlRow
+								ctrl={control}
+								bind:value={controller.basicStyles[control.id]}
+								bind:enabled={controller.enabledStyles[control.id]}
+							/>
+						{/each}
+					</SettingsGroup>
 				{/each}
-			</div>
+			</SidebarScrollLayout>
 		{:else}
 			<div class="advanced-editor">
 				{#if controller.isEditorLoading}
@@ -156,8 +177,13 @@
 	</div>
 
 	<div class="modal-footer">
+		<span class="enabled-summary">
+			{controller.enabledCount} on — {controller.enabledLabels || "nothing yet"}
+		</span>
 		<button class="btn-secondary" onclick={onClose}>Cancel</button>
-		<button class="btn-primary" onclick={() => controller.handleSave()}>Save Setting</button>
+		<button class="btn-primary" disabled={controller.enabledCount === 0} onclick={() => controller.handleSave()}>
+			Save ({controller.enabledCount})
+		</button>
 	</div>
 </div>
 
@@ -173,40 +199,39 @@
 		padding: 15px 20px 0;
 	}
 
-	.selector-info {
-		margin: 10px 20px 5px;
-		padding: 14px 18px;
-		border-radius: 15px;
-		background: var(--fg-opacity-03);
+	.selector-chip {
+		margin: 10px 20px 0;
 		display: flex;
 		align-items: center;
-		gap: 12px;
-		border: 1px solid var(--fg-opacity-05);
+		gap: 8px;
+		padding: 8px 12px;
+		border-radius: 10px;
+		border: 1px solid var(--fg-opacity-10);
+		background: var(--fg-opacity-03);
+		color: var(--text-primary);
+		cursor: pointer;
+		transition: background 0.2s ease;
 
-		.icon-box {
-			width: 36px;
-			height: 36px;
-			border-radius: 12px;
+		&:hover {
 			background: var(--fg-opacity-05);
-			display: flex;
-			align-items: center;
-			justify-content: center;
-			flex-shrink: 0;
-			border: 1px solid var(--fg-opacity-10);
-			color: var(--text-primary);
 		}
 
-		.info-text {
-			display: flex;
-			flex-direction: column;
-			gap: 4px;
+		.selector-text {
+			flex: 1;
+			min-width: 0;
+			font-family: "Fira Code", "JetBrains Mono", monospace;
+			font-size: 12px;
+			text-align: left;
+			overflow: hidden;
+			text-overflow: ellipsis;
+			white-space: nowrap;
+		}
 
-			.selector-name {
-				font-family: "Fira Code", "JetBrains Mono", monospace;
-				font-size: 13px;
-				color: var(--text-primary);
-				font-weight: 500;
-			}
+		.preview-status {
+			flex-shrink: 0;
+			font-size: 11px;
+			color: var(--fg-opacity-60);
+			white-space: nowrap;
 		}
 	}
 
@@ -218,19 +243,29 @@
 
 	.modal-content {
 		flex: 1;
-		min-height: 250px;
-		overflow-y: auto;
+		min-height: 0;
+		overflow: hidden;
 		border-radius: 12px;
 		border: 1px solid var(--border-subtle);
 		display: flex;
 		flex-direction: column;
 	}
 
-	.basic-controls-list {
-		padding: 20px;
+	:global(.quick-group-list) {
+		gap: 10px;
+		padding: 12px;
+	}
+
+	.group-header {
 		display: flex;
-		flex-direction: column;
-		gap: 15px;
+		align-items: center;
+		gap: 8px;
+		padding: 2px 4px 8px;
+		font-size: 13px;
+		font-weight: 700;
+		letter-spacing: 0.5px;
+		text-transform: uppercase;
+		color: var(--fg-opacity-60);
 	}
 
 	.advanced-editor {
@@ -269,8 +304,18 @@
 	.modal-footer {
 		padding: 15px 20px;
 		display: flex;
-		justify-content: flex-end;
+		align-items: center;
 		gap: 12px;
+
+		.enabled-summary {
+			flex: 1;
+			min-width: 0;
+			font-size: 12px;
+			color: var(--fg-opacity-60);
+			overflow: hidden;
+			text-overflow: ellipsis;
+			white-space: nowrap;
+		}
 	}
 
 	button {
@@ -289,6 +334,13 @@
 			&:hover {
 				filter: brightness(1.1);
 				transform: translateY(-1px);
+			}
+
+			&:disabled {
+				opacity: 0.4;
+				cursor: not-allowed;
+				filter: none;
+				transform: none;
 			}
 		}
 

@@ -1,31 +1,30 @@
 import { initializeDeveloperEnvironment, isDevModulesLoaded } from "@core/runtime/controller";
+import { ALL_CONTROLS, CONTROL_GROUPS, defaultBasicStyles, defaultEnabledStyles } from "./quickCustomizeControls";
+import { buildBasicCss } from "./quickCustomizeCss";
 
 export class QuickCustomizeController {
 	selector = $state("");
 	activeTab = $state("basic");
+	activeGroup = $state(CONTROL_GROUPS[0].id);
 	rawCss = $state("");
 	settingName = $state("");
 	isEditorLoading = $state(false);
 
-	basicStyles = $state<Record<string, string>>({
-		"background-color": "#ffffff",
-		color: "#000000",
-		"font-size": "14px",
-		opacity: "1",
-		"border-radius": "0px",
-		display: "block",
-	});
+	groups = CONTROL_GROUPS;
 
-	enabledStyles = $state<Record<string, boolean>>({
-		"background-color": false,
-		color: false,
-		"font-size": false,
-		opacity: false,
-		"border-radius": false,
-		display: false,
-	});
+	basicStyles = $state<Record<string, string>>(defaultBasicStyles());
+
+	enabledStyles = $state<Record<string, boolean>>(defaultEnabledStyles());
 
 	defaultName = $derived(`Custom: ${this.selector.slice(0, 20)}${this.selector.length > 20 ? "..." : ""}`);
+
+	enabledCount = $derived(Object.values(this.enabledStyles).filter(Boolean).length);
+
+	enabledLabels = $derived(
+		ALL_CONTROLS.filter((control) => this.enabledStyles[control.id])
+			.map((control) => control.label)
+			.join(", "),
+	);
 
 	previewStyleElement: HTMLStyleElement | null = null;
 	private props: {
@@ -58,15 +57,16 @@ export class QuickCustomizeController {
 		}
 	}
 
+	groupControls(groupId: string) {
+		return this.groups.find((group) => group.id === groupId)?.controls ?? [];
+	}
+
+	groupEnabledCount(groupId: string) {
+		return this.groupControls(groupId).filter((control) => this.enabledStyles[control.id]).length;
+	}
+
 	generateBasicCss() {
-		let css = `${this.selector} {\n`;
-		for (const [prop, value] of Object.entries(this.basicStyles)) {
-			if (this.enabledStyles[prop]) {
-				css += `  ${prop}: ${value} !important;\n`;
-			}
-		}
-		css += `}`;
-		return css;
+		return buildBasicCss(this.selector, this.basicStyles, this.enabledStyles, ALL_CONTROLS);
 	}
 
 	applyPreview() {

@@ -99,6 +99,7 @@
 		flex-direction: row;
 		align-items: center;
 		width: 100%;
+		margin-bottom: 12px;
 	}
 
 	.styleshift-color-preview-wrapper {

@@ -1,26 +1,31 @@
 <script lang="ts">
-	import Checkbox from "../settings/components/controls/Checkbox.svelte";
-	import ColorPicker from "../settings/components/controls/ColorPicker.svelte";
-	import Dropdown from "../settings/components/controls/Dropdown.svelte";
-	import Slider from "../settings/components/controls/Slider.svelte";
-	import TextInput from "../settings/components/controls/TextInput.svelte";
+	import Checkbox from "@controls/Checkbox.svelte";
+	import ColorPicker from "@controls/ColorPicker.svelte";
+	import Dropdown from "@controls/Dropdown.svelte";
+	import Slider from "@controls/Slider.svelte";
+	import TextInput from "@controls/TextInput.svelte";
+	import type { QuickControl } from "./quickCustomizeControls";
 
 	let {
 		ctrl,
 		enabled = $bindable(false),
 		value = $bindable(""),
 	}: {
-		ctrl: any;
+		ctrl: QuickControl;
 		enabled: boolean;
 		value: any;
 	} = $props();
 
-	const currentSetting = $derived({
+	// Touching a control turns its row on, so changes are never silently dropped.
+	const currentSetting: any = $derived({
 		...ctrl,
 		name: ctrl.label,
-		value: value,
+		value,
 		id: "",
-		updateFunction: (val: any) => (value = val),
+		updateFunction: (val: any) => {
+			value = val;
+			enabled = true;
+		},
 	});
 </script>
 
@@ -45,7 +50,7 @@
 		{:else if ctrl.type === "numberSlide"}
 			<Slider setting={currentSetting} />
 		{:else if ctrl.type === "dropdown"}
-			<Dropdown setting={currentSetting} />
+			<Dropdown setting={currentSetting} inline={true} />
 		{/if}
 	</div>
 </div>
@@ -54,16 +59,14 @@
 	.control-row {
 		display: flex;
 		align-items: center;
-		gap: 12px;
-		background: var(--fg-opacity-03);
-		padding: 10px 12px;
-		border-radius: 15px;
-		transition: all 0.2s ease;
-		border: 1px solid transparent;
+		gap: 14px;
+		padding: 12px 14px;
+		min-width: 0;
+		border-radius: 14px;
+		transition: background 0.2s ease;
 
 		&:hover {
-			background: var(--fg-opacity-05);
-			border-color: var(--fg-opacity-10);
+			background: var(--fg-opacity-03);
 		}
 
 		.toggle-side {
@@ -73,9 +76,14 @@
 		.input-side {
 			flex: 1;
 			min-width: 0;
-			gap: 10px;
 			display: flex;
 			flex-direction: column;
+
+			:global(.styleshift-main-description .setting-name) {
+				font-size: 14px;
+				font-weight: 600;
+				opacity: 0.9;
+			}
 		}
 	}
 </style>

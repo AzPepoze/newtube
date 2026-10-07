@@ -41,8 +41,8 @@ async function openQuickCustomizeUI(selector: string, existingSetting?: Setting)
 
 	pickerWindow = await createStyleShiftWindow({
 		title: existingSetting && "name" in existingSetting ? `Edit: ${existingSetting.name}` : "Quick Customize",
-		width: "480px",
-		height: "640px",
+		width: "680px",
+		height: "680px",
 		center: true,
 	});
 

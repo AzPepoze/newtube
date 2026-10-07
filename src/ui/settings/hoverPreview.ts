@@ -56,9 +56,12 @@ function isVisible(element: HTMLElement, rect: DOMRect) {
 }
 
 function startPreview(selectors: string[], onStatus: (status: string) => void) {
+	const validSelectors = selectors.filter(Boolean);
+	if (validSelectors.length === 0) return () => {};
+
 	const matches = new Set<HTMLElement>();
 	try {
-		for (const selector of selectors) {
+		for (const selector of validSelectors) {
 			for (const element of Array.from(document.querySelectorAll<HTMLElement>(selector))) {
 				if (!element.closest(EXCLUDED_UI_SELECTOR)) matches.add(element);
 			}
