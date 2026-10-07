@@ -104,6 +104,12 @@
 			onApply(id);
 		}
 	}
+
+	let creatorInitial = $derived(creator?.displayName?.charAt(0)?.toUpperCase() ?? "?");
+
+	function stopCreatorActivation(event: Event) {
+		event.stopPropagation();
+	}
 </script>
 
 <div
@@ -177,10 +183,14 @@
 							target="_blank"
 							rel="noopener noreferrer"
 							aria-label={`Open ${creator.displayName}'s profile`}
-							onclick={(event) => event.stopPropagation()}
-							onkeydown={(event) => event.stopPropagation()}
+							onclick={stopCreatorActivation}
+							onkeydown={stopCreatorActivation}
 						>
-							<img src={creator.avatarUrl} alt="" />
+							{#if creator.avatarUrl}
+								<img src={creator.avatarUrl} alt="" loading="lazy" />
+							{:else}
+								<span class="creator-fallback" aria-hidden="true">{creatorInitial}</span>
+							{/if}
 							<span class="creator-name">{creator.displayName}</span>
 						</a>
 					{/if}
@@ -585,6 +595,24 @@
 			border-radius: 50%;
 			background: rgba(0, 0, 0, 0.45);
 			object-fit: cover;
+			box-shadow: 0 1px 4px rgba(0, 0, 0, 0.55);
+		}
+
+		.creator-fallback {
+			position: absolute;
+			left: 0;
+			bottom: 0;
+			width: 26px;
+			height: 26px;
+			display: flex;
+			align-items: center;
+			justify-content: center;
+			border: 1px solid rgba(255, 255, 255, 0.65);
+			border-radius: 50%;
+			background: rgba(0, 0, 0, 0.55);
+			color: #fff;
+			font-size: 12px;
+			font-weight: 700;
 			box-shadow: 0 1px 4px rgba(0, 0, 0, 0.55);
 		}
 	}

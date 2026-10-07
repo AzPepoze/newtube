@@ -11,7 +11,7 @@ import {
 	saveTheme as saveThemeManager,
 	type Theme,
 } from "@core/theme/manager";
-import { STYLESHIFT_STORE_API_URL } from "@core/theme/config";
+import { STYLESHIFT_STORE_API_URL, STYLESHIFT_STORE_ORIGINS, STYLESHIFT_STORE_URL } from "@core/theme/config";
 import {
 	extractListFromResponse,
 	extractPaginationFromResponse,
@@ -31,35 +31,60 @@ const CREATOR_PROFILE_CACHE_TTL = 5 * 60 * 1000;
 const creatorProfileCache = new SvelteMap<string, { profile: CreatorProfile; expiresAt: number }>();
 const creatorProfileRequests = new SvelteMap<string, Promise<CreatorProfile | null>>();
 
+function asNonEmptyString(value: unknown): string {
+	if (typeof value !== "string") return "";
+	const trimmed = value.trim();
+	return trimmed ? trimmed : "";
+}
+
 function isHttpUrl(value: unknown): value is string {
-	if (typeof value !== "string" || !value.trim()) return false;
+	if (!asNonEmptyString(value)) return false;
 	try {
-		const url = new URL(value);
+		const url = new URL(value as string);
 		return url.protocol === "http:" || url.protocol === "https:";
 	} catch {
 		return false;
 	}
 }
 
-function parseCreatorProfile(data: unknown, ownerId: string): CreatorProfile | null {
+function unwrapStoreUser(data: unknown): Record<string, unknown> | null {
 	if (!data || typeof data !== "object" || Array.isArray(data)) return null;
-	const profile = data as Record<string, unknown>;
-	if (
-		profile.id !== ownerId ||
-		typeof profile.displayName !== "string" ||
-		!profile.displayName.trim() ||
-		!isHttpUrl(profile.avatarUrl) ||
-		!isHttpUrl(profile.profileUrl)
-	) {
-		return null;
+	const root = data as Record<string, unknown>;
+	if (root.user && typeof root.user === "object" && !Array.isArray(root.user)) {
+		return root.user as Record<string, unknown>;
 	}
+	return root;
+}
+
+function resolveStoreOrigin(): string {
+	const configured = asNonEmptyString(STYLESHIFT_STORE_ORIGINS?.[0]).replace(/\/$/, "");
+	if (configured) return configured;
+	try {
+		return new URL(STYLESHIFT_STORE_URL).origin;
+	} catch {
+		return "";
+	}
+}
+
+function parseCreatorProfile(data: unknown, ownerId: string): CreatorProfile | null {
+	const user = unwrapStoreUser(data);
+	if (!user || user.id !== ownerId) return null;
+
+	const origin = resolveStoreOrigin();
+	if (!origin) return null;
 
 	return {
-		id: profile.id,
-		displayName: profile.displayName.trim(),
-		avatarUrl: profile.avatarUrl,
-		profileUrl: profile.profileUrl,
+		id: ownerId,
+		displayName: asNonEmptyString(user.name) || asNonEmptyString(user.displayName) || `@${ownerId.slice(0, 8)}`,
+		avatarUrl: isHttpUrl(user.avatarUrl) ? user.avatarUrl : "",
+		profileUrl: `${origin}/profile?userId=${encodeURIComponent(ownerId)}`,
 	};
+}
+
+async function fetchCreatorProfile(ownerId: string): Promise<CreatorProfile | null> {
+	const res = await fetch(`${STYLESHIFT_STORE_API_URL}/users/profile?userId=${encodeURIComponent(ownerId)}`);
+	if (!res.ok) return null;
+	return parseCreatorProfile(await res.json(), ownerId);
 }
 
 async function getCreatorProfile(ownerId: string): Promise<CreatorProfile | null> {
@@ -69,21 +94,22 @@ async function getCreatorProfile(ownerId: string): Promise<CreatorProfile | null
 	const inFlight = creatorProfileRequests.get(ownerId);
 	if (inFlight) return inFlight;
 
-	const request = (async () => {
-		try {
-			const res = await fetch(`${STYLESHIFT_STORE_API_URL}/users/${encodeURIComponent(ownerId)}`);
-			if (!res.ok) return null;
-			const profile = parseCreatorProfile(await res.json(), ownerId);
+	const request = fetchCreatorProfile(ownerId)
+		.then((profile) => {
 			if (profile) creatorProfileCache.set(ownerId, { profile, expiresAt: Date.now() + CREATOR_PROFILE_CACHE_TTL });
 			return profile;
-		} catch {
-			return null;
-		} finally {
+		})
+		.catch(() => null)
+		.finally(() => {
 			creatorProfileRequests.delete(ownerId);
-		}
-	})();
+		});
 	creatorProfileRequests.set(ownerId, request);
 	return request;
+}
+
+function collectOwnerIds(themes: Theme[]): string[] {
+	const ownerIds = themes.map((theme) => theme.ownerId).filter((ownerId): ownerId is string => Boolean(ownerId));
+	return [...new SvelteSet(ownerIds)];
 }
 
 async function parseResponseError(res: Response): Promise<string> {
@@ -142,20 +168,14 @@ export class ThemeManagerController {
 	}
 
 	private async loadCreatorProfiles(themes: Theme[]) {
-		const ownerIds = [
-			...new SvelteSet(themes.map((theme) => theme.ownerId).filter((ownerId): ownerId is string => Boolean(ownerId))),
-		];
-		const profiles = await Promise.all(
-			ownerIds.map(async (ownerId) => [ownerId, await getCreatorProfile(ownerId)] as const),
-		);
-		const resolved = profiles.filter((entry): entry is readonly [string, CreatorProfile] => entry[1] !== null);
-		const ownerIdsToRefresh = new SvelteSet(ownerIds);
-		this.creatorProfiles = {
-			...Object.fromEntries(
-				Object.entries(this.creatorProfiles).filter(([ownerId]) => !ownerIdsToRefresh.has(ownerId)),
-			),
-			...Object.fromEntries(resolved),
-		};
+		const ownerIds = collectOwnerIds(themes);
+		const profiles = await Promise.all(ownerIds.map((ownerId) => getCreatorProfile(ownerId)));
+		const next = { ...this.creatorProfiles };
+		for (const [index, ownerId] of ownerIds.entries()) {
+			const profile = profiles[index];
+			if (profile) next[ownerId] = profile;
+		}
+		this.creatorProfiles = next;
 	}
 
 	async refreshActiveTheme() {
