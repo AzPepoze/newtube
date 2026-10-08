@@ -2,7 +2,7 @@ import { openSettingPage } from "@core/shared/extensionHelpers";
 import { showExtensionUpdateNotification } from "@core/shared/versionUpdate";
 import { exportThemeWithSelection } from "@core/theme/exporter";
 import { exportCurrentSettingsObject, importThemeWorkflow } from "@core/theme/importer";
-import { checkAndUpdateTheme, openThemeStore } from "@core/theme/storeIntegration";
+import { checkAndUpdateTheme, openThemeStore, openThemeSubmitPage } from "@core/theme/storeIntegration";
 import { getAddOnItems } from "@settings/registry/items";
 import { type Category, type SeparateCategory } from "@settings/types/styleshiftTypes";
 import { toggleCustomize } from "@ui/highlight/highlight";
@@ -75,6 +75,17 @@ const defaultStyleShiftItems: (Category | SeparateCategory)[] = [
 				align: "left",
 				type: "button",
 				icon: "storefront",
+			},
+			{
+				clickFunction: openThemeSubmitPage,
+				type: "button",
+				id: "ShareThemeButton",
+				name: "Share Your Theme",
+				description: "Submit your current setup to the NewTube store and share it with everyone.",
+				fontSize: 15,
+				color: "#ffb020",
+				align: "left",
+				icon: "ios_share",
 			},
 			{
 				clickFunction: startQuickCustomize,

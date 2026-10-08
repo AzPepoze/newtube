@@ -39,6 +39,11 @@ export const STYLESHIFT_STORE_URL: string = config.store_url || "";
 export const STYLESHIFT_STORE_DISCOVER_URL: string = config.store_discover || "";
 
 /**
+ * URL for submitting / sharing a theme on the store (e.g. /themes/create).
+ */
+export const STYLESHIFT_STORE_SUBMIT_URL: string = config.store_submit || "";
+
+/**
  * Preview URL for theme store (e.g. /themes/preview).
  */
 export const STYLESHIFT_STORE_PREVIEW_URL: string = config.store_url ? `${config.store_url}/preview` : "";
@@ -53,5 +58,6 @@ logger.info("themeConfig", "Theme store configuration loaded", {
 	apiUrl: STYLESHIFT_STORE_API_URL,
 	storeUrl: STYLESHIFT_STORE_URL,
 	discoverUrl: STYLESHIFT_STORE_DISCOVER_URL,
+	submitUrl: STYLESHIFT_STORE_SUBMIT_URL,
 	version: STYLESHIFT_VERSION,
 });

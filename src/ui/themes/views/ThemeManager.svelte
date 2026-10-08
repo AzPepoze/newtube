@@ -220,6 +220,19 @@
 					clickFunction: () => controller.importTheme(),
 				}}
 			/>
+			<Button
+				class="footer-btn"
+				variant="subtle"
+				iconSize={18}
+				fontSize={13.5}
+				setting={{
+					type: "button",
+					name: "Share",
+					icon: "ios_share",
+					color: "var(--theme-0-light)",
+					clickFunction: () => controller.submitTheme(),
+				}}
+			/>
 		</div>
 
 		{#if currentView === "store" && controller.storeTotal > 0}

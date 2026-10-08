@@ -11,6 +11,7 @@ import {
 import { ThemeStoreEvent } from "@core/theme/events";
 import { postReplyToStore } from "@core/theme/storeProtocol";
 import { logger } from "@shared/logger";
+import { STYLESHIFT_STORE_SUBMIT_URL } from "@core/theme/config";
 
 async function handleInstallRequest(e: Event): Promise<void> {
 	const detail = (e as CustomEvent).detail;
@@ -104,4 +105,9 @@ import { showThemeManager } from "@ui/themes/themeManagerService";
 
 export function openThemeStore() {
 	showThemeManager("store");
+}
+
+export function openThemeSubmitPage() {
+	if (!STYLESHIFT_STORE_SUBMIT_URL) return;
+	window.open(STYLESHIFT_STORE_SUBMIT_URL, "_blank", "noopener");
 }

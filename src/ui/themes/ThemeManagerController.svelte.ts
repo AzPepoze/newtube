@@ -375,6 +375,10 @@ export class ThemeManagerController {
 		openThemeStore();
 	}
 
+	submitTheme() {
+		void import("@core/theme/storeIntegration").then(({ openThemeSubmitPage }) => openThemeSubmitPage());
+	}
+
 	async importTheme() {
 		await importThemeWorkflow();
 		await this.loadThemes();
