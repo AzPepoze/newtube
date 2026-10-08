@@ -33,6 +33,10 @@
 		return controller.themes.filter((t) => t.themeName.toLowerCase().includes(query));
 	});
 
+	const currentViewIsEmpty = $derived(
+		currentView === "installed" ? filteredLocalThemes.length === 0 : controller.storeThemes.length === 0,
+	);
+
 	const tabOptions = [
 		{ id: "installed", label: "Installed", icon: "folder_open" },
 		{ id: "store", label: "Store", icon: "storefront" },
@@ -111,13 +115,14 @@
 		{/if}
 	</div>
 
-	<div
-		class="theme-grid"
-		class:has-themes={(currentView === "installed" ? filteredLocalThemes : controller.storeThemes).length > 0}
-		style={`--theme-card-min-width: ${cardMinWidth}px`}
-	>
+	<div class="theme-grid" style={`--theme-card-min-width: ${cardMinWidth}px`}>
 		{#key currentView}
-			<div class="view-container" in:fly={{ y: 20, duration: 400, delay: 200 }} out:fade={{ duration: 200 }}>
+			<div
+				class="view-container"
+				class:is-empty={currentViewIsEmpty}
+				in:fly={{ y: 20, duration: 400, delay: 200 }}
+				out:fade={{ duration: 200 }}
+			>
 				{#if currentView === "installed"}
 					{#each filteredLocalThemes as theme, i (theme.themeId)}
 						<ThemeCard
@@ -330,6 +335,7 @@
 		padding-right: 5px;
 		flex: 1;
 		min-height: 0;
+		position: relative;
 
 		&::-webkit-scrollbar {
 			width: 6px;
@@ -338,6 +344,14 @@
 			background: var(--fg-opacity-10);
 			border-radius: 10px;
 		}
+	}
+
+	.view-container.is-empty {
+		position: absolute;
+		inset: 0;
+		display: flex;
+		align-items: center;
+		justify-content: center;
 	}
 
 	.store-loading {
@@ -372,12 +386,13 @@
 
 	.empty-state {
 		grid-column: 1 / -1;
-		padding: 60px 20px;
+		padding: 40px 20px;
 		text-align: center;
 		color: var(--fg-opacity-40);
-		background: var(--fg-opacity-02);
-		border: 2px dashed var(--fg-opacity-10);
-		border-radius: 20px;
+		display: flex;
+		flex-direction: column;
+		align-items: center;
+		justify-content: center;
 
 		.empty-icon {
 			margin-bottom: 10px;
@@ -403,10 +418,6 @@
 		margin-top: 20px;
 		z-index: 100;
 		position: relative;
-		border: 1px solid var(--fg-opacity-10);
-		border-radius: 16px;
-		background: linear-gradient(to bottom, var(--fg-opacity-05), var(--fg-opacity-02)), var(--bg-main);
-		box-shadow: 0 -8px 24px var(--bg-overlay-10);
 
 		.actions-left,
 		.actions-right,
