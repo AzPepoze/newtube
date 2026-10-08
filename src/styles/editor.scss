@@ -309,12 +309,12 @@
 .styleshift-hover-preview-outline {
 	position: fixed;
 	box-sizing: border-box;
-	border: 2px solid var(--theme-0);
+	border: 2px solid var(--nt-theme-color);
 	border-radius: 6px;
-	background: color-mix(in srgb, var(--theme-0) 12%, transparent);
+	background: color-mix(in srgb, var(--nt-theme-color) 12%, transparent);
 	box-shadow:
 		0 0 0 1px rgba(0, 0, 0, 0.45),
-		0 0 12px var(--theme-0);
+		0 0 12px var(--nt-theme-color);
 	pointer-events: none;
 	animation: styleshift-preview-show 160ms cubic-bezier(0.2, 0.8, 0.2, 1) both;
 }
