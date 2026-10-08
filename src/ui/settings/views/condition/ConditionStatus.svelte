@@ -119,10 +119,12 @@
 
 			.item-target {
 				font-size: 11.5px;
-				color: var(--fg-opacity-50);
-				background: var(--fg-opacity-05);
-				padding: 1px 7px;
-				border-radius: 5px;
+				font-weight: 600;
+				letter-spacing: 0.2px;
+				color: var(--fg-opacity-80);
+				background: var(--fg-opacity-08);
+				padding: 2px 8px;
+				border-radius: 6px;
 				white-space: nowrap;
 			}
 
@@ -133,7 +135,7 @@
 
 				.item-target {
 					color: var(--theme-success);
-					background: var(--theme-success-20);
+					background: var(--fg-opacity-08);
 				}
 			}
 		}
