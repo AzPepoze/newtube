@@ -3,6 +3,7 @@
 	import type { Category, SeparateCategory } from "@settings/types/styleshiftTypes";
 	import SidebarNavItem from "@base/SidebarNavItem.svelte";
 	import SidebarScrollLayout from "@ui/shared/views/SidebarScrollLayout.svelte";
+	import { slide } from "svelte/transition";
 	import { getCategoryParts } from "@ui/window/utils";
 	import Search from "../base/Search.svelte";
 	import { SettingsWindowController } from "../../SettingsWindowController.svelte";
@@ -95,7 +96,13 @@
 			{/each}
 
 			{#if isDeveloperMode && isDevModulesLoaded}
-				<button class="styleshift-add-category-button" onclick={controller.handleAddCategory}> + </button>
+				<button
+					class="styleshift-add-category-button"
+					onclick={controller.handleAddCategory}
+					transition:slide={{ duration: 220 }}
+				>
+					+
+				</button>
 			{/if}
 		{/snippet}
 
@@ -169,7 +176,7 @@
 		color: var(--text-primary);
 		padding: 8px 5px;
 		margin: 3px 10px;
-		border-radius: 4px;
+		border-radius: 1000px;
 		cursor: pointer;
 		font-weight: bold;
 		font-size: 16px;
