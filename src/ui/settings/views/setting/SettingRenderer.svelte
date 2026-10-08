@@ -115,7 +115,7 @@
 		{:else if setting.type === "color"}
 			<ColorPicker {setting} />
 		{:else if setting.type === "dropdown"}
-			<Dropdown {setting} />
+			<Dropdown {setting} inline />
 		{:else if setting.type === "text"}
 			<Text html={setting.html} fontSize={setting.fontSize} {textAlign} />
 		{:else if setting.type === "subText"}

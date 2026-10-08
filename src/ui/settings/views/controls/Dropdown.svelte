@@ -276,9 +276,9 @@
 			}
 
 			.styleshift-dropdown-wrapper {
-				flex: 1 1 0;
-				min-width: 0;
-				max-width: 60%;
+				flex: 0 0 auto;
+				width: 190px;
+				max-width: 45%;
 			}
 		}
 	}
