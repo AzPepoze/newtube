@@ -167,7 +167,7 @@
 	});
 </script>
 
-<div class="styleshift-preview-image-container preset-{preset}" bind:this={container}>
+<div class="styleshift-preview-image-container preset-{preset}" class:flush-canvas={!settingIds} bind:this={container}>
 	{#if title}
 		<div class="styleshift-preview-header">
 			<span class="styleshift-preview-title">{title}</span>
@@ -228,6 +228,10 @@
 		transition: transform 0.3s;
 		padding: 10px;
 		box-sizing: border-box;
+
+		&.flush-canvas {
+			padding: 0;
+		}
 
 		&:hover {
 			border-color: var(--theme-0);
