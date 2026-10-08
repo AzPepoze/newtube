@@ -326,7 +326,7 @@ export async function startHighlighter() {
 	await waitDocumentLoaded();
 	if (runningCustomize) showExitHint();
 	highlightLayer = document.createElement("div");
-	highlightLayer.className = "styleshift-highlight-layer";
+	highlightLayer.className = "styleshift-highlight-layer styleshift-main";
 	highlightLabel = document.createElement("div");
 	highlightLabel.className = "styleshift-highlight-label";
 	highlightLayer.append(highlightLabel);
