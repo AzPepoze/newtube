@@ -1,99 +1,38 @@
-<div class="ce-visual">
-	<div class="target-list">
-		<div class="target-chip">Masthead</div>
-		<div class="target-chip scan">Player</div>
-		<div class="target-chip">Guide</div>
-	</div>
-	<div class="settings-panel">
-		<span class="panel-title">Player settings</span>
-		<span class="panel-row"></span>
-		<span class="panel-row short"></span>
-	</div>
-</div>
+<script lang="ts">
+	import MockCursor from "../mock/MockCursor.svelte";
+	import MockPage from "../mock/MockPage.svelte";
+	import MockPanel from "../mock/MockPanel.svelte";
+	import MockRow from "../mock/MockRow.svelte";
+	import MockWindow from "../mock/MockWindow.svelte";
+	import PaletteGrid from "../mock/PaletteGrid.svelte";
+	import { PANEL_NAV, QUICK_PALETTE_ITEMS } from "../mock/palette";
+	import { PANEL_CATEGORY } from "../tutorialSteps";
 
-<style lang="scss">
-	.ce-visual {
-		width: 100%;
-		display: flex;
-		align-items: center;
-		justify-content: center;
-		gap: 16px;
-	}
+	let { beat }: { beat: number } = $props();
 
-	.target-list {
-		display: flex;
-		flex-direction: column;
-		gap: 8px;
-	}
+	const panelOpen = $derived(beat === 0);
+	const isPicking = $derived(beat >= 1 && beat <= 4);
+	const hoverCard = $derived(beat >= 2 && beat <= 4 ? 1 : -1);
+	const dimCard = $derived(beat >= 4 ? 1 : -1);
+	const editorOpen = $derived(beat >= 3);
+	const hotId = $derived(beat === 0 ? "customizeElements" : "");
+	const pressedId = $derived(beat === 1 ? "customizeElements" : "");
+</script>
 
-	.target-chip {
-		padding: 7px 14px;
-		border-radius: 8px;
-		border: 1px solid var(--fg-opacity-10);
-		background: var(--fg-opacity-03);
-		font-size: 12px;
-		color: var(--font-color-dim);
+<MockPage pickMode={isPicking} {hoverCard} {dimCard}>
+	<MockCursor x="51%" y="141px" pressed={beat === 3} visible={beat === 2 || beat === 3} />
 
-		&.scan {
-			animation: chip-scan 3s ease-in-out infinite;
-		}
-	}
+	<MockWindow title="Video player" open={editorOpen} placement="left: 66%; top: 14%; width: 32%;">
+		<MockRow name="Dim video" on={beat >= 4} highlight={beat === 4} />
+		<MockRow name="Show title" on={true} />
+	</MockWindow>
 
-	.settings-panel {
-		width: 120px;
-		display: flex;
-		flex-direction: column;
-		gap: 7px;
-		padding: 10px;
-		border-radius: 10px;
-		border: 1px solid var(--theme-0-30);
-		background: var(--theme-0-10);
-		animation: panel-in 3s ease-in-out infinite;
-	}
-
-	.panel-title {
-		font-size: 11px;
-		font-weight: 700;
-		color: var(--theme-0-text);
-	}
-
-	.panel-row {
-		height: 5px;
-		border-radius: 3px;
-		background: var(--theme-0-30);
-
-		&.short {
-			width: 55%;
-		}
-	}
-
-	@keyframes chip-scan {
-		0%,
-		20% {
-			border-color: var(--fg-opacity-10);
-			background: var(--fg-opacity-03);
-			color: var(--font-color-dim);
-			transform: translateX(0);
-		}
-		45%,
-		100% {
-			border-color: var(--theme-0);
-			background: var(--theme-0-15);
-			color: var(--font-color);
-			transform: translateX(6px);
-		}
-	}
-
-	@keyframes panel-in {
-		0%,
-		35% {
-			opacity: 0;
-			transform: translateX(8px);
-		}
-		60%,
-		100% {
-			opacity: 1;
-			transform: translateX(0);
-		}
-	}
-</style>
+	<MockPanel
+		items={PANEL_NAV}
+		selected={PANEL_CATEGORY.quickPalette}
+		title={PANEL_CATEGORY.quickPalette}
+		open={panelOpen}
+	>
+		<PaletteGrid items={QUICK_PALETTE_ITEMS} {hotId} {pressedId} />
+	</MockPanel>
+</MockPage>

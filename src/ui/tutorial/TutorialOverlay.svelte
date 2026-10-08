@@ -2,19 +2,29 @@
 	import Icon from "@base/Icon.svelte";
 	import { logger } from "@shared/logger";
 	import { onDestroy, onMount } from "svelte";
-	import { TUTORIAL_STEPS } from "./tutorialSteps";
+	import { fade } from "svelte/transition";
+	import TutorialStage from "./TutorialStage.svelte";
+	import { openPanelAt } from "./tutorialNavigation";
+	import { TUTORIAL_STEPS, type TutorialTier } from "./tutorialSteps";
 	import { markTutorialSeen } from "./tutorialStorage";
-	import CustomizeElementVisual from "./visuals/CustomizeElementVisual.svelte";
-	import DeveloperModeVisual from "./visuals/DeveloperModeVisual.svelte";
-	import QuickCustomizeVisual from "./visuals/QuickCustomizeVisual.svelte";
-	import SaveExportVisual from "./visuals/SaveExportVisual.svelte";
 
 	let { onClose = () => {} }: { onClose?: () => void } = $props();
 
 	let currentIndex = $state(0);
 
 	const currentStep = $derived(TUTORIAL_STEPS[currentIndex]);
+	const isFirstStep = $derived(currentIndex === 0);
 	const isLastStep = $derived(currentIndex === TUTORIAL_STEPS.length - 1);
+	const tierLabel = $derived(currentStep.tier === "core" ? "Core" : "Optional");
+
+	const navGroups: { label: string; tier: TutorialTier }[] = [
+		{ label: "Core", tier: "core" },
+		{ label: "Optional", tier: "optional" },
+	];
+
+	function stepsInTier(tier: TutorialTier) {
+		return TUTORIAL_STEPS.map((step, index) => ({ step, index })).filter((item) => item.step.tier === tier);
+	}
 
 	function goTo(index: number) {
 		currentIndex = Math.max(0, Math.min(TUTORIAL_STEPS.length - 1, index));
@@ -25,6 +35,11 @@
 		onClose();
 	}
 
+	function openSetting(category?: string) {
+		close();
+		void openPanelAt(category);
+	}
+
 	function handleNext() {
 		if (isLastStep) close();
 		else goTo(currentIndex + 1);
@@ -32,6 +47,8 @@
 
 	function handleKeyDown(event: KeyboardEvent) {
 		if (event.key === "Escape") close();
+		if (event.key === "ArrowRight") goTo(currentIndex + 1);
+		if (event.key === "ArrowLeft") goTo(currentIndex - 1);
 	}
 
 	onMount(() => {
@@ -57,48 +74,62 @@
 		</header>
 
 		<div class="tutorial-body">
-			<nav class="tutorial-topics">
-				{#each TUTORIAL_STEPS as step, index (step.id)}
-					<button class="topic-item" class:active={index === currentIndex} onclick={() => goTo(index)}>
-						<span class="topic-index">{index + 1}</span>
-						<span class="topic-text">
-							<span class="topic-title">{step.title}</span>
-							<span class="topic-summary">{step.summary}</span>
-						</span>
-					</button>
+			<nav class="tutorial-nav">
+				{#each navGroups as group (group.label)}
+					<span class="nav-title">{group.label}</span>
+					{#each stepsInTier(group.tier) as item (item.step.id)}
+						<button
+							class="nav-item"
+							class:active={item.index === currentIndex}
+							class:done={item.index < currentIndex}
+							style="--accent: {item.step.accent}"
+							onclick={() => goTo(item.index)}
+						>
+							<span class="nav-index">
+								{#if item.index < currentIndex}
+									<Icon name="check" size={12} />
+								{:else}
+									{item.index + 1}
+								{/if}
+							</span>
+							<span class="nav-label">{item.step.title}</span>
+						</button>
+					{/each}
 				{/each}
 			</nav>
 
-			<section class="tutorial-step">
+			<section class="tutorial-main">
 				{#key currentStep.id}
-					<div class="step-content">
-						<h2 class="step-title">{currentStep.title}</h2>
-						<p class="step-body">{currentStep.body}</p>
-						<div class="step-visual">
-							{#if currentStep.visual === "developerMode"}
-								<DeveloperModeVisual />
-							{:else if currentStep.visual === "quickCustomize"}
-								<QuickCustomizeVisual />
-							{:else if currentStep.visual === "customizeElement"}
-								<CustomizeElementVisual />
-							{:else}
-								<SaveExportVisual />
+					<div class="step-content" in:fade={{ duration: 260, delay: 200 }} out:fade={{ duration: 200 }}>
+						<TutorialStage step={currentStep} onNavigate={openSetting} />
+
+						<div class="step-copy" style="--accent: {currentStep.accent}">
+							<span class="step-tier">{tierLabel}</span>
+							<h2 class="step-title">{currentStep.title}</h2>
+							<p class="step-body">{currentStep.body}</p>
+							{#if currentStep.bullets.length}
+								<ul class="step-bullets">
+									{#each currentStep.bullets as bullet (bullet)}
+										<li>{bullet}</li>
+									{/each}
+								</ul>
+							{/if}
+							{#if currentStep.actionLabel}
+								<button class="action-button" onclick={() => openSetting(currentStep.panelCategory)}>
+									<Icon name="arrow_forward" size={16} />
+									<span>{currentStep.actionLabel}</span>
+								</button>
 							{/if}
 						</div>
-						{#if currentStep.bullets.length}
-							<ul class="step-bullets">
-								{#each currentStep.bullets as bullet (bullet)}
-									<li>{bullet}</li>
-								{/each}
-							</ul>
-						{/if}
 					</div>
 				{/key}
 
 				<footer class="step-footer">
-					<button class="nav-button" onclick={() => goTo(currentIndex - 1)} disabled={currentIndex === 0}>Back</button>
-					<span class="step-progress">{currentIndex + 1} / {TUTORIAL_STEPS.length}</span>
-					<button class="nav-button primary" onclick={handleNext}>{isLastStep ? "Done" : "Next"}</button>
+					<button class="nav-button" onclick={() => goTo(currentIndex - 1)} disabled={isFirstStep}>Back</button>
+					<span class="step-count">{currentIndex + 1} / {TUTORIAL_STEPS.length}</span>
+					<button class="nav-button primary" style="--accent: {currentStep.accent}" onclick={handleNext}>
+						{isLastStep ? "Done" : "Next"}
+					</button>
 				</footer>
 			</section>
 		</div>
@@ -127,8 +158,8 @@
 
 	.tutorial-panel {
 		position: relative;
-		width: min(860px, calc(100vw - 40px));
-		height: min(600px, calc(100vh - 40px));
+		width: min(980px, calc(100vw - 40px));
+		height: min(700px, calc(100vh - 40px));
 		display: flex;
 		flex-direction: column;
 		border-radius: 16px;
@@ -138,7 +169,7 @@
 		-webkit-backdrop-filter: var(--window-blur) var(--window-saturate);
 		box-shadow: 0 20px 60px var(--shadow-color);
 		overflow: hidden;
-		animation: panel-in 0.2s ease-out;
+		animation: panel-in 0.3s cubic-bezier(0.22, 1, 0.36, 1);
 	}
 
 	.tutorial-header {
@@ -183,40 +214,62 @@
 		grid-template-columns: 240px 1fr;
 	}
 
-	.tutorial-topics {
+	.tutorial-nav {
 		display: flex;
 		flex-direction: column;
-		gap: 6px;
-		padding: 14px;
+		gap: 4px;
+		padding: 14px 10px;
 		border-right: 1px solid var(--border-subtle);
 		background: var(--fg-opacity-03);
 		overflow-y: auto;
 	}
 
-	.topic-item {
+	.nav-title {
+		padding: 10px 8px 6px;
+		font-size: 11px;
+		font-weight: 700;
+		letter-spacing: 1px;
+		text-transform: uppercase;
+		color: var(--font-color-dim);
+
+		&:not(:first-child) {
+			margin-top: 8px;
+			border-top: 1px solid var(--border-subtle);
+		}
+	}
+
+	.nav-item {
 		display: flex;
 		align-items: center;
 		gap: 10px;
-		padding: 10px 12px;
+		padding: 8px 10px;
 		border: 1px solid transparent;
 		border-radius: 10px;
 		background: transparent;
+		color: var(--font-color-dim);
 		text-align: left;
 		cursor: pointer;
-		color: var(--font-color-dim);
+		transition:
+			background 300ms ease,
+			border-color 300ms ease;
 
 		&:hover {
 			background: var(--fg-opacity-05);
 		}
 
 		&.active {
-			border-color: var(--theme-0-30);
-			background: var(--theme-0-15);
+			border-color: color-mix(in srgb, var(--accent) 50%, transparent);
+			background: color-mix(in srgb, var(--accent) 18%, transparent);
 			color: var(--font-color);
+		}
+
+		&.done .nav-index {
+			background: var(--accent);
+			color: var(--fg-opacity-100);
 		}
 	}
 
-	.topic-index {
+	.nav-index {
 		display: flex;
 		align-items: center;
 		justify-content: center;
@@ -227,34 +280,26 @@
 		background: var(--fg-opacity-10);
 		font-size: 11px;
 		font-weight: 700;
+		transition: background 300ms ease;
 
-		.topic-item.active & {
-			background: var(--theme-0);
+		.nav-item.active & {
+			background: var(--accent);
 			color: var(--fg-opacity-100);
 		}
 	}
 
-	.topic-text {
+	.nav-label {
+		font-size: 13px;
+		font-weight: 600;
+	}
+
+	.tutorial-main {
 		display: flex;
 		flex-direction: column;
 		min-width: 0;
-	}
-
-	.topic-title {
-		font-size: 13px;
-		font-weight: 700;
-	}
-
-	.topic-summary {
-		font-size: 11px;
-		opacity: 0.75;
-	}
-
-	.tutorial-step {
-		display: flex;
-		flex-direction: column;
 		min-height: 0;
-		padding: 20px 24px 16px;
+		padding: 16px 22px;
+		gap: 14px;
 	}
 
 	.step-content {
@@ -262,13 +307,30 @@
 		min-height: 0;
 		display: flex;
 		flex-direction: column;
-		gap: 12px;
-		overflow-y: auto;
-		animation: step-in 0.25s ease-out;
+		gap: 14px;
+	}
+
+	.step-copy {
+		display: flex;
+		flex-direction: column;
+		gap: 6px;
+	}
+
+	.step-tier {
+		align-self: flex-start;
+		padding: 3px 10px;
+		border-radius: 999px;
+		background: color-mix(in srgb, var(--accent) 22%, transparent);
+		border: 1px solid color-mix(in srgb, var(--accent) 50%, transparent);
+		font-size: 11px;
+		font-weight: 700;
+		letter-spacing: 0.04em;
+		text-transform: uppercase;
+		color: var(--font-color);
 	}
 
 	.step-title {
-		margin: 0;
+		margin: 2px 0 0;
 		font-size: 20px;
 		font-weight: 700;
 		color: var(--font-color);
@@ -281,26 +343,58 @@
 		color: var(--font-color-dim);
 	}
 
-	.step-visual {
-		display: flex;
-		align-items: center;
-		justify-content: center;
-		min-height: 180px;
-		padding: 16px;
-		border-radius: 12px;
-		border: 1px solid var(--border-subtle);
-		background: var(--fg-opacity-03);
-	}
-
 	.step-bullets {
-		margin: 0;
-		padding-left: 18px;
+		margin: 2px 0 0;
+		padding: 0;
+		list-style: none;
 		display: flex;
 		flex-direction: column;
 		gap: 4px;
 		font-size: 13px;
-		line-height: 1.5;
 		color: var(--font-color-dim);
+
+		li {
+			position: relative;
+			padding-left: 16px;
+
+			&::before {
+				content: "";
+				position: absolute;
+				left: 0;
+				top: 7px;
+				width: 6px;
+				height: 6px;
+				border-radius: 50%;
+				background: var(--accent);
+			}
+		}
+	}
+
+	.action-button {
+		display: flex;
+		align-items: center;
+		gap: 6px;
+		align-self: flex-start;
+		margin-top: 6px;
+		padding: 7px 14px;
+		border: 1px solid var(--accent);
+		border-radius: 10px;
+		background: color-mix(in srgb, var(--accent) 20%, transparent);
+		color: var(--font-color);
+		font-size: 13px;
+		font-weight: 700;
+		cursor: pointer;
+		transition:
+			background 200ms ease,
+			transform 150ms ease;
+
+		&:hover {
+			background: color-mix(in srgb, var(--accent) 35%, transparent);
+		}
+
+		&:active {
+			transform: scale(0.97);
+		}
 	}
 
 	.step-footer {
@@ -308,10 +402,9 @@
 		align-items: center;
 		justify-content: space-between;
 		gap: 12px;
-		padding-top: 16px;
 	}
 
-	.step-progress {
+	.step-count {
 		font-size: 12px;
 		color: var(--font-color-dim);
 	}
@@ -325,9 +418,16 @@
 		font-size: 13px;
 		font-weight: 700;
 		cursor: pointer;
+		transition:
+			background 200ms ease,
+			transform 150ms ease;
 
 		&:hover:not(:disabled) {
 			background: var(--fg-opacity-05);
+		}
+
+		&:active:not(:disabled) {
+			transform: scale(0.97);
 		}
 
 		&:disabled {
@@ -336,8 +436,8 @@
 		}
 
 		&.primary {
-			border-color: var(--theme-0);
-			background: var(--theme-0);
+			border-color: var(--accent);
+			background: var(--accent);
 			color: var(--fg-opacity-100);
 
 			&:hover {
@@ -349,22 +449,18 @@
 	@keyframes panel-in {
 		from {
 			opacity: 0;
-			transform: scale(0.97);
+			transform: scale(0.97) translateY(8px);
 		}
 		to {
 			opacity: 1;
-			transform: scale(1);
+			transform: scale(1) translateY(0);
 		}
 	}
 
-	@keyframes step-in {
-		from {
-			opacity: 0;
-			transform: translateY(6px);
-		}
-		to {
-			opacity: 1;
-			transform: translateY(0);
+	@media (prefers-reduced-motion: reduce) {
+		.tutorial-overlay :global(*) {
+			transition: none !important;
+			animation: none !important;
 		}
 	}
 </style>

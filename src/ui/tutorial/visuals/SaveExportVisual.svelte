@@ -1,84 +1,55 @@
-<div class="se-visual">
-	<div class="save-button">Save</div>
-	<div class="file-chip">
-		<span class="file-name">theme.NewTube.zip</span>
-		<svg class="download-arrow" viewBox="0 0 24 24" aria-hidden="true">
-			<path d="M12 3 L12 14 M7 9 L12 14 L17 9 M5 20 L19 20" />
-		</svg>
-	</div>
-</div>
+<script lang="ts">
+	import MockPage from "../mock/MockPage.svelte";
+	import MockPanel from "../mock/MockPanel.svelte";
+	import MockRow from "../mock/MockRow.svelte";
+	import PaletteGrid from "../mock/PaletteGrid.svelte";
+	import { PANEL_NAV } from "../mock/palette";
+	import { PANEL_CATEGORY } from "../tutorialSteps";
+
+	let { beat }: { beat: number } = $props();
+
+	const transferItems = [
+		{ id: "export", label: "Export Data", icon: "file_upload", color: "#1932ff" },
+		{ id: "import", label: "Import Data", icon: "download", color: "#1932ff" },
+	];
+
+	const selected = $derived(beat >= 2 ? PANEL_CATEGORY.importExport : PANEL_CATEGORY.extensionSettings);
+	const toastShown = $derived(beat === 1 || beat >= 3);
+	const toastText = $derived(beat >= 3 ? "Copied to clipboard" : "Saved automatically");
+</script>
+
+<MockPage>
+	<MockPanel items={PANEL_NAV} {selected} title={selected} open>
+		{#if beat >= 2}
+			<PaletteGrid items={transferItems} pressedId={beat === 3 ? "export" : ""} />
+		{:else}
+			<MockRow name="Realtime Updating" on={true} />
+			<MockRow name="Glass UI" on={beat >= 1} highlight={beat === 1} />
+			<MockRow name="Developer Mode" on={false} />
+		{/if}
+		<span class="toast" class:shown={toastShown}>{toastText}</span>
+	</MockPanel>
+</MockPage>
 
 <style lang="scss">
-	.se-visual {
-		width: 100%;
-		display: flex;
-		flex-direction: column;
-		align-items: center;
-		gap: 16px;
-	}
-
-	.save-button {
-		padding: 9px 26px;
-		border-radius: 10px;
-		background: var(--theme-0);
-		color: var(--fg-opacity-100);
-		font-size: 13px;
-		font-weight: 700;
-		animation: save-press 3.4s ease-in-out infinite;
-	}
-
-	.file-chip {
-		display: flex;
-		align-items: center;
-		gap: 8px;
-		padding: 8px 14px;
-		border-radius: 10px;
-		border: 1px solid var(--theme-0-30);
-		background: var(--theme-0-12);
-		animation: file-fly 3.4s ease-in-out infinite;
-	}
-
-	.file-name {
-		font-family: monospace;
+	.toast {
+		position: absolute;
+		right: 12px;
+		bottom: 12px;
+		padding: 6px 12px;
+		border-radius: 999px;
+		background: color-mix(in srgb, var(--accent) 30%, var(--window-bg));
+		border: 1px solid var(--accent);
 		font-size: 11px;
+		font-weight: 700;
 		color: var(--font-color);
-	}
+		opacity: 0;
+		transform: translateY(8px);
+		transition:
+			opacity 400ms ease,
+			transform 400ms cubic-bezier(0.22, 1, 0.36, 1);
 
-	.download-arrow {
-		width: 16px;
-		height: 16px;
-		stroke: var(--theme-0-text);
-		stroke-width: 2;
-		fill: none;
-		stroke-linecap: round;
-		stroke-linejoin: round;
-	}
-
-	@keyframes save-press {
-		0%,
-		15% {
-			transform: scale(1);
-			filter: none;
-		}
-		25% {
-			transform: scale(0.94);
-			filter: brightness(1.15);
-		}
-		40%,
-		100% {
-			transform: scale(1);
-			filter: none;
-		}
-	}
-
-	@keyframes file-fly {
-		0%,
-		45% {
-			opacity: 0;
-			transform: translateY(-6px);
-		}
-		65%,
-		100% {
+		&.shown {
 			opacity: 1;
 			transform: translateY(0);
 		}

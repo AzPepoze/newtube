@@ -1,133 +1,79 @@
-<div class="qc-visual">
-	<div class="mock-page">
-		<span class="mock-bar"></span>
-		<div class="mock-target"><span class="target-label">#masthead-container</span></div>
-		<svg class="pointer" viewBox="0 0 24 24" aria-hidden="true">
-			<path d="M4 2 L4 20 L9 15 L12.5 22 L15.5 20.5 L12 14 L19 14 Z" />
-		</svg>
-	</div>
-	<div class="generated-row">
-		<span class="gen-dot"></span>
-		<span class="gen-text">New setting generated</span>
-	</div>
-</div>
+<script lang="ts">
+	import MockCursor from "../mock/MockCursor.svelte";
+	import MockPage from "../mock/MockPage.svelte";
+	import MockPanel from "../mock/MockPanel.svelte";
+	import MockRow from "../mock/MockRow.svelte";
+	import MockWindow from "../mock/MockWindow.svelte";
+	import PaletteGrid from "../mock/PaletteGrid.svelte";
+	import { CUSTOM_NAV, PANEL_NAV, QUICK_PALETTE_ITEMS } from "../mock/palette";
+	import { PANEL_CATEGORY } from "../tutorialSteps";
+
+	let { beat }: { beat: number } = $props();
+
+	const isPicking = $derived(beat === 2 || beat === 3);
+	const isCustomView = $derived(beat >= 4);
+	const navItems = $derived(isCustomView ? [...PANEL_NAV, CUSTOM_NAV] : PANEL_NAV);
+	const selected = $derived(isCustomView ? CUSTOM_NAV.label : PANEL_CATEGORY.quickPalette);
+	const hotId = $derived(beat === 0 ? "quickCustomize" : "");
+	const pressedId = $derived(beat === 1 ? "quickCustomize" : "");
+</script>
+
+<MockPage pickMode={isPicking} hoverCard={isPicking ? 1 : -1}>
+	<MockCursor x="51%" y="141px" visible={beat === 2} />
+
+	<MockWindow title="Quick Customize" open={beat === 3} placement="left: 22%; top: 16%; width: 56%;">
+		<span class="field">Glow</span>
+		<div class="color-row">
+			<span>Color</span>
+			<span class="swatch"></span>
+		</div>
+		<span class="save-button">Save</span>
+	</MockWindow>
+
+	<MockPanel items={navItems} {selected} title={selected} open={!isPicking && beat !== 3}>
+		{#if isCustomView}
+			<MockRow name="Glow" on={true} highlight />
+		{:else}
+			<PaletteGrid items={QUICK_PALETTE_ITEMS} {hotId} {pressedId} />
+		{/if}
+	</MockPanel>
+</MockPage>
 
 <style lang="scss">
-	.qc-visual {
-		width: 100%;
-		display: flex;
-		flex-direction: column;
-		align-items: center;
-		gap: 14px;
-	}
-
-	.mock-page {
-		position: relative;
-		width: 260px;
-		height: 130px;
-		border-radius: 12px;
-		border: 1px solid var(--border-subtle);
-		background: var(--fg-opacity-03);
-		overflow: hidden;
-	}
-
-	.mock-bar {
-		position: absolute;
-		top: 0;
-		left: 0;
-		right: 0;
-		height: 22px;
-		background: var(--fg-opacity-08);
-	}
-
-	.mock-target {
-		position: absolute;
-		top: 40px;
-		left: 40px;
-		right: 40px;
-		height: 56px;
+	.field {
+		padding: 7px 10px;
 		border-radius: 8px;
-		border: 2px dashed var(--fg-opacity-20);
+		border: 1px solid var(--fg-opacity-15);
+		font-size: 12px;
+		color: var(--font-color);
+	}
+
+	.color-row {
 		display: flex;
 		align-items: center;
-		justify-content: center;
-		animation: target-glow 3.6s ease-in-out infinite;
-
-		.target-label {
-			font-family: monospace;
-			font-size: 10px;
-			color: var(--font-color-dim);
-		}
+		justify-content: space-between;
+		padding: 6px 10px;
+		border-radius: 8px;
+		border: 1px solid var(--fg-opacity-10);
+		font-size: 12px;
+		color: var(--font-color);
 	}
 
-	.pointer {
-		position: absolute;
-		width: 20px;
-		height: 20px;
-		fill: var(--font-color);
-		filter: drop-shadow(0 2px 3px var(--shadow-color));
-		animation: pointer-move 3.6s ease-in-out infinite;
+	.swatch {
+		width: 22px;
+		height: 14px;
+		border-radius: 4px;
+		background: #e45eff;
 	}
 
-	.generated-row {
-		display: flex;
-		align-items: center;
-		gap: 8px;
-		padding: 7px 12px;
-		border-radius: 999px;
-		background: var(--theme-0-15);
-		border: 1px solid var(--theme-0-30);
-		animation: generated-in 3.6s ease-in-out infinite;
-	}
-
-	.gen-dot {
-		width: 7px;
-		height: 7px;
-		border-radius: 50%;
-		background: var(--theme-0);
-	}
-
-	.gen-text {
-		font-size: 11px;
-		font-weight: 600;
-		color: var(--theme-0-text);
-	}
-
-	@keyframes pointer-move {
-		0% {
-			top: 100px;
-			left: 20px;
-		}
-		40%,
-		100% {
-			top: 42px;
-			left: 150px;
-		}
-	}
-
-	@keyframes target-glow {
-		0%,
-		35% {
-			border-color: var(--fg-opacity-20);
-			box-shadow: none;
-		}
-		55%,
-		100% {
-			border-color: var(--theme-0);
-			box-shadow: 0 0 0 3px var(--theme-0-20);
-		}
-	}
-
-	@keyframes generated-in {
-		0%,
-		55% {
-			opacity: 0;
-			transform: translateY(8px);
-		}
-		75%,
-		100% {
-			opacity: 1;
-			transform: translateY(0);
-		}
+	.save-button {
+		align-self: flex-end;
+		padding: 6px 18px;
+		border-radius: 8px;
+		background: var(--accent);
+		color: var(--fg-opacity-100);
+		font-size: 12px;
+		font-weight: 700;
+		box-shadow: 0 0 0 3px color-mix(in srgb, var(--accent) 40%, transparent);
 	}
 </style>
