@@ -174,11 +174,10 @@
 			{/if}
 
 			<div class="title-overlay">
-				<div class="title-container" class:has-creator={creator} title={name}>
-					<span class="theme-name">{name}</span>
+				<div class="title-container" title={name}>
 					{#if creator}
 						<a
-							class="creator-profile"
+							class="creator-avatar"
 							href={creator.profileUrl}
 							target="_blank"
 							rel="noopener noreferrer"
@@ -191,9 +190,23 @@
 							{:else}
 								<span class="creator-fallback" aria-hidden="true">{creatorInitial}</span>
 							{/if}
-							<span class="creator-name">{creator.displayName}</span>
 						</a>
 					{/if}
+					<div class="title-text">
+						<span class="theme-name">{name}</span>
+						{#if creator}
+							<a
+								class="creator-name"
+								href={creator.profileUrl}
+								target="_blank"
+								rel="noopener noreferrer"
+								onclick={stopCreatorActivation}
+								onkeydown={stopCreatorActivation}
+							>
+								{creator.displayName}
+							</a>
+						{/if}
+					</div>
 				</div>
 				{#if isStoreItem && (rawTheme?.downloads != null || rawTheme?.rating != null)}
 					<div class="stats-container">
@@ -328,7 +341,7 @@
 			.creator-name {
 				opacity: 1;
 				transform: translateY(0);
-				max-height: 18px;
+				max-height: 16px;
 			}
 		}
 	}
@@ -550,87 +563,70 @@
 
 	.title-container {
 		position: relative;
-		width: 100%;
+		flex: 1;
 		display: flex;
 		align-items: center;
+		gap: 8px;
 		min-width: 0;
-
-		&.has-creator {
-			padding-left: 34px;
-			min-height: 38px;
-			align-items: flex-start;
-		}
-
-		.theme-name {
-			font-weight: 600;
-			color: #ffffff;
-			font-size: 14px;
-			white-space: nowrap;
-			overflow: hidden;
-			text-overflow: ellipsis;
-			width: 100%;
-			text-shadow: 0 2px 4px rgba(0, 0, 0, 0.8);
-		}
 	}
 
-	.creator-profile {
-		position: absolute;
-		left: 0;
-		bottom: 0;
-		display: block;
-		width: 100%;
-		height: 28px;
-		color: inherit;
+	.title-text {
+		display: flex;
+		flex-direction: column;
+		min-width: 0;
+	}
+
+	.theme-name {
+		font-weight: 600;
+		color: #ffffff;
+		font-size: 14px;
+		white-space: nowrap;
+		overflow: hidden;
+		text-overflow: ellipsis;
+		text-shadow: 0 2px 4px rgba(0, 0, 0, 0.8);
+	}
+
+	.creator-avatar {
+		flex-shrink: 0;
+		width: 26px;
+		height: 26px;
+		display: flex;
+		align-items: center;
+		justify-content: center;
+		border: 1px solid rgba(255, 255, 255, 0.65);
+		border-radius: 50%;
+		background: rgba(0, 0, 0, 0.45);
+		box-shadow: 0 1px 4px rgba(0, 0, 0, 0.55);
+		overflow: hidden;
 		pointer-events: auto;
 		text-decoration: none;
 		outline-offset: 3px;
 
 		img {
-			position: absolute;
-			left: 0;
-			bottom: 0;
-			width: 26px;
-			height: 26px;
-			border: 1px solid rgba(255, 255, 255, 0.65);
-			border-radius: 50%;
-			background: rgba(0, 0, 0, 0.45);
+			width: 100%;
+			height: 100%;
 			object-fit: cover;
-			box-shadow: 0 1px 4px rgba(0, 0, 0, 0.55);
-		}
-
-		.creator-fallback {
-			position: absolute;
-			left: 0;
-			bottom: 0;
-			width: 26px;
-			height: 26px;
-			display: flex;
-			align-items: center;
-			justify-content: center;
-			border: 1px solid rgba(255, 255, 255, 0.65);
-			border-radius: 50%;
-			background: rgba(0, 0, 0, 0.55);
-			color: #fff;
-			font-size: 12px;
-			font-weight: 700;
-			box-shadow: 0 1px 4px rgba(0, 0, 0, 0.55);
 		}
 	}
 
+	.creator-fallback {
+		color: #fff;
+		font-size: 12px;
+		font-weight: 700;
+	}
+
 	.creator-name {
-		position: absolute;
-		left: 34px;
-		bottom: 0;
-		max-width: calc(100% - 34px);
 		max-height: 0;
 		overflow: hidden;
 		color: rgba(255, 255, 255, 0.88);
 		font-size: 11px;
-		line-height: 18px;
+		line-height: 16px;
+		text-decoration: none;
 		text-overflow: ellipsis;
 		white-space: nowrap;
 		opacity: 0;
 		transform: translateY(-6px);
+		pointer-events: auto;
 		transition:
 			opacity 0.2s ease,
 			transform 0.25s ease,
