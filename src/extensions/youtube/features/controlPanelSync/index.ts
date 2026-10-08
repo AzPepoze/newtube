@@ -43,13 +43,8 @@ function readBufferedRanges(video: HTMLVideoElement): BufferedRange[] {
 	return ranges;
 }
 
-function isLiveVideo(player: Element, video: HTMLVideoElement): boolean {
-	return (
-		!Number.isFinite(video.duration) ||
-		video.duration === Infinity ||
-		player.className.toLowerCase().includes("live") ||
-		player.querySelector("[class*='live']") !== null
-	);
+function isLiveVideo(video: HTMLVideoElement): boolean {
+	return !Number.isFinite(video.duration);
 }
 
 function updateControls(): void {
@@ -57,7 +52,7 @@ function updateControls(): void {
 	if (!active || !video?.isConnected) return;
 
 	const player = video.closest("#movie_player");
-	if (!player || isLiveVideo(player, video)) return;
+	if (!player || isLiveVideo(video)) return;
 
 	const timeElement = player.querySelector<HTMLElement>(".ytp-time-current");
 	if (timeElement) timeElement.textContent = formatElapsedTime(video.currentTime);
