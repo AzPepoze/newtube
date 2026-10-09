@@ -11,7 +11,7 @@ type DevCategory = Category & { insertAfter?: string };
 
 const devOnlyItems: DevCategory[] = [
 	{
-		category: { icon: "settings", label: "Extention's settings" },
+		category: { icon: "settings", label: "Extension's settings" },
 		settings: [
 			{
 				id: "ShowAllCurrentSaveButton",

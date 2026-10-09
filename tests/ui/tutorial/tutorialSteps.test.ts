@@ -1,5 +1,5 @@
 import { expect, test } from "bun:test";
-import { PANEL_CATEGORY, TUTORIAL_STEPS, requiresSettingsPanel } from "../../../src/ui/tutorial/tutorialSteps";
+import { PANEL_CATEGORY, TUTORIAL_STEPS, hasSpotlight, requiresSettingsPanel } from "../../../src/ui/tutorial/tutorialSteps";
 
 test("every step has a unique id", () => {
 	const ids = TUTORIAL_STEPS.map((step) => step.id);
@@ -19,10 +19,25 @@ test("core steps come before optional steps", () => {
 	expect(tail.every((tier) => tier === "optional")).toBe(true);
 });
 
-test("every step defines an anchor target selector", () => {
+test("spotlight is data-driven: hasSpotlight() gates on fields, never step ids", () => {
 	for (const step of TUTORIAL_STEPS) {
-		expect(typeof step.targetSelector).toBe("string");
-		expect(step.targetSelector?.length).toBeGreaterThan(0);
+		expect(hasSpotlight(step)).toBe(step.spotlight !== false && step.targetSelector !== undefined);
+		if (hasSpotlight(step)) {
+			expect(typeof step.targetSelector).toBe("string");
+			expect(step.targetSelector?.length).toBeGreaterThan(0);
+		}
+		if (step.spotlight === false) {
+			expect(hasSpotlight(step)).toBe(false);
+		}
+	}
+});
+
+test("steps without a target must explicitly opt out of the spotlight", () => {
+	for (const step of TUTORIAL_STEPS) {
+		if (step.targetSelector === undefined) {
+			expect(step.spotlight).toBe(false);
+			expect(hasSpotlight(step)).toBe(false);
+		}
 	}
 });
 
@@ -104,21 +119,40 @@ test("orientation steps tour the panel right after opening it", () => {
 
 test("use-existing comes before create-new, dev block follows both", () => {
 	const ids = TUTORIAL_STEPS.map((step) => step.id);
-	expect(ids.slice(6, 12)).toEqual([
+	expect(ids.slice(6, 13)).toEqual([
 		"customize-element",
 		"quick-customize",
 		"dev-bridge",
 		"developer-mode",
-		"dev-create",
+		"dev-add-category",
+		"dev-add-setting",
 		"dev-code-zip",
 	]);
 });
 
 test("dev block is core and the code step opens the docs", () => {
-	for (const id of ["dev-bridge", "developer-mode", "dev-create", "dev-code-zip"]) {
+	for (const id of ["dev-bridge", "developer-mode", "dev-add-category", "dev-add-setting", "dev-code-zip"]) {
 		expect(TUTORIAL_STEPS.find((step) => step.id === id)?.tier).toBe("core");
 	}
 	expect(TUTORIAL_STEPS.find((step) => step.id === "dev-code-zip")?.show?.docs).toBe(true);
+});
+
+test("dev steps target specific controls instead of whole category frames", () => {
+	const byId = new Map(TUTORIAL_STEPS.map((step) => [step.id, step]));
+	expect(byId.get("developer-mode")?.targetSelector).toBe("#developerMode");
+	expect(byId.get("dev-add-category")?.targetSelector).toBe(".styleshift-add-category-button");
+	expect(byId.get("dev-add-setting")?.targetSelector).toBe(".styleshift-add-setting-button-wrapper");
+	expect(byId.get("dev-code-zip")?.targetSelector).toBe("#ExportDataButton");
+	expect(byId.get("save-export")?.targetSelector).toBe("#ImportDataButton");
+});
+
+test("dev creation steps expose a show action so the go-to button renders", () => {
+	const byId = new Map(TUTORIAL_STEPS.map((step) => [step.id, step]));
+	for (const id of ["dev-add-category", "dev-add-setting"]) {
+		const step = byId.get(id);
+		expect(step?.show?.panelCategory).toBe(PANEL_CATEGORY.quickPalette);
+		expect(step?.actionLabel?.length).toBeGreaterThan(0);
+	}
 });
 
 test("choice branches carry labels and resolve to a later step", () => {
@@ -138,6 +172,8 @@ test("choice branches carry labels and resolve to a later step", () => {
 test("dev bridge asks about dev mode and ends the tutorial when declined", () => {
 	const bridge = TUTORIAL_STEPS.find((step) => step.id === "dev-bridge");
 	expect(bridge?.title).toBe("Want to explore Developer Mode?");
+	expect(bridge?.spotlight).toBe(false);
+	expect(bridge ? hasSpotlight(bridge) : true).toBe(false);
 	expect(bridge?.choice?.acceptLabel).toBe("We need to go deeper!");
 	expect(bridge?.choice?.declineLabel).toBe("I'm fine");
 	expect(bridge?.choice?.declineToId).toBeUndefined();

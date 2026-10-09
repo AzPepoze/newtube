@@ -146,7 +146,7 @@ const defaultStyleShiftItems: (Category | SeparateCategory)[] = [
 		],
 	},
 	{
-		category: { icon: "settings", label: "Extention's settings" },
+		category: { icon: "settings", label: "Extension's settings" },
 		settings: [
 			{
 				type: "subText",

@@ -60,12 +60,17 @@ test("spotlight draws a rounded rect for cards", () => {
 	expect(style).toBe("top: 92px; left: 92px; width: 216px; height: 116px; border-radius: 18px;");
 });
 
-test("spotlight clamps a screen-tall section to the viewport", () => {
+test("spotlight rejects a viewport-tall section instead of drawing full-height rails", () => {
 	const style = spotlightStyleFor(
 		{ top: -400, right: 900, bottom: 1200, left: 100, width: 800, height: 1600 },
 		VIEWPORT,
 	);
-	expect(style).toBe("top: 0px; left: 92px; width: 816px; height: 800px; border-radius: 18px;");
+	expect(style).toBeNull();
+});
+
+test("spotlight still frames a large-but-bounded section", () => {
+	const style = spotlightStyleFor({ top: 0, right: 900, bottom: 700, left: 100, width: 800, height: 700 }, VIEWPORT);
+	expect(style).toBe("top: 0px; left: 92px; width: 816px; height: 716px; border-radius: 18px;");
 });
 
 test("spotlight keeps the circle centered on a partially off-screen button", () => {

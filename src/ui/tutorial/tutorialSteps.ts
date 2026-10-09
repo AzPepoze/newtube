@@ -4,7 +4,7 @@ export const PANEL_CATEGORY = {
 	quickPalette: "Quick Palette",
 	customElements: "Custom Elements",
 	importExport: "Import / Export Theme",
-	extensionSettings: "Extention's settings",
+	extensionSettings: "Extension's settings",
 } as const;
 
 export interface TutorialChoice {
@@ -29,11 +29,12 @@ export interface TutorialStep {
 	panelCategory?: string;
 	actionLabel?: string;
 	targetSelector?: string;
+	spotlight?: boolean;
+	requiresDeveloperMode?: boolean;
 	choice?: TutorialChoice;
 	show?: {
 		panelCategory?: string;
 		themeTab?: "installed" | "store";
-		/** Opens the API Reference window instead of navigating the panel. */
 		docs?: boolean;
 	};
 	secondaryShow?: {
@@ -45,6 +46,14 @@ export interface TutorialStep {
 
 export function requiresSettingsPanel(step: TutorialStep): boolean {
 	return step.panelCategory !== undefined || step.show?.panelCategory !== undefined;
+}
+
+export function hasSpotlight(step: TutorialStep): boolean {
+	return step.spotlight !== false && step.targetSelector !== undefined;
+}
+
+export function needsDeveloperMode(step: TutorialStep): boolean {
+	return step.requiresDeveloperMode === true;
 }
 
 export const TUTORIAL_STEPS: TutorialStep[] = [
@@ -150,8 +159,8 @@ export const TUTORIAL_STEPS: TutorialStep[] = [
 		accent: "#8b7cf6",
 		body: "Those clicks touched real settings. Developer Mode is the hard manual way: build, code, pack.",
 		bullets: [],
-		targetSelector: '[data-category="Extention\'s settings"]',
 		panelCategory: PANEL_CATEGORY.extensionSettings,
+		spotlight: false,
 		choice: {
 			acceptLabel: "We need to go deeper!",
 			declineLabel: "I'm fine",
@@ -164,31 +173,56 @@ export const TUTORIAL_STEPS: TutorialStep[] = [
 		accent: "#ffb020",
 		body: "Turn on the Developer Mode checkbox. It unlocks the + buttons, the pencil, and the trash icon.",
 		bullets: ["Shortcut: Alt+Shift+A flips it anytime"],
-		targetSelector: '[data-category="Extention\'s settings"]',
+		targetSelector: "#developerMode",
 		panelCategory: PANEL_CATEGORY.extensionSettings,
 		show: {
 			panelCategory: PANEL_CATEGORY.extensionSettings,
 		},
 		actionLabel: "Show Extension's settings",
+		requiresDeveloperMode: true,
 	},
 	{
-		id: "dev-create",
+		id: "dev-add-category",
 		tier: "core",
-		title: "Build settings by hand",
+		title: "Add a category",
 		accent: "#22d3ee",
-		body: "Every category grows a + button: pick a kind and it lands editable. The sidebar + adds a category.",
+		body: "Use the sidebar + to add a category. It lands under ADD-ON and stays editable.",
+		bullets: ["Categories you add can be reordered and removed"],
+		targetSelector: ".styleshift-add-category-button",
+		panelCategory: PANEL_CATEGORY.quickPalette,
+		show: {
+			panelCategory: PANEL_CATEGORY.quickPalette,
+		},
+		actionLabel: "Show sidebar button",
+		requiresDeveloperMode: true,
+	},
+	{
+		id: "dev-add-setting",
+		tier: "core",
+		title: "Add a setting",
+		accent: "#2dd4bf",
+		body: "Inside your ADD-ON category, use its + button to pick a kind. It lands editable.",
 		bullets: ["Pencil edits a setting, trash deletes it"],
 		targetSelector: ".styleshift-add-setting-button-wrapper",
 		panelCategory: PANEL_CATEGORY.quickPalette,
+		show: {
+			panelCategory: PANEL_CATEGORY.quickPalette,
+		},
+		actionLabel: "Show setting button",
+		requiresDeveloperMode: true,
 	},
 	{
 		id: "dev-code-zip",
 		tier: "core",
 		title: "Code it and pack it",
 		accent: "#f43f5e",
-		body: "Code settings pair CSS/JS with a config.json. Export: Build-in, Add-ons, or Both, then Clipboard/ZIP.",
-		bullets: ["The API Reference window lists every function and setting kind"],
-		targetSelector: '[data-category="Import / Export Theme"]',
+		body: "Code settings by hand: pair CSS/JS with a config.json, then export it.",
+		bullets: [
+			"Scope: Build-in, Add-ons, or Both",
+			"Output: Clipboard or ZIP",
+			"The API Reference window lists every function and setting kind",
+		],
+		targetSelector: "#ExportDataButton",
 		panelCategory: PANEL_CATEGORY.importExport,
 		show: {
 			docs: true,
@@ -220,7 +254,7 @@ export const TUTORIAL_STEPS: TutorialStep[] = [
 		accent: "#1932ff",
 		body: "Settings save as you change them, so there is no Save button for them. Export Data copies your setup. Import Data loads one back in.",
 		bullets: ["To keep a whole look as a theme, use Save in the Themes window"],
-		targetSelector: '[data-category="Import / Export Theme"]',
+		targetSelector: "#ImportDataButton",
 		panelCategory: PANEL_CATEGORY.importExport,
 		show: {
 			panelCategory: PANEL_CATEGORY.importExport,

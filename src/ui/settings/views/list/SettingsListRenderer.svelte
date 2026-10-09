@@ -4,6 +4,7 @@
 	import { getCategoryParts } from "@ui/window/utils";
 	import SettingRenderer from "@renderers/setting/SettingRenderer.svelte";
 	import SettingsGroup from "@base/SettingsGroup.svelte";
+	import AddSettingButton from "../developer/AddSettingButton.svelte";
 
 	let {
 		items = [],
@@ -38,6 +39,9 @@
 				{#each category.settings as setting, j (j)}
 					<SettingRenderer {setting} {category} highlight={searchQuery} layout={category.layout} />
 				{/each}
+				{#if isDeveloperMode && category.editable}
+					<AddSettingButton categorySettings={category.settings} />
+				{/if}
 			</div>
 		</SettingsGroup>
 	{/if}

@@ -20,9 +20,11 @@
 		toTargetRect,
 		TRIAL_DOCK_STYLE,
 	} from "./tour/tourPosition";
-	import { TUTORIAL_STEPS, requiresSettingsPanel } from "./tutorialSteps";
+	import { TUTORIAL_STEPS, hasSpotlight, needsDeveloperMode, requiresSettingsPanel } from "./tutorialSteps";
 	import { isThemeManagerOpen } from "@ui/themes/themeManagerService";
 	import { markTutorialSeen } from "./tutorialStorage";
+	import { getRootValue } from "@core/storage/manager";
+	import { registerSettingListener, unregisterSettingListener } from "@settings/engine/functions";
 
 	let { onClose = () => {} }: { onClose?: () => void } = $props();
 
@@ -38,6 +40,7 @@
 	let isSpotlightVisible = $state(false);
 	let isPanelOpen = $state(false);
 	let isTrialMode = $state(false);
+	let isDeveloperMode = $state(false);
 
 	let autoProceedTimer: number | null = null;
 	let closeTimer: number | null = null;
@@ -48,7 +51,8 @@
 	const isLastStep = $derived(currentIndex === TUTORIAL_STEPS.length - 1);
 	const tierLabel = $derived(currentStep.tier === "core" ? "Core" : "Optional");
 
-	const canProceed = $derived(currentIndex !== 0 || isPanelOpen);
+	const devGateFailed = $derived(needsDeveloperMode(currentStep) && !isDeveloperMode);
+	const canProceed = $derived((currentIndex !== 0 || isPanelOpen) && !devGateFailed);
 	const panelNeeded = $derived(requiresSettingsPanel(currentStep));
 
 	function detachTargetClickListener() {
@@ -91,7 +95,7 @@
 		if (currentIndex === 0 && !wasPanelOpen && panelNowOpen) queueAutoProceed();
 
 		const target =
-			!isTrialMode && currentStep.targetSelector
+			!isTrialMode && hasSpotlight(currentStep) && currentStep.targetSelector
 				? document.querySelector<HTMLElement>(currentStep.targetSelector)
 				: null;
 		const visibleTarget = target && isElementVisible(target) ? target : null;
@@ -101,8 +105,9 @@
 			ensureTargetVisible(usableTarget);
 			attachTargetClickListener(usableTarget);
 			const rect = toTargetRect(usableTarget.getBoundingClientRect());
-			spotlightStyle = spotlightStyleFor(rect, viewport);
-			isSpotlightVisible = true;
+			const style = spotlightStyleFor(rect, viewport);
+			spotlightStyle = style ?? "";
+			isSpotlightVisible = style !== null;
 			positionStyle = cardPlacementFor({
 				target: rect,
 				card,
@@ -115,9 +120,6 @@
 			isSpotlightVisible = false;
 			spotlightStyle = "";
 			if (!isTrialMode && target) {
-				// The step target exists but is scrolled out of the panel (e.g. deep
-				// in a long category): bring it into view so the ring lands on it.
-				// The scroll listener re-runs this once the row is visible.
 				revealPanelTarget(target);
 			}
 			if (isTrialMode) {
@@ -162,8 +164,10 @@
 			isTrialMode = false;
 		}
 		if (!canProceed) return;
-		if (isLastStep) close();
-		else void goTo(currentIndex + 1);
+		if (isLastStep) {
+			close();
+			void playCelebration({ accent: currentStep.accent });
+		} else void goTo(currentIndex + 1);
 	}
 
 	function close() {
@@ -258,10 +262,22 @@
 		scheduleUpdate();
 	});
 
+	function handleDeveloperModeChange(value: unknown) {
+		isDeveloperMode = value === true;
+	}
+
 	onMount(() => {
 		window.addEventListener("keydown", handleKeyDown);
 		window.addEventListener("resize", scheduleUpdate);
 		document.addEventListener("scroll", scheduleUpdate, true);
+		// Hover-revealed controls (e.g. the sidebar + button, opacity 0 until
+		// hover) fail isElementVisible, so the spotlight never lands on them.
+		// Force them visible for the whole tour; removed on destroy.
+		document.body.classList.add("styleshift-tour-active");
+		registerSettingListener("developerMode", handleDeveloperModeChange);
+		void getRootValue("developerMode").then((value) => {
+			isDeveloperMode = value === true;
+		});
 
 		observer = new MutationObserver(() => scheduleUpdate());
 		observer.observe(document.body, {
@@ -278,12 +294,14 @@
 	onDestroy(() => {
 		if (autoProceedTimer) clearTimeout(autoProceedTimer);
 		if (closeTimer) clearTimeout(closeTimer);
+		document.body.classList.remove("styleshift-tour-active");
 		window.removeEventListener("keydown", handleKeyDown);
 		window.removeEventListener("resize", scheduleUpdate);
 		document.removeEventListener("scroll", scheduleUpdate, true);
 		observer?.disconnect();
 		if (updateDebounceTimer) cancelAnimationFrame(updateDebounceTimer);
 		detachTargetClickListener();
+		unregisterSettingListener("developerMode", handleDeveloperModeChange);
 		cleanupTourModes();
 	});
 </script>
@@ -326,6 +344,12 @@
 		z-index: 15000;
 		pointer-events: none;
 		color: var(--font-color);
+	}
+
+	/* While the tour runs, keep hover-revealed tour targets opaque so
+		isElementVisible() accepts them and the ring lands on a real button. */
+	:global(body.styleshift-tour-active .styleshift-add-category-button) {
+		opacity: 1 !important;
 	}
 
 	@media (prefers-reduced-motion: reduce) {

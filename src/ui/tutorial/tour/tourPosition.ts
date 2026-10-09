@@ -78,7 +78,9 @@ export function isTargetOnTop(target: HTMLElement): boolean {
 }
 
 export function ensureTargetVisible(target: HTMLElement): void {
-	const scrollContainer = target.closest<HTMLElement>(".sidebar-scroll-area, .styleshift-settings-list");
+	const scrollContainer = target.closest<HTMLElement>(
+		".sidebar-scroll-area, .styleshift-settings-list, .sidebar-scroll-sidebar, .styleshift-sidebar",
+	);
 	if (!scrollContainer) return;
 	const contRect = scrollContainer.getBoundingClientRect();
 	const targetRect = target.getBoundingClientRect();
@@ -93,7 +95,9 @@ export function ensureTargetVisible(target: HTMLElement): void {
  * a scroll was triggered.
  */
 export function revealPanelTarget(target: HTMLElement): boolean {
-	const scrollContainer = target.closest<HTMLElement>(".sidebar-scroll-area, .styleshift-settings-list");
+	const scrollContainer = target.closest<HTMLElement>(
+		".sidebar-scroll-area, .styleshift-settings-list, .sidebar-scroll-sidebar, .styleshift-sidebar",
+	);
 	if (!scrollContainer) return false;
 	const contRect = scrollContainer.getBoundingClientRect();
 	const targetRect = target.getBoundingClientRect();
@@ -155,8 +159,21 @@ function spotlightBoxStyle(box: SpotlightBox): string {
 	return `top: ${top}px; left: ${left}px; width: ${width}px; ` + `height: ${height}px; border-radius: ${radius};`;
 }
 
-export function spotlightStyleFor(rect: TargetRect, viewport: Viewport): string {
+/** Targets covering most of the viewport can't be ringed: the ring's top and
+ * bottom edges land off-screen, leaving only two side rails (see the
+ * developer-mode tour bug). Reject them so callers hide the spotlight. */
+const MAX_SPOTLIGHT_WIDTH_RATIO = 0.9;
+const MAX_SPOTLIGHT_HEIGHT_RATIO = 0.9;
+
+export function spotlightStyleFor(rect: TargetRect, viewport: Viewport): string | null {
 	const visible = clampToViewport(rect, viewport);
+	if (visible.width <= 0 || visible.height <= 0) return null;
+	if (
+		visible.width > viewport.width * MAX_SPOTLIGHT_WIDTH_RATIO ||
+		visible.height > viewport.height * MAX_SPOTLIGHT_HEIGHT_RATIO
+	) {
+		return null;
+	}
 	const cx = visible.left + visible.width / 2;
 	const cy = visible.top + visible.height / 2;
 	const isCompact = visible.width <= 120 && visible.height <= 80;
