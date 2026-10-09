@@ -6,7 +6,6 @@
 	import { fade, fly } from "svelte/transition";
 	import ConfigMainSection from "./ConfigMainSection.svelte";
 	import ConfigSubSection from "./ConfigSubSection.svelte";
-	import DiagnosticsPanel from "./DiagnosticsPanel.svelte";
 
 	let { setting }: { setting: Setting } = $props();
 
@@ -19,7 +18,6 @@
 	const tabs = [
 		{ id: "general", label: "General", icon: "settings" },
 		{ id: "logic", label: "Logic & Code", icon: "code" },
-		{ id: "tools", label: "Tools", icon: "build" },
 	];
 
 	const mainProps = $derived.by(() => {
@@ -219,14 +217,6 @@
 					<ConfigSubSection {setting} props={subProps} />
 				</div>
 			</div>
-		{:else if activeTab === "tools"}
-			<div
-				class="styleshift-config-tab-content tools-tab"
-				in:fly={{ y: 10, duration: 300, delay: 150 }}
-				out:fade={{ duration: 150 }}
-			>
-				<DiagnosticsPanel />
-			</div>
 		{/if}
 	</main>
 </div>
@@ -314,12 +304,6 @@
 
 		&.logic-tab {
 			padding: 0;
-		}
-
-		&.tools-tab {
-			display: flex;
-			flex-direction: column;
-			gap: 24px;
 		}
 	}
 

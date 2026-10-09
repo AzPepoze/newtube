@@ -11,6 +11,7 @@ import { openTutorialOverlay } from "@ui/tutorial/tutorialService";
 import { playCelebration } from "@ui/tutorial/celebrationService";
 import { showThemeManager } from "@ui/themes/themeManagerService";
 import { showTryImportOldNPreset } from "./dangerzone";
+import { copyDiagnosticsToClipboard, exportDiagnosticsFile } from "./features/diagnostics/export";
 import { showWelcome } from "./welcome";
 
 const defaultStyleShiftItems: (Category | SeparateCategory)[] = [
@@ -305,6 +306,39 @@ const defaultStyleShiftItems: (Category | SeparateCategory)[] = [
 				icon: "file_open",
 				align: "center",
 				type: "button",
+			},
+		],
+	},
+	{
+		category: { icon: "bug_report", label: "Diagnostics" },
+		settings: [
+			{
+				type: "text",
+				html: "<div style='display: flex; flex-direction: column; gap: 8px; width: 100%;'><p style='margin: 0;'><strong>Create a report so I can see your exact setup and fix the problem faster.</strong></p><ul style='margin: 0; padding-left: 18px; display: flex; flex-direction: column; gap: 4px;'><li>Shows your layout, styling, settings and browser info.</li><li>Never includes video titles, comments or account details.</li><li>Nothing is sent automatically.</li></ul><p style='margin: 0;'>Copy or save it, then send it to me on Discord or a GitHub issue.</p></div>",
+				fontSize: 13,
+				align: "left",
+			},
+			{
+				type: "button",
+				id: "CopySupportReportButton",
+				name: "Copy support report",
+				description: "Copies the report to your clipboard.",
+				clickFunction: copyDiagnosticsToClipboard,
+				color: "#7f5db7",
+				fontSize: 15,
+				align: "left",
+				icon: "content_copy",
+			},
+			{
+				type: "button",
+				id: "SaveSupportReportButton",
+				name: "Save support report",
+				description: "Downloads the report as a .json file.",
+				clickFunction: exportDiagnosticsFile,
+				color: "#3eadad",
+				fontSize: 15,
+				align: "left",
+				icon: "download",
 			},
 		],
 	},
