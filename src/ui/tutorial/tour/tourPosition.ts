@@ -164,12 +164,14 @@ export function spotlightStyleFor(rect: TargetRect, viewport: Viewport): string 
 	if (isCompact) {
 		const radius = Math.round(Math.max(visible.width, visible.height) / 2) + 8;
 		const size = radius * 2;
-		// Keep the ring centered on the target even near viewport edges. Clamping
-		// the box into view would shift its center and squash it into an ellipse;
-		// overflow is clipped by the viewport while the visible arc stays centered.
-		return spotlightBoxStyle(
-			{ top: cy - radius, left: cx - radius, width: size, height: size, radius: 0, circle: true },
-		);
+		return spotlightBoxStyle({
+			top: cy - radius,
+			left: cx - radius,
+			width: size,
+			height: size,
+			radius: 0,
+			circle: true,
+		});
 	}
 
 	const pad = visible.width > visible.height * 2.5 ? 6 : 8;

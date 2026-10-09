@@ -1,6 +1,13 @@
 <script lang="ts">
 	import { onDestroy, onMount } from "svelte";
-	import { createConfetto, createRainPiece, isConfettoAlive, stepConfetto, type ConfettiMode, type Confetto } from "./confetti";
+	import {
+		createConfetto,
+		createRainPiece,
+		isConfettoAlive,
+		stepConfetto,
+		type ConfettiMode,
+		type Confetto,
+	} from "./confetti";
 
 	let { mode = "cannons", onDone }: { mode?: ConfettiMode; onDone?: () => void } = $props();
 

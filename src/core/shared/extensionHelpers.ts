@@ -4,7 +4,10 @@ import { deactivateAllActiveSettings, reactivateAllSettings, triggerSettingUpdat
 import { hideStylesheet, showStylesheet } from "@settings/stylesheet/styleSheet";
 import { logger } from "@shared/logger";
 import { settingsUi } from "@ui/settings/settingsApi";
-import { playCelebration as playCelebrationOverlay, stopCelebration as stopCelebrationOverlay } from "@ui/tutorial/celebrationService";
+import {
+	playCelebration as playCelebrationOverlay,
+	stopCelebration as stopCelebrationOverlay,
+} from "@ui/tutorial/celebrationService";
 import type { CelebrationOptions } from "@ui/tutorial/tour/celebrationOptions";
 import { updateAllUiComponents } from "@ui/window/windowFactory";
 import { styleshiftContainer } from "../";
