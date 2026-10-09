@@ -218,7 +218,7 @@
 <style lang="scss">
 	.styleshift-window-resizer {
 		--handle-thickness: 4px;
-		--corner-size: 16px;
+		--corner-size: 44px;
 		--glow-color: var(--theme-0);
 
 		position: absolute;
@@ -228,29 +228,31 @@
 		height: 100%;
 		pointer-events: none;
 		z-index: 100;
+		border-radius: inherit;
 	}
 
 	.handle {
 		position: absolute;
 		pointer-events: auto;
 		background: transparent;
-		transition:
-			background 0.2s,
-			box-shadow 0.2s,
-			opacity 0.2s;
+		transition: opacity 0.2s;
 		opacity: 0;
 
-		&:hover,
-		&.active {
-			background: var(--glow-color);
-			box-shadow:
-				0 0 10px var(--glow-color),
-				0 0 20px var(--glow-color);
-			opacity: 1;
-			z-index: 102;
+		/* Edges glow as bars */
+		&.n,
+		&.s,
+		&.e,
+		&.w {
+			&:hover,
+			&.active {
+				background: var(--glow-color);
+				box-shadow:
+					0 0 10px var(--glow-color),
+					0 0 20px var(--glow-color);
+				opacity: 1;
+				z-index: 102;
+			}
 		}
-
-		/* Edges */
 		&.n {
 			top: -2px;
 			left: var(--corner-size);
@@ -280,7 +282,7 @@
 			cursor: ew-resize;
 		}
 
-		/* Corners */
+		/* Corners glow as long gradient border segments instead of filled balls */
 		&.nw,
 		&.ne,
 		&.se,
@@ -288,27 +290,70 @@
 			width: var(--corner-size);
 			height: var(--corner-size);
 			z-index: 101;
-			border-radius: 50%; /* Make corners circular for better feel */
+			background: transparent;
+
+			&:hover,
+			&.active {
+				background:
+					linear-gradient(
+							to var(--corner-h-dir),
+							var(--glow-color) 35%,
+							color-mix(in srgb, var(--glow-color) 45%, transparent) 70%,
+							transparent
+						)
+						var(--corner-h-pos) / 100% 5px no-repeat,
+					linear-gradient(
+							to var(--corner-v-dir),
+							var(--glow-color) 35%,
+							color-mix(in srgb, var(--glow-color) 45%, transparent) 70%,
+							transparent
+						)
+						var(--corner-v-pos) / 5px 100% no-repeat;
+				box-shadow: none;
+				filter: drop-shadow(0 0 6px var(--glow-color));
+				opacity: 1;
+				z-index: 102;
+			}
 		}
 
 		&.nw {
-			top: calc(var(--corner-size) / -2);
-			left: calc(var(--corner-size) / -2);
+			top: -2px;
+			left: -2px;
+			border-top-left-radius: inherit;
+			--corner-h-dir: right;
+			--corner-h-pos: top left;
+			--corner-v-dir: bottom;
+			--corner-v-pos: top left;
 			cursor: nwse-resize;
 		}
 		&.ne {
-			top: calc(var(--corner-size) / -2);
-			right: calc(var(--corner-size) / -2);
+			top: -2px;
+			right: -2px;
+			border-top-right-radius: inherit;
+			--corner-h-dir: left;
+			--corner-h-pos: top right;
+			--corner-v-dir: bottom;
+			--corner-v-pos: top right;
 			cursor: nesw-resize;
 		}
 		&.se {
-			bottom: calc(var(--corner-size) / -2);
-			right: calc(var(--corner-size) / -2);
+			bottom: -2px;
+			right: -2px;
+			border-bottom-right-radius: inherit;
+			--corner-h-dir: left;
+			--corner-h-pos: bottom right;
+			--corner-v-dir: top;
+			--corner-v-pos: bottom right;
 			cursor: nwse-resize;
 		}
 		&.sw {
-			bottom: calc(var(--corner-size) / -2);
-			left: calc(var(--corner-size) / -2);
+			bottom: -2px;
+			left: -2px;
+			border-bottom-left-radius: inherit;
+			--corner-h-dir: right;
+			--corner-h-pos: bottom left;
+			--corner-v-dir: top;
+			--corner-v-pos: bottom left;
 			cursor: nesw-resize;
 		}
 	}
