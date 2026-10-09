@@ -15,16 +15,17 @@
 		isPositioned,
 		isPanelOpen,
 		panelNeeded,
+		closing = false,
 		cardEl = $bindable(null),
 		onShow,
 		onSecondaryShow,
 		onTry,
+		onChoice,
 		onStopTrial,
 		onBack,
 		onNext,
 		onClose,
 		onGoTo,
-		onOption,
 		onReopen,
 	}: {
 		step: TutorialStep;
@@ -39,16 +40,17 @@
 		isPositioned: boolean;
 		isPanelOpen: boolean;
 		panelNeeded: boolean;
+		closing?: boolean;
 		cardEl: HTMLElement | null;
 		onShow: () => void;
 		onSecondaryShow: () => void;
 		onTry: () => void;
+		onChoice: (accepted: boolean) => void;
 		onStopTrial: () => void;
 		onBack: () => void;
 		onNext: () => void;
 		onClose: () => void;
 		onGoTo: (index: number) => void;
-		onOption: (category: string) => void;
 		onReopen: () => void;
 	} = $props();
 </script>
@@ -58,6 +60,7 @@
 	class="tutorial-card"
 	class:visible={isPositioned}
 	class:trial-mode={trialMode}
+	class:closing
 	style={positionStyle}
 	aria-label="Tutorial coach mark"
 >
@@ -99,17 +102,6 @@
 				</ul>
 			{/if}
 
-			{#if step.options?.length}
-				<div class="options-grid">
-					{#each step.options as option (option.id)}
-						<button class="option-chip" style="--chip-color: {option.color}" onclick={() => onOption(option.category)}>
-							<Icon name={option.icon} size={14} />
-							<span>{option.label}</span>
-						</button>
-					{/each}
-				</div>
-			{/if}
-
 			{#if panelNeeded && !isPanelOpen}
 				<div class="panel-notice" role="status">
 					<Icon name="open_in_new" size={14} />
@@ -149,6 +141,12 @@
 		<footer class="card-footer trial-footer">
 			<button class="nav-btn" onclick={onStopTrial}>Done trial</button>
 			<button class="nav-btn primary" onclick={onNext}>Next</button>
+		</footer>
+	{:else if step.choice}
+		<footer class="card-footer choice-footer">
+			<button class="nav-btn" onclick={onBack} disabled={isFirstStep}>Back</button>
+			<button class="nav-btn" onclick={() => onChoice(false)}>{step.choice.declineLabel}</button>
+			<button class="nav-btn primary" onclick={() => onChoice(true)}>{step.choice.acceptLabel}</button>
 		</footer>
 	{:else}
 		<footer class="card-footer">
@@ -202,10 +200,16 @@
 			right 220ms cubic-bezier(0.2, 0, 0, 1),
 			bottom 220ms cubic-bezier(0.2, 0, 0, 1),
 			width 200ms ease,
-			opacity 180ms ease;
+			opacity 180ms ease,
+			transform 200ms ease;
 
 		&.visible {
 			opacity: 1;
+		}
+
+		&.closing {
+			opacity: 0;
+			transform: scale(0.96) translateY(8px);
 		}
 
 		&.trial-mode {
@@ -319,40 +323,6 @@
 		}
 	}
 
-	.options-grid {
-		display: grid;
-		grid-template-columns: repeat(auto-fit, minmax(130px, 1fr));
-		gap: 6px;
-		margin-top: 4px;
-	}
-
-	.option-chip {
-		display: flex;
-		align-items: center;
-		gap: 6px;
-		padding: 6px 10px;
-		border-radius: 8px;
-		border: 1px solid color-mix(in srgb, var(--chip-color) 35%, transparent);
-		background: color-mix(in srgb, var(--chip-color) 12%, transparent);
-		color: var(--font-color);
-		font-size: 11px;
-		font-weight: 600;
-		cursor: pointer;
-		text-align: left;
-		transition:
-			background 150ms ease,
-			transform 100ms ease;
-
-		&:hover {
-			background: color-mix(in srgb, var(--chip-color) 25%, transparent);
-			transform: translateY(-1px);
-		}
-
-		&:active {
-			transform: scale(0.97);
-		}
-	}
-
 	.panel-notice {
 		display: flex;
 		align-items: center;
@@ -448,6 +418,13 @@
 
 		&.trial-footer {
 			justify-content: flex-end;
+		}
+
+		&.choice-footer {
+			.nav-btn {
+				padding: 6px 10px;
+				white-space: nowrap;
+			}
 		}
 	}
 

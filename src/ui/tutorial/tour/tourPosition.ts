@@ -78,12 +78,30 @@ export function isTargetOnTop(target: HTMLElement): boolean {
 }
 
 export function ensureTargetVisible(target: HTMLElement): void {
-	const scrollContainer = target.closest<HTMLElement>(".sidebar-scroll-area");
+	const scrollContainer = target.closest<HTMLElement>(".sidebar-scroll-area, .styleshift-settings-list");
 	if (!scrollContainer) return;
 	const contRect = scrollContainer.getBoundingClientRect();
 	const targetRect = target.getBoundingClientRect();
 	const isClipped = targetRect.bottom < contRect.top + 20 || targetRect.top > contRect.bottom - 20;
 	if (isClipped) target.scrollIntoView({ behavior: "smooth", block: "center" });
+}
+
+/**
+ * Brings a step target that exists but sits fully outside the panel's scrolled
+ * view (e.g. deep in a long category) into view so the ring can land on it.
+ * Only touches the settings scroll containers, never the page. Returns whether
+ * a scroll was triggered.
+ */
+export function revealPanelTarget(target: HTMLElement): boolean {
+	const scrollContainer = target.closest<HTMLElement>(".sidebar-scroll-area, .styleshift-settings-list");
+	if (!scrollContainer) return false;
+	const contRect = scrollContainer.getBoundingClientRect();
+	const targetRect = target.getBoundingClientRect();
+	if (targetRect.bottom < contRect.top || targetRect.top > contRect.bottom) {
+		target.scrollIntoView({ behavior: "auto", block: "center" });
+		return true;
+	}
+	return false;
 }
 
 export function findWindowRect(target: HTMLElement): TargetRect | null {
@@ -94,26 +112,81 @@ export function findWindowRect(target: HTMLElement): TargetRect | null {
 	return toTargetRect(windowEl.getBoundingClientRect());
 }
 
-export function spotlightStyleFor(rect: TargetRect): string {
-	const cx = rect.left + rect.width / 2;
-	const cy = rect.top + rect.height / 2;
-	const isCompact = rect.width <= 120 && rect.height <= 80;
+/** Intersects a target rect with the viewport so off-screen overflow never shapes the ring. */
+function clampToViewport(rect: TargetRect, viewport: Viewport): TargetRect {
+	const top = Math.max(0, rect.top);
+	const left = Math.max(0, rect.left);
+	const bottom = Math.min(viewport.height, rect.bottom);
+	const right = Math.min(viewport.width, rect.right);
+	return {
+		top,
+		right,
+		bottom,
+		left,
+		width: Math.max(0, right - left),
+		height: Math.max(0, bottom - top),
+	};
+}
+
+interface SpotlightBox {
+	top: number;
+	left: number;
+	width: number;
+	height: number;
+	radius: number;
+	circle: boolean;
+}
+
+/** Keeps the finished ring fully on-screen, shrinking it against the viewport edges. */
+function clampSpotlightBox(box: SpotlightBox, viewport: Viewport): SpotlightBox {
+	const top = Math.max(0, box.top);
+	const left = Math.max(0, box.left);
+	const height = Math.max(0, Math.min(box.height, viewport.height - top));
+	const width = Math.max(0, Math.min(box.width, viewport.width - left));
+	return { ...box, top, left, width, height };
+}
+
+function spotlightBoxStyle(box: SpotlightBox): string {
+	const radius = box.circle ? "50%" : `${box.radius}px`;
+	const top = Math.round(box.top);
+	const left = Math.round(box.left);
+	const width = Math.round(box.width);
+	const height = Math.round(box.height);
+	return `top: ${top}px; left: ${left}px; width: ${width}px; ` + `height: ${height}px; border-radius: ${radius};`;
+}
+
+export function spotlightStyleFor(rect: TargetRect, viewport: Viewport): string {
+	const visible = clampToViewport(rect, viewport);
+	const cx = visible.left + visible.width / 2;
+	const cy = visible.top + visible.height / 2;
+	const isCompact = visible.width <= 120 && visible.height <= 80;
 
 	if (isCompact) {
-		const radius = Math.round(Math.max(rect.width, rect.height) / 2) + 8;
+		const radius = Math.round(Math.max(visible.width, visible.height) / 2) + 8;
 		const size = radius * 2;
-		const top = Math.round(cy - radius);
-		const left = Math.round(cx - radius);
-		return `top: ${top}px; left: ${left}px; width: ${size}px; height: ${size}px; border-radius: 50%;`;
+		// Keep the ring centered on the target even near viewport edges. Clamping
+		// the box into view would shift its center and squash it into an ellipse;
+		// overflow is clipped by the viewport while the visible arc stays centered.
+		return spotlightBoxStyle(
+			{ top: cy - radius, left: cx - radius, width: size, height: size, radius: 0, circle: true },
+		);
 	}
 
-	const pad = rect.width > rect.height * 2.5 ? 6 : 8;
-	const radius = rect.width > rect.height * 2.5 ? 16 : 18;
-	const top = Math.round(rect.top - pad);
-	const left = Math.round(rect.left - pad);
-	const width = Math.round(rect.width + pad * 2);
-	const height = Math.round(rect.height + pad * 2);
-	return `top: ${top}px; left: ${left}px; width: ${width}px; height: ${height}px; border-radius: ${radius}px;`;
+	const pad = visible.width > visible.height * 2.5 ? 6 : 8;
+	const radius = visible.width > visible.height * 2.5 ? 16 : 18;
+	return spotlightBoxStyle(
+		clampSpotlightBox(
+			{
+				top: visible.top - pad,
+				left: visible.left - pad,
+				width: visible.width + pad * 2,
+				height: visible.height + pad * 2,
+				radius,
+				circle: false,
+			},
+			viewport,
+		),
+	);
 }
 
 export function centeredStyle(viewport: Viewport, card: CardSize): string {

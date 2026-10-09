@@ -1,8 +1,12 @@
 <script lang="ts">
-	let { visible = false, style = "" }: { visible?: boolean; style?: string } = $props();
+	let {
+		visible = false,
+		style = "",
+		closing = false,
+	}: { visible?: boolean; style?: string; closing?: boolean } = $props();
 </script>
 
-<div class="tour-spotlight-circle" class:visible {style}></div>
+<div class="tour-spotlight-circle" class:visible class:closing {style}></div>
 
 <style lang="scss">
 	.tour-spotlight-circle {
@@ -27,6 +31,10 @@
 
 		&.visible {
 			opacity: 1;
+		}
+
+		&.closing {
+			opacity: 0;
 		}
 	}
 

@@ -3,6 +3,7 @@
 	import { onDestroy, onMount } from "svelte";
 	import TourCard from "./tour/TourCard.svelte";
 	import TourSpotlight from "./tour/TourSpotlight.svelte";
+	import { playCelebration } from "./celebrationService";
 	import { cleanupTourModes, isPanelOpenAndVisible, openPanelAt, runStepShow, runStepTry } from "./tutorialNavigation";
 	import {
 		cardPlacementFor,
@@ -14,6 +15,7 @@
 		findWindowRect,
 		isElementVisible,
 		isTargetOnTop,
+		revealPanelTarget,
 		spotlightStyleFor,
 		toTargetRect,
 		TRIAL_DOCK_STYLE,
@@ -24,10 +26,13 @@
 
 	let { onClose = () => {} }: { onClose?: () => void } = $props();
 
+	const CLOSE_ANIMATION_MS = 200;
+
 	let currentIndex = $state(0);
 	let cardEl = $state<HTMLElement | null>(null);
 	let positionStyle = $state("");
 	let isPositioned = $state(false);
+	let isClosing = $state(false);
 
 	let spotlightStyle = $state("");
 	let isSpotlightVisible = $state(false);
@@ -35,6 +40,7 @@
 	let isTrialMode = $state(false);
 
 	let autoProceedTimer: number | null = null;
+	let closeTimer: number | null = null;
 	let activeTargetClickListener: { target: HTMLElement; handler: () => void } | null = null;
 
 	const currentStep = $derived(TUTORIAL_STEPS[currentIndex]);
@@ -95,7 +101,7 @@
 			ensureTargetVisible(usableTarget);
 			attachTargetClickListener(usableTarget);
 			const rect = toTargetRect(usableTarget.getBoundingClientRect());
-			spotlightStyle = spotlightStyleFor(rect);
+			spotlightStyle = spotlightStyleFor(rect, viewport);
 			isSpotlightVisible = true;
 			positionStyle = cardPlacementFor({
 				target: rect,
@@ -108,6 +114,12 @@
 			detachTargetClickListener();
 			isSpotlightVisible = false;
 			spotlightStyle = "";
+			if (!isTrialMode && target) {
+				// The step target exists but is scrolled out of the panel (e.g. deep
+				// in a long category): bring it into view so the ring lands on it.
+				// The scroll listener re-runs this once the row is visible.
+				revealPanelTarget(target);
+			}
 			if (isTrialMode) {
 				positionStyle = TRIAL_DOCK_STYLE;
 			} else {
@@ -155,15 +167,20 @@
 	}
 
 	function close() {
+		if (isClosing) return;
+		isClosing = true;
 		if (autoProceedTimer) {
 			clearTimeout(autoProceedTimer);
 			autoProceedTimer = null;
 		}
-		isTrialMode = false;
-		cleanupTourModes();
-		detachTargetClickListener();
-		markTutorialSeen();
-		onClose();
+		closeTimer = window.setTimeout(() => {
+			closeTimer = null;
+			isTrialMode = false;
+			cleanupTourModes();
+			detachTargetClickListener();
+			markTutorialSeen();
+			onClose();
+		}, CLOSE_ANIMATION_MS);
 	}
 
 	async function handleShow() {
@@ -189,9 +206,24 @@
 		requestAnimationFrame(() => updatePosition());
 	}
 
-	async function handleOptionClick(category: string) {
-		await openPanelAt(category);
-		requestAnimationFrame(() => updatePosition());
+	function handleChoice(accepted: boolean) {
+		if (isTrialMode) {
+			cleanupTourModes();
+			isTrialMode = false;
+		}
+		if (accepted) {
+			if (!isLastStep) void goTo(currentIndex + 1);
+			return;
+		}
+		const targetId = currentStep.choice?.declineToId;
+		if (targetId) {
+			const targetIndex = TUTORIAL_STEPS.findIndex((step) => step.id === targetId);
+			if (targetIndex >= 0) void goTo(targetIndex);
+			return;
+		}
+		// No decline target: "I'm fine" ends the tutorial with a celebration.
+		close();
+		void playCelebration({ accent: currentStep.accent });
 	}
 
 	async function handleReopen() {
@@ -245,6 +277,7 @@
 
 	onDestroy(() => {
 		if (autoProceedTimer) clearTimeout(autoProceedTimer);
+		if (closeTimer) clearTimeout(closeTimer);
 		window.removeEventListener("keydown", handleKeyDown);
 		window.removeEventListener("resize", scheduleUpdate);
 		document.removeEventListener("scroll", scheduleUpdate, true);
@@ -256,7 +289,7 @@
 </script>
 
 <div class="tutorial-tour-container" style="--accent: {currentStep.accent}">
-	<TourSpotlight visible={isSpotlightVisible} style={spotlightStyle} />
+	<TourSpotlight visible={isSpotlightVisible} style={spotlightStyle} closing={isClosing} />
 
 	<TourCard
 		bind:cardEl
@@ -272,15 +305,16 @@
 		{isPositioned}
 		{isPanelOpen}
 		{panelNeeded}
+		closing={isClosing}
 		onShow={handleShow}
 		onSecondaryShow={handleSecondaryShow}
 		onTry={handleTry}
+		onChoice={handleChoice}
 		onStopTrial={handleStopTrial}
 		onBack={handleBack}
 		onNext={handleNext}
 		onClose={close}
 		onGoTo={goTo}
-		onOption={handleOptionClick}
 		onReopen={handleReopen}
 	/>
 </div>

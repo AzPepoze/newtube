@@ -4,6 +4,7 @@ import {
 	centeredStyle,
 	fallbackCardPlacement,
 	isTargetOnTop,
+	revealPanelTarget,
 	spotlightStyleFor,
 	TRIAL_DOCK_STYLE,
 	windowSidePlacement,
@@ -45,18 +46,72 @@ test("missing target with a fullscreen window docks to a corner", () => {
 });
 
 test("spotlight draws a circle for compact buttons", () => {
-	const style = spotlightStyleFor({ top: 10, right: 50, bottom: 50, left: 10, width: 40, height: 40 });
+	const style = spotlightStyleFor({ top: 10, right: 50, bottom: 50, left: 10, width: 40, height: 40 }, VIEWPORT);
 	expect(style).toBe("top: 2px; left: 2px; width: 56px; height: 56px; border-radius: 50%;");
 });
 
 test("spotlight draws a wide pill for horizontal sections", () => {
-	const style = spotlightStyleFor({ top: 100, right: 400, bottom: 140, left: 100, width: 300, height: 40 });
+	const style = spotlightStyleFor({ top: 100, right: 400, bottom: 140, left: 100, width: 300, height: 40 }, VIEWPORT);
 	expect(style).toBe("top: 94px; left: 94px; width: 312px; height: 52px; border-radius: 16px;");
 });
 
 test("spotlight draws a rounded rect for cards", () => {
-	const style = spotlightStyleFor({ top: 100, right: 300, bottom: 200, left: 100, width: 200, height: 100 });
+	const style = spotlightStyleFor({ top: 100, right: 300, bottom: 200, left: 100, width: 200, height: 100 }, VIEWPORT);
 	expect(style).toBe("top: 92px; left: 92px; width: 216px; height: 116px; border-radius: 18px;");
+});
+
+test("spotlight clamps a screen-tall section to the viewport", () => {
+	const style = spotlightStyleFor(
+		{ top: -400, right: 900, bottom: 1200, left: 100, width: 800, height: 1600 },
+		VIEWPORT,
+	);
+	expect(style).toBe("top: 0px; left: 92px; width: 816px; height: 800px; border-radius: 18px;");
+});
+
+test("spotlight keeps the circle centered on a partially off-screen button", () => {
+	const style = spotlightStyleFor({ top: -30, right: 50, bottom: 10, left: 10, width: 40, height: 40 }, VIEWPORT);
+	expect(style).toBe("top: -23px; left: 2px; width: 56px; height: 56px; border-radius: 50%;");
+});
+
+test("spotlight keeps the circle centered on a top-right masthead button", () => {
+	const target = { top: 8, right: 1278, bottom: 48, left: 1228, width: 50, height: 40 };
+	const style = spotlightStyleFor(target, VIEWPORT);
+	expect(style).toBe("top: -5px; left: 1220px; width: 66px; height: 66px; border-radius: 50%;");
+});
+
+function fakePanelTarget(top: number, bottom: number, container: { top: number; bottom: number } | null) {
+	let scrolledWith: unknown;
+	const node = {
+		closest: () => (container ? { getBoundingClientRect: () => container } : null),
+		getBoundingClientRect: () => ({ top, bottom }),
+		scrollIntoView: (options: unknown) => (scrolledWith = options),
+		scrolled: () => scrolledWith,
+	};
+	return node;
+}
+
+test("reveal scrolls a target below the panel view into the center", () => {
+	const node = fakePanelTarget(1250, 1330, { top: 150, bottom: 850 });
+	expect(revealPanelTarget(node as any)).toBe(true);
+	expect(node.scrolled()).toEqual({ behavior: "auto", block: "center" });
+});
+
+test("reveal scrolls a target above the panel view into the center", () => {
+	const node = fakePanelTarget(20, 90, { top: 150, bottom: 850 });
+	expect(revealPanelTarget(node as any)).toBe(true);
+	expect(node.scrolled()).toEqual({ behavior: "auto", block: "center" });
+});
+
+test("reveal leaves an in-view target alone", () => {
+	const node = fakePanelTarget(400, 480, { top: 150, bottom: 850 });
+	expect(revealPanelTarget(node as any)).toBe(false);
+	expect(node.scrolled()).toBeUndefined();
+});
+
+test("reveal ignores targets outside the panel scroll containers", () => {
+	const node = fakePanelTarget(1250, 1330, null);
+	expect(revealPanelTarget(node as any)).toBe(false);
+	expect(node.scrolled()).toBeUndefined();
 });
 
 test("trial mode docks to the bottom-right corner", () => {

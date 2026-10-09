@@ -1,4 +1,5 @@
 import { logger } from "@shared/logger";
+import { openApiReference } from "@ui/docs/apiReferenceService";
 import { startCustomize, stopCustomize } from "@ui/highlight/highlight";
 import { startQuickCustomize } from "@ui/highlight/quickCustomizeService";
 import { closeSelectorPicker } from "@ui/highlight/selectorPicker";
@@ -80,6 +81,11 @@ export async function closeMainSettingsPanel() {
 
 export async function runStepShow(step: TutorialStep, tabOverride?: "installed" | "store") {
 	cleanupTourModes();
+
+	if (step.show?.docs) {
+		await openApiReference();
+		return;
+	}
 
 	const targetThemeTab = tabOverride ?? step.show?.themeTab;
 	if (targetThemeTab) {

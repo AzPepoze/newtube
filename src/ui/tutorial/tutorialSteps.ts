@@ -7,12 +7,16 @@ export const PANEL_CATEGORY = {
 	extensionSettings: "Extention's settings",
 } as const;
 
-export interface TutorialStepOption {
-	id: string;
-	label: string;
-	icon: string;
-	color: string;
-	category: string;
+export interface TutorialChoice {
+	/** Label of the button that continues into the branched content. */
+	acceptLabel: string;
+	/** Label of the button that skips the branched content. */
+	declineLabel: string;
+	/**
+	 * Step id to jump to when the user declines. When omitted, declining ends
+	 * the tutorial with a celebration instead.
+	 */
+	declineToId?: string;
 }
 
 export interface TutorialStep {
@@ -25,21 +29,22 @@ export interface TutorialStep {
 	panelCategory?: string;
 	actionLabel?: string;
 	targetSelector?: string;
+	choice?: TutorialChoice;
 	show?: {
 		panelCategory?: string;
 		themeTab?: "installed" | "store";
+		/** Opens the API Reference window instead of navigating the panel. */
+		docs?: boolean;
 	};
 	secondaryShow?: {
 		label: string;
 		themeTab?: "installed" | "store";
 	};
 	try?: "quickCustomize" | "customize";
-	options?: TutorialStepOption[];
 }
 
 export function requiresSettingsPanel(step: TutorialStep): boolean {
-	const hasPanelCategory = step.panelCategory !== undefined || step.show?.panelCategory !== undefined;
-	return hasPanelCategory || (step.options?.length ?? 0) > 0;
+	return step.panelCategory !== undefined || step.show?.panelCategory !== undefined;
 }
 
 export const TUTORIAL_STEPS: TutorialStep[] = [
@@ -53,6 +58,75 @@ export const TUTORIAL_STEPS: TutorialStep[] = [
 		targetSelector: "#NEWTUBESET",
 		show: {},
 		actionLabel: "Open the panel",
+	},
+	{
+		id: "meet-panel",
+		tier: "core",
+		title: "Your settings panel",
+		accent: "#38bdf8",
+		body: "Everything lives in this panel. Pick a section on the left, change its settings on the right.",
+		bullets: [],
+		targetSelector: ".styleshift-settings-main",
+		panelCategory: PANEL_CATEGORY.quickPalette,
+	},
+	{
+		id: "panel-sidebar",
+		tier: "core",
+		title: "The sidebar",
+		accent: "#f472b6",
+		body: "Each row jumps to a settings group. Headers split them into sections like Video Experience and Visual Style.",
+		bullets: [],
+		targetSelector: ".styleshift-sidebar",
+		panelCategory: PANEL_CATEGORY.quickPalette,
+	},
+	{
+		id: "panel-content",
+		tier: "core",
+		title: "The main area",
+		accent: "#a3e635",
+		body: "The selected section opens here. Longer sections scroll, so keep going down.",
+		bullets: [],
+		targetSelector: ".styleshift-settings-list",
+		panelCategory: PANEL_CATEGORY.quickPalette,
+	},
+	{
+		id: "panel-search",
+		tier: "core",
+		title: "Search everything",
+		accent: "#fb923c",
+		body: "Type here to filter every setting instantly, no matter which section it lives in.",
+		bullets: ["Press / anywhere to jump straight to search"],
+		targetSelector: ".styleshift-search-wrapper",
+		panelCategory: PANEL_CATEGORY.quickPalette,
+	},
+	{
+		id: "keyboard-shortcuts",
+		tier: "core",
+		title: "Keyboard shortcuts",
+		accent: "#4caf50",
+		body: "Four keys run the show: Alt+Shift+Z toggles, X opens the panel, C customizes, A flips Developer Mode.",
+		bullets: ["Change them in your browser's extension shortcut settings"],
+		targetSelector: "#KeyboardShortcuts",
+		panelCategory: PANEL_CATEGORY.extensionSettings,
+		show: {
+			panelCategory: PANEL_CATEGORY.extensionSettings,
+		},
+		actionLabel: "Show Extension's settings",
+	},
+	{
+		id: "customize-element",
+		tier: "core",
+		title: "Customize Elements",
+		accent: "#3eadad",
+		body: "In Quick Palette, click Customize Elements, then hover the page. Matching parts light up. Click one and its settings open beside it, so you can toggle them right away.",
+		bullets: ["Shortcut: Alt+Shift+C turns it on or off"],
+		targetSelector: "#StyleShiftToggleCustomize",
+		panelCategory: PANEL_CATEGORY.quickPalette,
+		show: {
+			panelCategory: PANEL_CATEGORY.quickPalette,
+		},
+		try: "customize",
+		actionLabel: "Show Quick Palette",
 	},
 	{
 		id: "quick-customize",
@@ -70,19 +144,56 @@ export const TUTORIAL_STEPS: TutorialStep[] = [
 		actionLabel: "Show Quick Palette",
 	},
 	{
-		id: "customize-element",
+		id: "dev-bridge",
 		tier: "core",
-		title: "Customize Elements",
-		accent: "#3eadad",
-		body: "In Quick Palette, click Customize Elements, then hover the page. Matching parts light up. Click one and its settings open beside it, so you can toggle them right away.",
-		bullets: ["Shortcut: Alt+Shift+C turns it on or off"],
-		targetSelector: "#StyleShiftToggleCustomize",
-		panelCategory: PANEL_CATEGORY.quickPalette,
-		show: {
-			panelCategory: PANEL_CATEGORY.quickPalette,
+		title: "Want to explore Developer Mode?",
+		accent: "#8b7cf6",
+		body: "Those clicks touched real settings. Developer Mode is the hard manual way: build, code, pack.",
+		bullets: [],
+		targetSelector: '[data-category="Extention\'s settings"]',
+		panelCategory: PANEL_CATEGORY.extensionSettings,
+		choice: {
+			acceptLabel: "We need to go deeper!",
+			declineLabel: "I'm fine",
 		},
-		try: "customize",
-		actionLabel: "Show Quick Palette",
+	},
+	{
+		id: "developer-mode",
+		tier: "core",
+		title: "Developer Mode",
+		accent: "#ffb020",
+		body: "Turn on the Developer Mode checkbox. It unlocks the + buttons, the pencil, and the trash icon.",
+		bullets: ["Shortcut: Alt+Shift+A flips it anytime"],
+		targetSelector: '[data-category="Extention\'s settings"]',
+		panelCategory: PANEL_CATEGORY.extensionSettings,
+		show: {
+			panelCategory: PANEL_CATEGORY.extensionSettings,
+		},
+		actionLabel: "Show Extension's settings",
+	},
+	{
+		id: "dev-create",
+		tier: "core",
+		title: "Build settings by hand",
+		accent: "#22d3ee",
+		body: "Every category grows a + button: pick a kind and it lands editable. The sidebar + adds a category.",
+		bullets: ["Pencil edits a setting, trash deletes it"],
+		targetSelector: ".styleshift-add-setting-button-wrapper",
+		panelCategory: PANEL_CATEGORY.quickPalette,
+	},
+	{
+		id: "dev-code-zip",
+		tier: "core",
+		title: "Code it and pack it",
+		accent: "#f43f5e",
+		body: "Code settings pair CSS/JS with a config.json. Export: Build-in, Add-ons, or Both, then Clipboard/ZIP.",
+		bullets: ["The API Reference window lists every function and setting kind"],
+		targetSelector: '[data-category="Import / Export Theme"]',
+		panelCategory: PANEL_CATEGORY.importExport,
+		show: {
+			docs: true,
+		},
+		actionLabel: "Open API Reference",
 	},
 	{
 		id: "themes-store",
@@ -115,65 +226,5 @@ export const TUTORIAL_STEPS: TutorialStep[] = [
 			panelCategory: PANEL_CATEGORY.importExport,
 		},
 		actionLabel: "Show Import / Export",
-	},
-	{
-		id: "developer-mode",
-		tier: "optional",
-		title: "Developer Mode",
-		accent: "#ffb020",
-		body: "Turn on Developer Mode in Extension's settings to edit settings. Use + Add Setting to create one, the pencil to change it, and the trash icon to delete it.",
-		bullets: ["Shortcut: Alt+Shift+A", "Drag the handle to reorder settings"],
-		targetSelector: '[data-category="Extention\'s settings"]',
-		panelCategory: PANEL_CATEGORY.extensionSettings,
-		show: {
-			panelCategory: PANEL_CATEGORY.extensionSettings,
-		},
-		actionLabel: "Show Extension's settings",
-	},
-	{
-		id: "more-options",
-		tier: "optional",
-		title: "More options",
-		accent: "#4caf50",
-		body: "These extras are optional. Click one to jump straight to its setting.",
-		bullets: [],
-		targetSelector: ".styleshift-settings-main",
-		options: [
-			{
-				id: "share",
-				label: "Share Your Theme",
-				icon: "ios_share",
-				color: "#ffb020",
-				category: PANEL_CATEGORY.quickPalette,
-			},
-			{
-				id: "realtime",
-				label: "Realtime Updating",
-				icon: "bolt",
-				color: "#3eadad",
-				category: PANEL_CATEGORY.extensionSettings,
-			},
-			{
-				id: "autoUpdate",
-				label: "Auto Update Themes",
-				icon: "system_update",
-				color: "#7f5db7",
-				category: PANEL_CATEGORY.extensionSettings,
-			},
-			{
-				id: "glass",
-				label: "Glass UI",
-				icon: "blur_on",
-				color: "#2196f3",
-				category: PANEL_CATEGORY.extensionSettings,
-			},
-			{
-				id: "shortcuts",
-				label: "Keyboard Shortcuts",
-				icon: "keyboard",
-				color: "#e45eff",
-				category: PANEL_CATEGORY.extensionSettings,
-			},
-		],
 	},
 ];
