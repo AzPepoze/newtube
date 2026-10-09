@@ -14,6 +14,10 @@ interface ActiveThemeWindow {
 
 let activeThemeWindowInstance: ActiveThemeWindow | null = null;
 
+export function isThemeManagerOpen(): boolean {
+	return activeThemeWindowInstance !== null;
+}
+
 /**
  * Opens the modern Theme Collection window.
  */
