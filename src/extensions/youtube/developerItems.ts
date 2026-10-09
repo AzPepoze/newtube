@@ -4,6 +4,7 @@ import { exportThemeWithSelection } from "@core/theme/exporter";
 import { importThemeZipWithWorkflow } from "@core/theme/importer";
 import { type Category } from "@settings/types/styleshiftTypes";
 import { settingsUi } from "@ui/settings/settingsApi";
+import { openApiReference } from "@ui/docs/apiReferenceService";
 import { showAllCurrentSave } from "./dangerzone";
 
 type DevCategory = Category & { insertAfter?: string };
@@ -68,6 +69,19 @@ const devOnlyItems: DevCategory[] = [
 				},
 				align: "center",
 				icon: "download",
+			},
+			{
+				type: "button",
+				id: "ApiReferenceButton",
+				name: "API Reference",
+				description: "Browse every built-in function and setting kind with copyable examples.",
+				color: "#2196f3",
+				fontSize: 15,
+				clickFunction: async function () {
+					await openApiReference();
+				},
+				align: "center",
+				icon: "menu_book",
 			},
 		],
 	},

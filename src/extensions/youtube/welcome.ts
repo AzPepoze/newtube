@@ -1,4 +1,5 @@
 import { getRootValue, saveRootValue } from "@core/storage/manager";
+import { openTutorialOverlay } from "@ui/tutorial/tutorialService";
 import { showUserConfirmation } from "@ui/window/windowFactory";
 import { mount, unmount } from "svelte";
 import Welcome from "./views/Welcome.svelte";
@@ -43,14 +44,13 @@ export async function checkAndShowWelcome(): Promise<void> {
 			confirmLabel: "Uh.. Yes?",
 			cancelLabel: "Nope",
 		});
+		await saveRootValue("welcomeShown", true);
 
-		if (!hasTime) {
-			await saveRootValue("welcomeShown", true);
-			return;
+		if (hasTime) {
+			mountWelcome(() => openTutorialOverlay());
+		} else {
+			// "Nope" skips the welcome pages but still offers the tutorial.
+			await openTutorialOverlay();
 		}
-
-		mountWelcome(async () => {
-			await saveRootValue("welcomeShown", true);
-		});
 	}
 }

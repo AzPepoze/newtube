@@ -8,6 +8,7 @@ import { type Category, type SeparateCategory } from "@settings/types/styleshift
 import { toggleCustomize } from "@ui/highlight/highlight";
 import { startQuickCustomize } from "@ui/highlight/quickCustomizeService";
 import { openTutorialOverlay } from "@ui/tutorial/tutorialService";
+import { playCelebration } from "@ui/tutorial/celebrationService";
 import { showThemeManager } from "@ui/themes/themeManagerService";
 import { showTryImportOldNPreset } from "./dangerzone";
 import { showWelcome } from "./welcome";
@@ -119,6 +120,17 @@ const defaultStyleShiftItems: (Category | SeparateCategory)[] = [
 				color: "#ffb020",
 				align: "left",
 				icon: "school",
+			},
+			{
+				clickFunction: () => playCelebration({ title: "Yay!", message: "Yay!", yayLabel: "Yay!" }),
+				type: "button",
+				id: "StyleShiftCelebrate",
+				name: "Yay!",
+				description: "Fire the confetti cannons, just for fun.",
+				fontSize: 15,
+				color: "#8b7cf6",
+				align: "left",
+				icon: "celebration",
 			},
 			{
 				clickFunction: openSettingPage,

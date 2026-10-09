@@ -1,19 +1,16 @@
 <script lang="ts">
-	import { logger } from "@/shared/logger";
-	import { IS_FIREFOX } from "@core/index";
-	import { alertPrompt } from "@core/shared/dialogs";
 	import { onMount } from "svelte";
 	import { backOut, quintOut } from "svelte/easing";
 	import { fade, fly, scale } from "svelte/transition";
 	import WelcomeButton from "./WelcomeButton.svelte";
 	import WelcomeHeading from "./WelcomeHeading.svelte";
 	import WelcomeLogo from "./WelcomeLogo.svelte";
+	import ConfettiOverlay from "../../../ui/tutorial/tour/ConfettiOverlay.svelte";
 
 	let { onDone }: { onDone: () => void } = $props();
 
 	let visible = $state(false);
 	let step = $state(1);
-	let commands: chrome.commands.Command[] = $state([]);
 
 	onMount(() => {
 		visible = true;
@@ -21,30 +18,6 @@
 
 	function nextStep() {
 		step += 1;
-		if (step === 2) void fetchCommandsShortcut();
-	}
-
-	async function fetchCommandsShortcut() {
-		logger.info("ui", "Fetching all keyboard shortcuts");
-		try {
-			const response = await chrome.runtime.sendMessage({ Command: "getCommands" });
-			if (Array.isArray(response)) commands = response.filter((command) => command.shortcut);
-		} catch (error) {
-			logger.error("ui", "Failed to fetch commands:", error);
-		}
-	}
-
-	function manageShortcuts() {
-		if (IS_FIREFOX) {
-			void alertPrompt({
-				title: "Shortcuts Management",
-				message:
-					'Cannot open shortcut settings in Firefox.\nPlease navigate to "about:addons" manually to manage shortcuts.',
-			});
-			return;
-		}
-
-		void chrome.runtime.sendMessage({ Command: "editCommands" });
 	}
 
 	function close() {
@@ -56,6 +29,7 @@
 {#if visible}
 	<div class="Welcome-Overlay styleshift-main" transition:fade={{ duration: 1000 }}>
 		<div class="Glow-Effect"></div>
+		<ConfettiOverlay mode="rain" />
 		<div
 			class="Welcome-Content-Wrapper"
 			in:scale={{ start: 0.7, duration: 2500, easing: quintOut }}
@@ -73,32 +47,6 @@
 						<div class="Copy-Panel" in:fly|global={{ x: 30, duration: 1000, delay: 500, easing: backOut }}>
 							<WelcomeHeading text="Welcome to NewTube" level="h1" variant="main" />
 							<WelcomeButton label="YAY!" onClick={nextStep} withMemes />
-						</div>
-					</div>
-				{:else if step === 2}
-					<div class="Step-Container" in:fade={{ duration: 600, delay: 200 }} out:fade={{ duration: 400 }}>
-						<div class="Shortcuts-Panel" in:fly|global={{ x: -30, duration: 800, easing: backOut }}>
-							<div class="Shortcuts-Label">Current Shortcuts</div>
-							{#if commands.length > 0}
-								<div class="shortcuts-list">
-									{#each commands as command (command.name)}
-										<div class="shortcut-item">
-											<span class="shortcut-desc">{command.description || command.name}</span>
-											<kbd>{command.shortcut}</kbd>
-										</div>
-									{/each}
-								</div>
-							{:else}
-								<div class="Shortcuts-Empty"><span>⌨️</span><strong>No shortcuts configured</strong></div>
-							{/if}
-						</div>
-						<div class="Copy-Panel" in:fly|global={{ x: 30, duration: 800, delay: 300, easing: backOut }}>
-							<WelcomeHeading text="Keyboard shortcuts" />
-							<p class="Lead">You can change these in your browser's extension settings.</p>
-							<div class="Button-Stack">
-								<WelcomeButton label="Manage Shortcuts" onClick={manageShortcuts} variant="secondary" />
-								<WelcomeButton label="Next" onClick={nextStep} variant="highlight" />
-							</div>
 						</div>
 					</div>
 				{:else}
@@ -211,80 +159,6 @@
 		font-size: 15px;
 	}
 
-	.Button-Stack {
-		display: flex;
-		flex-wrap: wrap;
-		gap: 14px;
-	}
-
-	.Shortcuts-Panel {
-		min-width: 0;
-		min-height: 390px;
-		display: flex;
-		flex-direction: column;
-		align-items: center;
-		justify-content: center;
-		max-height: min(560px, 70vh);
-		padding: clamp(28px, 5vw, 56px);
-		box-sizing: border-box;
-	}
-	.Shortcuts-Label {
-		margin-bottom: 18px;
-		color: var(--fg-opacity-60);
-		font-size: 14px;
-		font-weight: 800;
-		letter-spacing: 0.16em;
-		text-align: center;
-		text-transform: uppercase;
-	}
-	.shortcuts-list {
-		width: 100%;
-		min-height: 0;
-		overflow-y: auto;
-		display: flex;
-		flex-direction: column;
-		gap: 10px;
-		padding-right: 6px;
-	}
-	.shortcut-item {
-		display: flex;
-		align-items: center;
-		justify-content: space-between;
-		gap: 16px;
-		padding: 13px 15px;
-		border: 1px solid var(--fg-opacity-10);
-		border-radius: 14px;
-		background: var(--fg-opacity-08);
-		box-shadow: 0 8px 24px var(--bg-overlay-20);
-	}
-	.shortcut-desc {
-		min-width: 0;
-		color: var(--fg-opacity-60);
-		font-size: 14px;
-	}
-	kbd {
-		flex: 0 0 auto;
-		padding: 5px 8px;
-		border: 1px solid var(--theme-0-30);
-		border-radius: 6px;
-		color: var(--theme-0-text);
-		background: var(--theme-0-15);
-		font:
-			700 12px ui-monospace,
-			monospace;
-	}
-	.Shortcuts-Empty {
-		flex: 1;
-		display: grid;
-		place-items: center;
-		align-content: center;
-		gap: 16px;
-		color: var(--fg-opacity-40);
-	}
-	.Shortcuts-Empty span {
-		font-size: 72px;
-	}
-
 	@keyframes pulseGlow {
 		from {
 			transform: scale(1);
@@ -325,14 +199,6 @@
 		}
 		.Lead {
 			font-size: 16px;
-		}
-		.Button-Stack {
-			justify-content: center;
-		}
-		.Shortcuts-Panel {
-			min-height: 250px;
-			max-height: 42vh;
-			padding: 26px;
 		}
 	}
 
