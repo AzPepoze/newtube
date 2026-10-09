@@ -50,7 +50,8 @@
 		flex-shrink: 0;
 		border-top-left-radius: 12px;
 		border-top-right-radius: 12px;
-		z-index: 10;
+		position: relative;
+		z-index: 110;
 		transition:
 			transform 0.3s cubic-bezier(0.4, 0, 0.2, 1),
 			opacity 0.3s;

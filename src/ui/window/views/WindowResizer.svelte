@@ -218,7 +218,7 @@
 <style lang="scss">
 	.styleshift-window-resizer {
 		--handle-thickness: 4px;
-		--corner-size: 44px;
+		--corner-size: 64px;
 		--glow-color: var(--theme-0);
 
 		position: absolute;
