@@ -8,6 +8,7 @@ import { getStyleShiftDefaultItems } from "@extensions/youtube/defaultItems";
 import { attachBehaviorToSetting } from "@settings/engine/functions";
 import { type Category, type Setting } from "@settings/types/styleshiftTypes";
 import { logger } from "@shared/logger";
+import { getCategoryLabel } from "./category";
 
 const highlightColors = [`255, 109, 109`, `167, 242, 255`, `255, 167, 248`, `188, 167, 255`, `255, 241, 167`];
 
@@ -74,7 +75,7 @@ function autoAddHightlight(array: (Category | { isHeader: boolean; label: string
 	for (const item of array) {
 		const categoryObj = item as Category;
 		if (categoryObj.category && categoryObj.highlightColor == null) {
-			const categoryName = typeof categoryObj.category === "string" ? categoryObj.category : categoryObj.category.label;
+			const categoryName = getCategoryLabel(categoryObj);
 			const getColorId = randomNumberInRange(0, highlightColors.length - 1, categoryName);
 			logger.debug("highlight", "random id", categoryName, getColorId);
 			categoryObj.highlightColor = highlightColors[getColorId];
@@ -152,36 +153,48 @@ export function getSettingById(id: string): Setting | undefined {
 
 //--------------------------------------------------
 
-export async function addSetting(categorySettings: Setting[], thisSetting) {
-	let findSimilar = findExistSettings(thisSetting);
-	let newPreset;
+export function findAddOnCategory(category: Category): Category | undefined {
+	const label = getCategoryLabel(category);
+	return getAddOnItems().find((candidate) => getCategoryLabel(candidate) === label);
+}
+
+function makeUniqueSetting(thisSetting: Setting): Setting {
+	let result = thisSetting;
 	let times = 0;
 
-	while (findSimilar) {
+	while (findExistSettings(result)) {
 		times++;
-		newPreset = Object.assign({}, thisSetting);
-		newPreset.id += `_${times}`;
-		newPreset.name += `_${times}`;
-		findSimilar = findExistSettings(newPreset);
-		logger.info("settings", findSimilar, times, newPreset);
+		result = { ...thisSetting };
+		result.id = `${thisSetting.id}_${times}`;
+		if ((thisSetting as any).name != null) {
+			(result as any).name = `${(thisSetting as any).name}_${times}`;
+		}
 	}
 
-	if (newPreset) {
-		thisSetting = newPreset;
+	return result;
+}
+
+export async function addSettingToCategory(category: Category, thisSetting: Setting): Promise<void> {
+	const canonical = findAddOnCategory(category);
+	if (!canonical) {
+		logger.warn("settings", "Cannot add setting, category not found:", getCategoryLabel(category));
+		return;
 	}
 
-	categorySettings.push(thisSetting);
-	logger.info("settings", "update Category settings", categorySettings);
+	const setting = makeUniqueSetting(thisSetting);
+	canonical.settings.push(setting);
+	logger.info("settings", "Added setting to category", getCategoryLabel(canonical), setting);
 
 	getSettingsList(true);
 
-	if (thisSetting.value) {
-		await saveToStorage(thisSetting.id, thisSetting.value);
+	const value = (setting as any).value;
+	if (value) {
+		await saveToStorage(setting.id, value);
 	}
 
-	attachBehaviorToSetting(thisSetting);
+	attachBehaviorToSetting(setting);
 
-	saveAndRefreshAll();
+	await saveAndRefreshAll();
 }
 
 export async function removeSetting(thisSetting: Setting): Promise<boolean> {
@@ -239,7 +252,7 @@ export async function addCategory(categoryName: string) {
 	getSettingsList(true);
 
 	// Track the new category ID for UI highlighting
-	const categoryId = typeof thisCategory.category === "string" ? thisCategory.category : thisCategory.category.label;
+	const categoryId = getCategoryLabel(thisCategory);
 	await saveToStorage("lastAddedCategory", categoryId);
 
 	await saveAddOnItemsAndRefreshExtensionState(addOnItems);
@@ -247,11 +260,10 @@ export async function addCategory(categoryName: string) {
 
 export async function removeCategory(thisCategory: Category): Promise<boolean> {
 	const addOnItems = getAddOnItems();
-	const categoryLabel = typeof thisCategory.category === "string" ? thisCategory.category : thisCategory.category.label;
+	const categoryLabel = getCategoryLabel(thisCategory);
 
 	const index = addOnItems.findIndex((checkCategory) => {
-		const checkLabel =
-			typeof checkCategory.category === "string" ? checkCategory.category : checkCategory.category.label;
+		const checkLabel = getCategoryLabel(checkCategory);
 		return checkCategory === thisCategory || checkLabel === categoryLabel;
 	});
 

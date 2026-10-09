@@ -1,6 +1,7 @@
 <script lang="ts">
 	import Icon from "@base/Icon.svelte";
 	import { getAddOnItems, removeCategory } from "@settings/registry/items";
+	import { getCategoryLabel } from "@settings/registry/category";
 	import { settingsUi } from "../../settingsApi";
 	import { removeConfigUi, showConfigUi } from "@ui/window/config";
 	import { showUserConfirmation } from "@ui/window/windowFactory";
@@ -20,10 +21,7 @@
 
 	async function handleEditCategory() {
 		const addOnItems = getAddOnItems();
-		const category = addOnItems.find((c) => {
-			const label = typeof c.category === "string" ? c.category : c.category.label;
-			return label === text;
-		});
+		const category = addOnItems.find((c) => getCategoryLabel(c) === text);
 
 		if (category) {
 			showConfigUi(async (parent: HTMLElement) => {
@@ -40,10 +38,7 @@
 
 	async function handleRemoveCategory() {
 		const addOnItems = getAddOnItems();
-		const category = addOnItems.find((item) => {
-			const label = typeof item.category === "string" ? item.category : item.category.label;
-			return label === text;
-		});
+		const category = addOnItems.find((item) => getCategoryLabel(item) === text);
 		if (!category) return;
 
 		const confirmed = await showUserConfirmation(

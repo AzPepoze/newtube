@@ -42,7 +42,8 @@
 		if (setting.id) {
 			await setAndSave(setting, value);
 			await triggerSettingUpdate(setting.id);
-		} else if (typeof setting.updateFunction === "function") {
+		}
+		if (typeof setting.updateFunction === "function") {
 			await setting.updateFunction(value);
 		}
 	}

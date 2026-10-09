@@ -40,7 +40,7 @@
 					<SettingRenderer {setting} {category} highlight={searchQuery} layout={category.layout} />
 				{/each}
 				{#if isDeveloperMode && category.editable}
-					<AddSettingButton categorySettings={category.settings} />
+					<AddSettingButton {category} />
 				{/if}
 			</div>
 		</SettingsGroup>

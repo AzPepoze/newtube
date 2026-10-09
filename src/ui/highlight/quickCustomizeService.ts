@@ -2,7 +2,9 @@ import { logger } from "@shared/logger";
 import { openSelectorPicker } from "./selectorPicker";
 import { mount, unmount } from "svelte";
 import QuickCustomize from "./views/QuickCustomize.svelte";
-import { addCategory, addSetting, getAddOnItems } from "@settings/registry/items";
+import { addCategory, addSettingToCategory, getAddOnItems } from "@settings/registry/items";
+import { getCategoryLabel } from "@settings/registry/category";
+import { saveAndRefreshAll } from "@core/runtime/controller";
 import { createUniqueId } from "@/core/shared/utilities";
 import { createStyleShiftWindow } from "../window/windowFactory";
 import type { QuickCustomizeData, Setting } from "@settings/types/styleshiftTypes";
@@ -75,20 +77,16 @@ async function openQuickCustomizeUI(selector: string, existingSetting?: Setting)
 						metadata: data.metadata,
 					};
 					// Trigger update in storage/engine
-					await addSetting([], existingSetting);
+					await saveAndRefreshAll();
 				} else {
 					const categoryName = "Custom Elements";
 					let addOnItems = getAddOnItems();
-					let customCategory = addOnItems.find(
-						(c) => (typeof c.category === "string" ? c.category : c.category.label) === categoryName,
-					);
+					let customCategory = addOnItems.find((c) => getCategoryLabel(c) === categoryName);
 
 					if (!customCategory) {
 						await addCategory(categoryName);
 						addOnItems = getAddOnItems();
-						customCategory = addOnItems.find(
-							(c) => (typeof c.category === "string" ? c.category : c.category.label) === categoryName,
-						);
+						customCategory = addOnItems.find((c) => getCategoryLabel(c) === categoryName);
 					}
 
 					if (customCategory) {
@@ -107,7 +105,7 @@ async function openQuickCustomizeUI(selector: string, existingSetting?: Setting)
 							editable: true,
 						};
 
-						await addSetting(customCategory.settings, newSetting);
+						await addSettingToCategory(customCategory, newSetting);
 						logger.info("QuickCustomize", "New setting added", newSetting);
 					}
 				}

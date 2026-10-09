@@ -1,6 +1,7 @@
 import { createUniqueId } from "@/core/shared/utilities";
 import { waitDocumentLoaded } from "@core/shared/domHelpers";
 import { getStyleShiftItems } from "@settings/registry/items";
+import { getCategoryLabel } from "@settings/registry/category";
 import { type Category } from "@settings/types/styleshiftTypes";
 import { createEditorUi, editorUi } from "@ui/window/editor";
 import { showUserConfirmation } from "@ui/window/windowFactory";
@@ -30,10 +31,6 @@ let labelResizeAnimation: Animation | undefined;
 let pointerX = 0;
 let pointerY = 0;
 
-function categoryName(category: Category) {
-	return typeof category.category === "string" ? category.category : category.category.label;
-}
-
 function categorySelector(category: Category) {
 	return category.selector ?? "";
 }
@@ -52,7 +49,7 @@ function renderHighlightLabel(label: HTMLDivElement, categories: Category[]) {
 	);
 	const nextKeys = new Set<string>();
 	for (const category of categories) {
-		const key = `${categoryName(category)}\u0000${categorySelector(category)}\u0000${category.highlightColor}`;
+		const key = `${getCategoryLabel(category)}\u0000${categorySelector(category)}\u0000${category.highlightColor}`;
 		nextKeys.add(key);
 		const existingChip = existingChips.get(key);
 		if (existingChip) {
@@ -62,7 +59,7 @@ function renderHighlightLabel(label: HTMLDivElement, categories: Category[]) {
 		const chip = document.createElement("span");
 		chip.className = "styleshift-highlight-category styleshift-highlight-category-adding";
 		chip.dataset.categoryKey = key;
-		chip.textContent = categoryName(category);
+		chip.textContent = getCategoryLabel(category);
 		chip.style.backgroundColor = `rgb(${category.highlightColor})`;
 		chips.append(chip);
 		chip.addEventListener("animationend", () => chip.classList.remove("styleshift-highlight-category-adding"), {

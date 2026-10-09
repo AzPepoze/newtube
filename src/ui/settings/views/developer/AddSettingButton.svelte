@@ -1,11 +1,12 @@
 <script lang="ts">
 	import { createSettingPreset, isSettingKind } from "@settings/registry/defaultItems";
-	import { addSetting } from "@settings/registry/items";
+	import { addSettingToCategory } from "@settings/registry/items";
+	import type { Category } from "@settings/types/styleshiftTypes";
 	import Button from "../controls/Button.svelte";
 	import * as mainSettingUi from "../../controls";
 	import Dropdown from "../controls/Dropdown.svelte";
 
-	let { categorySettings } = $props();
+	let { category }: { category: Category } = $props();
 	let isOpen = $state(false);
 	let triggerEl = $state<HTMLElement | null>(null);
 
@@ -13,7 +14,7 @@
 
 	async function handleSelect(selected: string) {
 		if (!isSettingKind(selected)) return;
-		await addSetting(categorySettings, {
+		await addSettingToCategory(category, {
 			...createSettingPreset(selected),
 			editable: true,
 		});
@@ -36,7 +37,7 @@
 		{triggerEl}
 		setting={{
 			type: "dropdown",
-			id: "addSettingDropdown",
+			id: "",
 			name: "Add Setting",
 			value: "",
 			options: options.map((opt) => ({ label: opt, value: opt })),

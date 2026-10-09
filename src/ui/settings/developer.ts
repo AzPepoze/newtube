@@ -1,8 +1,7 @@
 import { rearrangeSelector } from "@core/shared/domHelpers";
-import { type Category, type Setting } from "@settings/types/styleshiftTypes";
+import { type Category } from "@settings/types/styleshiftTypes";
 import { settingsUi } from "@ui/settings/settingsApi";
 
-import AddSettingButtonComponent from "./views/developer/AddSettingButton.svelte";
 import ConfigMainSectionComponent from "./views/developer/ConfigMainSection.svelte";
 import ConfigSubSectionComponent from "./views/developer/ConfigSubSection.svelte";
 import DevSettingSectionComponent from "./views/developer/DevSettingSection.svelte";
@@ -105,19 +104,6 @@ export async function settingDeleteButton(parent, whenClick, type: "full" | "min
 	}
 
 	return settingDeleteButton;
-}
-
-export async function addSettingButton(categorySettings: Setting[]) {
-	const target = document.createElement("div");
-	settingsUi.renderComponent(
-		AddSettingButtonComponent,
-		{
-			categorySettings: categorySettings,
-		},
-		target,
-	);
-
-	return { frame: (target.firstElementChild as HTMLDivElement) || target };
 }
 
 export async function keyboardShortcuts() {

@@ -46,7 +46,8 @@
 		if (setting.id) {
 			await setAndSave(setting, hexValue);
 			await triggerSettingUpdate(setting.id);
-		} else if (typeof (setting as any).updateFunction === "function") {
+		}
+		if (typeof (setting as any).updateFunction === "function") {
 			await (setting as any).updateFunction(hexValue);
 		}
 	}

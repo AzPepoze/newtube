@@ -81,8 +81,9 @@
 		if (setting.id) {
 			await setAndSave(setting, value);
 			triggerSettingUpdate(setting.id);
-		} else if (typeof setting.updateFunction === "function") {
-			logger.debug("ui", `[Dropdown] Executing updateFunction for non-id setting`);
+		}
+		if (typeof setting.updateFunction === "function") {
+			logger.debug("ui", `[Dropdown] Executing updateFunction for setting: ${setting.id || "no-id"}`);
 			(setting.updateFunction as Function)(value);
 		}
 
