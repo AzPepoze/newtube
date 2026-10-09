@@ -27,7 +27,7 @@ function normalizeParams(rawParams: string): string {
 	return rawParams.replace(/\s+/g, " ").trim();
 }
 
-function extractMetadata(content: string) {
+function extractMetadata(content: string, fileName: string) {
 	const metadata: any[] = [];
 	const regex = /\/\*\*([\s\S]*?)\*\/[\s\r\n]*export\s+(async\s+)?function\s+(\w+)\s*\(([\s\S]*?)\)/g;
 	let match;
@@ -37,6 +37,7 @@ function extractMetadata(content: string) {
 		metadata.push({
 			label: name,
 			type: "function",
+			file: fileName,
 			detail: `(${params}) => ${isAsync ? "Promise<any>" : "any"}`,
 			info: jsdoc
 				.replace(/\*\/$/, "")
@@ -51,7 +52,12 @@ function extractMetadata(content: string) {
 		const [_, isAsync, name, rawParams] = match;
 		const params = normalizeParams(rawParams);
 		if (!metadata.find((m) => m.label === name)) {
-			metadata.push({ label: name, type: "function", detail: `(${params}) => ${isAsync ? "Promise<any>" : "any"}` });
+			metadata.push({
+				label: name,
+				type: "function",
+				file: fileName,
+				detail: `(${params}) => ${isAsync ? "Promise<any>" : "any"}`,
+			});
 		}
 	}
 	return metadata;
@@ -86,7 +92,7 @@ export async function buildTemplates() {
 	for (const filePath of sourceFiles) {
 		if (fs.existsSync(filePath)) {
 			const content = fs.readFileSync(filePath, "utf-8");
-			allMetadata = [...allMetadata, ...extractMetadata(content)];
+			allMetadata = [...allMetadata, ...extractMetadata(content, path.basename(filePath))];
 		}
 	}
 
@@ -94,12 +100,14 @@ export async function buildTemplates() {
 		{
 			label: "setValue",
 			type: "function",
+			file: "webPage.ts",
 			detail: "(id: string, value: any) => void",
 			info: `Sets a value in the ${extensionConfig.name} storage.`,
 		},
 		{
 			label: "getValue",
 			type: "function",
+			file: "webPage.ts",
 			detail: "(id: string) => any",
 			info: `Gets a value from the ${extensionConfig.name} storage.`,
 		},
