@@ -4,6 +4,8 @@ import { deactivateAllActiveSettings, reactivateAllSettings, triggerSettingUpdat
 import { hideStylesheet, showStylesheet } from "@settings/stylesheet/styleSheet";
 import { logger } from "@shared/logger";
 import { settingsUi } from "@ui/settings/settingsApi";
+import { playCelebration as playCelebrationOverlay, stopCelebration as stopCelebrationOverlay } from "@ui/tutorial/celebrationService";
+import type { CelebrationOptions } from "@ui/tutorial/tour/celebrationOptions";
 import { updateAllUiComponents } from "@ui/window/windowFactory";
 import { styleshiftContainer } from "../";
 import { getCurrentDomain } from "./domHelpers";
@@ -246,4 +248,29 @@ export async function toggleDeveloperMode() {
 	const newValue = !isDev;
 	await saveRootValue("developerMode", newValue);
 	await triggerSettingUpdate("developerMode");
+}
+
+/**
+ * Fires the confetti celebration overlay with a single-button Yay prompt.
+ *
+ * @param {CelebrationOptions} [options] - Custom title, message, button label, accent color and mode ("cannons" or "rain"). Cannons resolve after the prompt is dismissed and the burst plays out; rain keeps falling until stopCelebration is called.
+ * @returns {Promise<void>}
+ *
+ * @example
+ * await playCelebration();
+ * await playCelebration({ title: "Yay!", message: "Yay!", yayLabel: "Yay!" });
+ * await playCelebration({ mode: "rain" });
+ */
+export async function playCelebration(options: CelebrationOptions = {}): Promise<void> {
+	await playCelebrationOverlay(options);
+}
+
+/**
+ * Stops a running celebration, e.g. endless snow started with `{ mode: "rain" }`.
+ *
+ * @example
+ * stopCelebration();
+ */
+export function stopCelebration(): void {
+	stopCelebrationOverlay();
 }
