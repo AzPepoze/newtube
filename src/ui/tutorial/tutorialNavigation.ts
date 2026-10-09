@@ -4,7 +4,7 @@ import { startCustomize, stopCustomize } from "@ui/highlight/highlight";
 import { startQuickCustomize } from "@ui/highlight/quickCustomizeService";
 import { closeSelectorPicker } from "@ui/highlight/selectorPicker";
 import { scrollToSection } from "@ui/shared/scrollSpy";
-import { showThemeManager } from "@ui/themes/themeManagerService";
+import { closeThemeManager, showThemeManager } from "@ui/themes/themeManagerService";
 import { extensionSettingsUiPromise } from "@ui/window/extensionSettings";
 import { windowManager } from "@ui/window/windowManager.svelte";
 import type { TutorialStep } from "./tutorialSteps";
@@ -27,6 +27,12 @@ export function cleanupTourModes() {
 		closeSelectorPicker();
 	} catch (error) {
 		logger.warn("tutorial", "Failed to close selector picker", error);
+	}
+
+	try {
+		closeThemeManager();
+	} catch (error) {
+		logger.warn("tutorial", "Failed to close theme manager", error);
 	}
 }
 
@@ -111,5 +117,7 @@ export async function runStepTry(step: TutorialStep, onBeforeLaunch?: () => void
 		await startQuickCustomize();
 	} else if (step.try === "customize") {
 		await startCustomize();
+	} else if (step.try === "themeManager") {
+		await showThemeManager("installed");
 	}
 }

@@ -41,7 +41,7 @@ export interface TutorialStep {
 		label: string;
 		themeTab?: "installed" | "store";
 	};
-	try?: "quickCustomize" | "customize";
+	try?: "quickCustomize" | "customize" | "themeManager";
 }
 
 export function requiresSettingsPanel(step: TutorialStep): boolean {
@@ -121,6 +121,21 @@ export const TUTORIAL_STEPS: TutorialStep[] = [
 			panelCategory: PANEL_CATEGORY.extensionSettings,
 		},
 		actionLabel: "Show Extension's settings",
+	},
+	{
+		id: "themes-store",
+		tier: "core",
+		title: "Themes and the store",
+		accent: "#ff6d6d",
+		body: "Themes opens your saved themes. Its Store tab browses the online store. Get downloads a theme, and Save keeps it in your collection.",
+		bullets: ["Share Your Theme uploads your own theme to the store"],
+		targetSelector: "#OpenThemeManagerButton",
+		panelCategory: PANEL_CATEGORY.quickPalette,
+		show: {
+			panelCategory: PANEL_CATEGORY.quickPalette,
+		},
+		try: "themeManager",
+		actionLabel: "Show Themes",
 	},
 	{
 		id: "customize-element",
@@ -228,24 +243,6 @@ export const TUTORIAL_STEPS: TutorialStep[] = [
 			docs: true,
 		},
 		actionLabel: "Open API Reference",
-	},
-	{
-		id: "themes-store",
-		tier: "core",
-		title: "Themes and the store",
-		accent: "#ff6d6d",
-		body: "Themes opens your saved themes. Its Store tab browses the online store. Get downloads a theme, and Save keeps it in your collection.",
-		bullets: ["Share Your Theme uploads your own theme to the store"],
-		targetSelector: "#OpenThemeManagerButton",
-		panelCategory: PANEL_CATEGORY.quickPalette,
-		show: {
-			themeTab: "installed",
-		},
-		secondaryShow: {
-			label: "Theme Store",
-			themeTab: "store",
-		},
-		actionLabel: "Show Themes",
 	},
 	{
 		id: "save-export",

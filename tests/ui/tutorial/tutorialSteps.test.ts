@@ -61,7 +61,7 @@ test("all referenced panel categories match real panel sections", () => {
 });
 
 test("try actions strictly match supported interactive flows", () => {
-	const supportedTryActions = new Set(["quickCustomize", "customize"]);
+	const supportedTryActions = new Set(["quickCustomize", "customize", "themeManager"]);
 	for (const step of TUTORIAL_STEPS) {
 		if (step.try) {
 			expect(supportedTryActions.has(step.try)).toBe(true);
@@ -76,10 +76,18 @@ test("interactive steps 2 and 3 map to quick customize and customize elements", 
 	expect(custElemStep?.try).toBe("customize");
 });
 
-test("themes step configures installed and store views", () => {
+test("themes step navigates to the panel button instead of opening the manager", () => {
 	const themesStep = TUTORIAL_STEPS.find((s) => s.id === "themes-store");
-	expect(themesStep?.show?.themeTab).toBe("installed");
-	expect(themesStep?.secondaryShow?.themeTab).toBe("store");
+	expect(themesStep?.show?.panelCategory).toBe(PANEL_CATEGORY.quickPalette);
+	expect(themesStep?.show?.themeTab).toBeUndefined();
+	expect(themesStep?.secondaryShow).toBeUndefined();
+	expect(themesStep?.targetSelector).toBe("#OpenThemeManagerButton");
+});
+
+test("themes step offers both show navigation and theme manager trial", () => {
+	const themesStep = TUTORIAL_STEPS.find((s) => s.id === "themes-store");
+	expect(themesStep?.show?.panelCategory).toBe(PANEL_CATEGORY.quickPalette);
+	expect(themesStep?.try).toBe("themeManager");
 });
 
 test("only panel-anchored steps require the settings panel", () => {
@@ -104,13 +112,14 @@ test("only panel-anchored steps require the settings panel", () => {
 
 test("orientation steps tour the panel right after opening it", () => {
 	const ids = TUTORIAL_STEPS.map((step) => step.id);
-	expect(ids.slice(0, 9)).toEqual([
+	expect(ids.slice(0, 10)).toEqual([
 		"open-panel",
 		"meet-panel",
 		"panel-sidebar",
 		"panel-content",
 		"panel-search",
 		"keyboard-shortcuts",
+		"themes-store",
 		"customize-element",
 		"quick-customize",
 		"dev-bridge",
@@ -119,7 +128,7 @@ test("orientation steps tour the panel right after opening it", () => {
 
 test("use-existing comes before create-new, dev block follows both", () => {
 	const ids = TUTORIAL_STEPS.map((step) => step.id);
-	expect(ids.slice(6, 13)).toEqual([
+	expect(ids.slice(7, 14)).toEqual([
 		"customize-element",
 		"quick-customize",
 		"dev-bridge",

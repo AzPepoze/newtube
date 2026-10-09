@@ -45,6 +45,7 @@
 	let autoProceedTimer: number | null = null;
 	let closeTimer: number | null = null;
 	let activeTargetClickListener: { target: HTMLElement; handler: () => void } | null = null;
+	let trialSawManagerOpen = false;
 
 	const currentStep = $derived(TUTORIAL_STEPS[currentIndex]);
 	const isFirstStep = $derived(currentIndex === 0);
@@ -94,12 +95,26 @@
 
 		if (currentIndex === 0 && !wasPanelOpen && panelNowOpen) queueAutoProceed();
 
+		// Manual manager close ends its trial: the DOM removal already
+		// re-triggers this via the MutationObserver, no listener needed.
+		if (isTrialMode && currentStep.try === "themeManager") {
+			if (isThemeManagerOpen()) {
+				trialSawManagerOpen = true;
+			} else if (trialSawManagerOpen) {
+				trialSawManagerOpen = false;
+				handleStopTrial();
+			}
+		}
+
 		const target =
 			!isTrialMode && hasSpotlight(currentStep) && currentStep.targetSelector
 				? document.querySelector<HTMLElement>(currentStep.targetSelector)
 				: null;
 		const visibleTarget = target && isElementVisible(target) ? target : null;
 		const usableTarget = visibleTarget && isTargetOnTop(visibleTarget) ? visibleTarget : null;
+		// The Theme Manager opens a large centered window over the panel: park
+		// the card in the corner trial-style while it is open, like try steps.
+		const managerOpen = isThemeManagerOpen();
 
 		if (usableTarget) {
 			ensureTargetVisible(usableTarget);
@@ -108,13 +123,15 @@
 			const style = spotlightStyleFor(rect, viewport);
 			spotlightStyle = style ?? "";
 			isSpotlightVisible = style !== null;
-			positionStyle = cardPlacementFor({
-				target: rect,
-				card,
-				viewport,
-				trialMode: false,
-				windowRect: findWindowRect(usableTarget),
-			});
+			positionStyle = managerOpen
+				? TRIAL_DOCK_STYLE
+				: cardPlacementFor({
+						target: rect,
+						card,
+						viewport,
+						trialMode: false,
+						windowRect: findWindowRect(usableTarget),
+					});
 		} else {
 			detachTargetClickListener();
 			isSpotlightVisible = false;
@@ -122,10 +139,10 @@
 			if (!isTrialMode && target) {
 				revealPanelTarget(target);
 			}
-			if (isTrialMode) {
+			if (isTrialMode || managerOpen) {
 				positionStyle = TRIAL_DOCK_STYLE;
 			} else {
-				positionStyle = fallbackCardPlacement(viewport, card, isThemeManagerOpen(), findOpenWindowRect());
+				positionStyle = fallbackCardPlacement(viewport, card, false, findOpenWindowRect());
 			}
 		}
 		isPositioned = true;
@@ -139,6 +156,7 @@
 		if (isTrialMode) {
 			cleanupTourModes();
 			isTrialMode = false;
+			trialSawManagerOpen = false;
 		}
 		detachTargetClickListener();
 		currentIndex = Math.max(0, Math.min(TUTORIAL_STEPS.length - 1, index));
@@ -200,6 +218,7 @@
 
 	async function handleTry() {
 		isTrialMode = true;
+		trialSawManagerOpen = false;
 		requestAnimationFrame(() => updatePosition());
 		await runStepTry(currentStep);
 	}
@@ -207,6 +226,7 @@
 	function handleStopTrial() {
 		cleanupTourModes();
 		isTrialMode = false;
+		trialSawManagerOpen = false;
 		requestAnimationFrame(() => updatePosition());
 	}
 

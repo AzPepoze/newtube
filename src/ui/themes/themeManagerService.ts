@@ -19,6 +19,17 @@ export function isThemeManagerOpen(): boolean {
 }
 
 /**
+ * Closes the Theme Collection window if open. Used to end the tutorial trial.
+ */
+export function closeThemeManager(): void {
+	try {
+		activeThemeWindowInstance?.windowInstance?.closeWindowHandler?.();
+	} finally {
+		activeThemeWindowInstance = null;
+	}
+}
+
+/**
  * Opens the modern Theme Collection window.
  */
 export async function showThemeManager(tab: "installed" | "store" = "installed") {
