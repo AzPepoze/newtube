@@ -7,12 +7,14 @@
 		value = $bindable(""),
 		language = "javascript",
 		height = 400 as string | number,
+		readOnly = false,
 		onBlur,
 		onInput,
 	}: {
 		value: string;
 		language?: string;
 		height?: string | number;
+		readOnly?: boolean;
 		onBlur?: (value: string) => void;
 		onInput?: (value: string) => void;
 	} = $props();
@@ -22,6 +24,9 @@
 	const controller = new CodeEditorController({
 		get language() {
 			return language;
+		},
+		get readOnly() {
+			return readOnly;
 		},
 		onInput: (v) => {
 			value = v;
@@ -55,9 +60,16 @@
 	}
 </script>
 
-<div bind:this={container} class="styleshift-code-editor-container" style:height={normalizedHeight}>
+<div
+	bind:this={container}
+	class="styleshift-code-editor-container"
+	class:is-readonly={readOnly}
+	style:height={normalizedHeight}
+>
 	{#if !controller.fallbackMode}
 		<div bind:this={editorWrapper} class="editor-wrapper"></div>
+	{:else if readOnly}
+		<pre class="readonly-fallback">{value}</pre>
 	{:else}
 		<TextEditor bind:value {onInput} {onBlur} className="fallback-mode" />
 	{/if}
@@ -75,6 +87,30 @@
 		&:focus-within {
 			border-color: var(--theme-0);
 		}
+
+		&.is-readonly {
+			.editor-wrapper {
+				height: auto;
+			}
+
+			:global(.cm-editor) {
+				height: auto;
+			}
+
+			:global(.cm-content) {
+				user-select: text;
+			}
+		}
+	}
+
+	.readonly-fallback {
+		margin: 0;
+		padding: 12px 14px;
+		font-family: ui-monospace, monospace;
+		font-size: 14px;
+		line-height: 1.7;
+		white-space: pre-wrap;
+		word-break: break-word;
 	}
 
 	.editor-wrapper {

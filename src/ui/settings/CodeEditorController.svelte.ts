@@ -1,8 +1,10 @@
 import { codemirrorInstance, globalMetadataCache } from "@/core/runtime/controller";
 import { logger } from "@/shared/logger";
+import { buildReadonlyExtensions } from "./codeEditorExtensions";
 
 export interface CodeEditorOptions {
 	language: string;
+	readOnly?: boolean;
 	onInput?: (value: string) => void;
 	onBlur?: (value: string) => void;
 }
@@ -32,9 +34,8 @@ export class CodeEditorController {
 	async init(initialValue: string) {
 		if (!this.#editorWrapper) return;
 
-		await this.#waitForCodeMirror();
-
 		try {
+			await this.#waitForCodeMirror();
 			const cm = codemirrorInstance;
 			const extensions = this.#buildExtensions(cm);
 
@@ -100,12 +101,16 @@ export class CodeEditorController {
 	}
 
 	async #waitForCodeMirror() {
+		const started = Date.now();
 		while (!codemirrorInstance) {
+			if (Date.now() - started > 15000) throw new Error("CodeMirror failed to load");
 			await new Promise((resolve) => setTimeout(resolve, 100));
 		}
 	}
 
 	#buildExtensions(cm: any) {
+		if (this.#options.readOnly) return buildReadonlyExtensions(cm, this.#options.language);
+
 		const extensions = [
 			...cm.basicSetup,
 			cm.dracula,
