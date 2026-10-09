@@ -172,6 +172,11 @@ export class SettingsWindowController {
 		clearDropTargets();
 	}
 
+	handleResizeKeys = (event: KeyboardEvent) => {
+		if (event.key === "ArrowLeft") this.sidebarWidth = Math.max(100, this.sidebarWidth - 10);
+		else if (event.key === "ArrowRight") this.sidebarWidth = this.sidebarWidth + 10;
+	};
+
 	handleResizeStart = (event: MouseEvent) => {
 		event.preventDefault();
 		const startX = event.clientX;

@@ -2,6 +2,7 @@
 	import SettingsListRenderer from "@renderers/list/SettingsListRenderer.svelte";
 	import type { Category, SeparateCategory } from "@settings/types/styleshiftTypes";
 	import SidebarNavItem from "@base/SidebarNavItem.svelte";
+	import ResizeBar from "@ui/shared/views/ResizeBar.svelte";
 	import SidebarScrollLayout from "@ui/shared/views/SidebarScrollLayout.svelte";
 	import { slide } from "svelte/transition";
 	import { getCategoryParts } from "@ui/window/utils";
@@ -107,14 +108,7 @@
 		{/snippet}
 
 		{#snippet resizer()}
-			<div
-				class="styleshift-resize-handle"
-				role="button"
-				tabindex="0"
-				aria-label="Resize sidebar"
-				title="Drag to resize sidebar"
-				onmousedown={controller.handleResizeStart}
-			></div>
+			<ResizeBar onResizeStart={controller.handleResizeStart} onResizeKeys={controller.handleResizeKeys} />
 		{/snippet}
 
 		{#snippet header()}
@@ -151,19 +145,6 @@
 	.styleshift-settings-main {
 		width: 100%;
 		height: 100%;
-	}
-
-	.styleshift-resize-handle {
-		width: 5px;
-		cursor: col-resize;
-		background: var(--border-color);
-		user-select: none;
-		border-radius: 10px;
-		transition: all 0.2s;
-
-		&:hover {
-			background: var(--fg-opacity-90);
-		}
 	}
 
 	:global(.styleshift-sidebar) {
