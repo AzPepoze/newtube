@@ -29,7 +29,7 @@ function normalizeParams(rawParams: string): string {
 
 function extractMetadata(content: string, fileName: string) {
 	const metadata: any[] = [];
-	const regex = /\/\*\*([\s\S]*?)\*\/[\s\r\n]*export\s+(async\s+)?function\s+(\w+)\s*\(([\s\S]*?)\)/g;
+	const regex = /\/\*\*((?:(?!\*\/)[\s\S])*?)\*\/[\s\r\n]*export\s+(async\s+)?function\s+(\w+)\s*\(([\s\S]*?)\)/g;
 	let match;
 	while ((match = regex.exec(content)) !== null) {
 		const [_full, jsdoc, isAsync, name, rawParams] = match;
