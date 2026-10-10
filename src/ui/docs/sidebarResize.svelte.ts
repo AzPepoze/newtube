@@ -1,13 +1,21 @@
-const MIN_SIDEBAR_WIDTH = 200;
-const MAX_SIDEBAR_WIDTH = 420;
 const KEY_STEP = 10;
 
-/** Sidebar width state with mouse and keyboard resizing. */
-export function createSidebarResize(initialWidth = 240) {
+export interface ResizeOptions {
+	min: number;
+	max: number;
+	/** True for a panel on the right edge, which grows when dragged left. */
+	fromRight?: boolean;
+}
+
+const SIDEBAR: ResizeOptions = { min: 200, max: 420 };
+
+/** Width state with mouse and keyboard resizing for a sidebar or a right-hand panel. */
+export function createSidebarResize(initialWidth = 240, options: ResizeOptions = SIDEBAR) {
 	let width = $state(initialWidth);
+	const direction = options.fromRight ? -1 : 1;
 
 	function clamp(value: number): number {
-		return Math.max(MIN_SIDEBAR_WIDTH, Math.min(MAX_SIDEBAR_WIDTH, value));
+		return Math.max(options.min, Math.min(options.max, value));
 	}
 
 	function handleResizeStart(event: MouseEvent) {
@@ -15,7 +23,7 @@ export function createSidebarResize(initialWidth = 240) {
 		const startX = event.clientX;
 		const startWidth = width;
 		const onMove = (move: MouseEvent) => {
-			width = clamp(startWidth + move.clientX - startX);
+			width = clamp(startWidth + direction * (move.clientX - startX));
 		};
 		const onUp = () => {
 			window.removeEventListener("mousemove", onMove);
@@ -26,8 +34,9 @@ export function createSidebarResize(initialWidth = 240) {
 	}
 
 	function handleResizeKeys(event: KeyboardEvent) {
-		if (event.key === "ArrowLeft") width = clamp(width - KEY_STEP);
-		else if (event.key === "ArrowRight") width = clamp(width + KEY_STEP);
+		const step = direction * KEY_STEP;
+		if (event.key === "ArrowLeft") width = clamp(width - step);
+		else if (event.key === "ArrowRight") width = clamp(width + step);
 	}
 
 	return {
