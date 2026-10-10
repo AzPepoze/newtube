@@ -14,6 +14,39 @@ import { showTryImportOldNPreset } from "./dangerzone";
 import { copyDiagnosticsToClipboard, exportDiagnosticsFile } from "./features/diagnostics/export";
 import { showWelcome } from "./welcome";
 
+const diagnosticsLinkStyle = [
+	"display: inline-flex",
+	"align-items: center",
+	"padding: 8px 18px",
+	"border-radius: 999px",
+	"background: var(--theme-0)",
+	"color: #ffffff",
+	"font-weight: 700",
+	"text-decoration: none",
+].join("; ");
+const diagnosticsIntroHtml = `
+<div style="display: flex; flex-direction: column; gap: 14px; width: 100%;">
+	<p style="margin: 0;">
+		<b>Create a report</b> so I can find and fix your problem faster.
+	</p>
+	<div>
+		<b>The report includes:</b>
+		<ul style="margin: 6px 0 0; padding-left: 18px; line-height: 1.7;">
+			<li>Your layout, styling, settings and browser info</li>
+			<li>No video titles, comments or account details</li>
+			<li>Nothing is sent automatically</li>
+		</ul>
+	</div>
+	<div>
+		<b>Then send it to me:</b>
+		<div style="display: flex; flex-wrap: wrap; gap: 10px; margin-top: 8px;">
+			<a href="https://discord.gg/BgxvVqap4G" target="_blank" rel="noopener noreferrer" style="${diagnosticsLinkStyle}">Discord</a>
+			<a href="https://github.com/AzPepoze/NewTube/issues" target="_blank" rel="noopener noreferrer" style="${diagnosticsLinkStyle}">GitHub issue</a>
+		</div>
+	</div>
+</div>
+`;
+
 const defaultStyleShiftItems: (Category | SeparateCategory)[] = [
 	{ isHeader: true, label: "Extension" },
 	{
@@ -314,7 +347,7 @@ const defaultStyleShiftItems: (Category | SeparateCategory)[] = [
 		settings: [
 			{
 				type: "text",
-				html: "<div style='display: flex; flex-direction: column; gap: 8px; width: 100%;'><p style='margin: 0;'><strong>Create a report so I can see your exact setup and fix the problem faster.</strong></p><ul style='margin: 0; padding-left: 18px; display: flex; flex-direction: column; gap: 4px;'><li>Shows your layout, styling, settings and browser info.</li><li>Never includes video titles, comments or account details.</li><li>Nothing is sent automatically.</li></ul><p style='margin: 0;'>Copy or save it, then send it to me on Discord or a GitHub issue.</p></div>",
+				html: diagnosticsIntroHtml,
 				fontSize: 13,
 				align: "left",
 			},

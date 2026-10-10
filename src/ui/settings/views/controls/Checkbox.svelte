@@ -58,56 +58,84 @@
 {#if !hideLabel}
 	<Description {name} {description} />
 {/if}
-<input type="checkbox" class="styleshift-checkbox" bind:checked={value} onchange={handleChange} disabled={isLocked} />
+<label class="styleshift-switch" class:is-disabled={isLocked}>
+	<input
+		type="checkbox"
+		class="styleshift-switch-input"
+		bind:checked={value}
+		onchange={handleChange}
+		disabled={isLocked}
+	/>
+	<span class="styleshift-switch-track">
+		<span class="styleshift-switch-knob"></span>
+	</span>
+</label>
 
 <style lang="scss">
-	.styleshift-checkbox {
-		font-size: 20px;
-		appearance: none;
+	.styleshift-switch {
+		position: relative;
+		display: inline-block;
 		width: 3.6em;
 		height: 1.8em;
-		background: var(--bg-input);
-		border-radius: 99px;
-		position: relative;
+		font-size: 20px;
+		flex-shrink: 0;
 		cursor: pointer;
-		outline: none;
-		transition: all 0.2s;
-		box-shadow: 0px 0px 3px var(--shadow-color);
-		margin: 0px;
 
-		&:hover {
+		&.is-disabled {
+			cursor: not-allowed;
+		}
+
+		&:hover .styleshift-switch-track {
 			filter: brightness(1.2);
 			scale: 1.05;
 		}
+	}
 
-		&:checked {
-			background: var(--theme-0);
+	.styleshift-switch-input {
+		position: absolute;
+		width: 0;
+		height: 0;
+		opacity: 0;
+		margin: 0;
+	}
 
-			&:after {
-				left: calc(100% - 1.5em - 0.15em) !important;
-				transform: rotate(180deg) !important;
-				filter: drop-shadow(0px 0px 2px var(--shadow-color));
-			}
-		}
+	.styleshift-switch-input:focus-visible + .styleshift-switch-track {
+		outline: 3px solid var(--theme-0-light);
+		outline-offset: 2px;
+	}
 
-		&:after {
-			position: absolute;
-			display: flex;
-			content: "❖";
-			font-weight: 1000;
-			width: 1.5em;
-			height: 1.5em;
-			border-radius: 50%;
-			background: white !important;
-			box-shadow: 0 0 0.25em var(--shadow-color);
-			left: 0.15em;
-			top: 50%;
-			translate: 0 -50%;
-			transition: all 0.3s;
-			justify-content: center;
-			color: black !important;
-			align-items: center;
-			font-size: 20px;
-		}
+	.styleshift-switch-track {
+		position: absolute;
+		inset: 0;
+		border-radius: 99px;
+		background: var(--bg-input);
+		box-shadow: 0 0 3px var(--shadow-color);
+		transition:
+			background 0.2s ease,
+			filter 0.2s ease,
+			scale 0.2s ease;
+	}
+
+	.styleshift-switch-input:checked + .styleshift-switch-track {
+		background: var(--theme-0);
+	}
+
+	.styleshift-switch-knob {
+		position: absolute;
+		top: 50%;
+		left: 0.15em;
+		width: 1.5em;
+		height: 1.5em;
+		border-radius: 50%;
+		background: white;
+		box-shadow: 0 0 0.25em var(--shadow-color);
+		display: grid;
+		place-items: center;
+		translate: 0 -50%;
+		transition: transform 0.45s cubic-bezier(0.34, 1.56, 0.64, 1);
+	}
+
+	.styleshift-switch-input:checked + .styleshift-switch-track .styleshift-switch-knob {
+		transform: translateX(calc(3.6em - 1.5em - 0.3em));
 	}
 </style>

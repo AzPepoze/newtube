@@ -112,7 +112,10 @@
 	});
 
 	// Handle menu positioning and clipping
+	const MAX_POPOVER_WIDTH = 240;
+	const MENU_GAP = 8;
 	let isMenuAbove = $state(false);
+	let menuMaxHeight = $state(0);
 	let menuTop = $state(0);
 	let menuLeft = $state(0);
 	let menuWidth = $state(0);
@@ -141,25 +144,26 @@
 			}
 		}
 
-		menuWidth = triggerEl.offsetWidth;
+		const triggerWidth = triggerEl.offsetWidth;
+		menuWidth = justMenu ? Math.min(triggerWidth, MAX_POPOVER_WIDTH) : triggerWidth;
 
 		// Since we're teleporting to document.body, coordinates are relative to the viewport
 		// plus current scroll position
 		const scrollX = window.scrollX;
 		const scrollY = window.scrollY;
 
-		menuLeft = triggerRect.left + scrollX;
+		menuLeft = triggerRect.left + scrollX + (triggerWidth - menuWidth) / 2;
 
-		const spaceBelow = window.innerHeight - triggerRect.bottom;
-		const menuHeight = menuEl.offsetHeight;
+		const menuNaturalHeight = menuEl.scrollHeight;
+		const spaceBelow = window.innerHeight - triggerRect.bottom - MENU_GAP;
+		const spaceAbove = triggerRect.top - MENU_GAP;
+		isMenuAbove = spaceBelow < menuNaturalHeight && spaceAbove > spaceBelow;
 
-		if (spaceBelow < menuHeight && triggerRect.top > menuHeight) {
-			isMenuAbove = true;
-			menuTop = triggerRect.top + scrollY - menuHeight - 8;
-		} else {
-			isMenuAbove = false;
-			menuTop = triggerRect.bottom + scrollY + 8;
-		}
+		const availableHeight = isMenuAbove ? spaceAbove : spaceBelow;
+		menuMaxHeight = Math.max(0, Math.min(menuNaturalHeight, availableHeight));
+		menuTop = isMenuAbove
+			? triggerRect.top + scrollY - menuMaxHeight - MENU_GAP
+			: triggerRect.bottom + scrollY + MENU_GAP;
 		isReady = true;
 	}
 
@@ -235,6 +239,7 @@
 		style:top="{menuTop}px"
 		style:left="{menuLeft}px"
 		style:width="{menuWidth}px"
+		style:max-height="{menuMaxHeight}px"
 		style:visibility={isReady ? "visible" : "hidden"}
 		style:pointer-events={isReady ? "all" : "none"}
 		class:above={isMenuAbove}
@@ -270,6 +275,7 @@
 			align-items: center;
 			justify-content: space-between;
 			gap: 12px;
+			width: 100%;
 			min-width: 0;
 
 			:global(.styleshift-main-description) {
@@ -354,15 +360,19 @@
 	.styleshift-dropdown-menu {
 		position: absolute;
 		z-index: 10000;
-		background: var(--bg-main);
-		border: 1px solid var(--fg-opacity-10);
-		border-radius: 15px;
-		padding: 6px;
+		background: var(--window-bg);
+		backdrop-filter: var(--window-blur);
+		border: 1px solid var(--border-color);
+		border-radius: 20px;
+		padding: 8px;
 		display: flex;
 		flex-direction: column;
 		gap: 4px;
 		box-shadow: 0 10px 30px var(--bg-overlay-50);
-		overflow: hidden;
+		overflow-x: hidden;
+		overflow-y: auto;
+		overscroll-behavior: contain;
+		scrollbar-width: thin;
 		transform-origin: top center;
 		box-sizing: border-box;
 		margin-left: -1px;
@@ -375,13 +385,13 @@
 	.styleshift-dropdown-item {
 		background: transparent;
 		border: none;
-		color: var(--fg-opacity-80);
-		padding: 10px 14px;
+		color: var(--font-color);
+		padding: 11px 16px;
 		text-align: left;
 		cursor: pointer;
-		font-size: 13px;
-		font-weight: 500;
-		border-radius: 10px;
+		font-size: 14px;
+		font-weight: 600;
+		border-radius: 14px;
 		transition: all 0.2s ease;
 		opacity: 0;
 		transform: translateX(-10px);

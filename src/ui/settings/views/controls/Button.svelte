@@ -167,6 +167,11 @@
 		color: var(--btn-border-color);
 	}
 
+	/* Light theme uses dark text, since its gradients are pale. */
+	:global(.styleshift-main[data-theme="light"]) .styleshift-button {
+		color: var(--font-color);
+	}
+
 	:global(.styleshift-icon.styleshift-button-icon) {
 		margin-right: 12px;
 		object-fit: contain;
