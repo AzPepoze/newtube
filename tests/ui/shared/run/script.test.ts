@@ -1,5 +1,6 @@
 // @ts-nocheck -- Bun's test globals are not part of the extension TypeScript program.
 import { expect, test } from "bun:test";
+import { dangerousPatterns } from "../../../../src/core/utils/dangerousPatterns";
 import { RUN_EVENT, readRunEvent, wrapRunScript } from "../../../../src/ui/shared/run/script";
 
 test("wrapper embeds the user code and tags events with the run id", () => {
@@ -18,6 +19,12 @@ test("reads a log event for the same run", () => {
 test("reads a done event with empty text", () => {
 	const detail = JSON.stringify({ runId: "run-7", kind: "done", text: "" });
 	expect(readRunEvent(detail, "run-7")).toEqual({ kind: "done", text: "" });
+});
+
+test("the run wrapper trips none of the script safety patterns", () => {
+	const script = wrapRunScript("log('x');", "run-7").toLowerCase();
+	const tripped = dangerousPatterns.filter((pattern) => pattern.test(script));
+	expect(tripped.map(String)).toEqual([]);
 });
 
 test("ignores events from other runs, unknown kinds, and bad JSON", () => {
