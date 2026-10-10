@@ -22,21 +22,27 @@ export class SettingRendererController {
 	// Raw, not deep: a deep proxy keeps edits in its own signals and never reaches the stored object.
 	setting = $state.raw<Setting>();
 	value = $state<any>(null);
-	isDeveloperMode = $state(false);
+	#developerModeOn = $state(false);
+	isDeveloperMode = $derived(this.#developerModeOn && (this.setting?.editable ?? false));
 	requirementsMet = $state(true);
 	conditionsMet = $state(true);
 	requiredSettings = $state<Record<string, { name: string; value: any; type: string; options?: any }>>({});
 	listeners = new SvelteMap<string, (val: any) => void>();
 
+	#onDeveloperModeChange = (enabled: boolean) => {
+		this.#developerModeOn = Boolean(enabled);
+	};
+
 	constructor(setting: Setting) {
 		this.setting = setting;
+		registerSettingListener("developerMode", this.#onDeveloperModeChange);
 		this.init();
 	}
 
 	async init() {
 		if (!this.setting) return;
 		try {
-			this.isDeveloperMode = (await getRootValue("developerMode")) && (this.setting.editable ?? false);
+			this.#developerModeOn = Boolean(await getRootValue("developerMode"));
 			if ("id" in this.setting && this.setting.id) {
 				this.value = await getFromStorage(this.setting.id);
 			} else if ("value" in this.setting) {
@@ -116,6 +122,7 @@ export class SettingRendererController {
 	}
 
 	destroy() {
+		unregisterSettingListener("developerMode", this.#onDeveloperModeChange);
 		this.listeners.forEach((listener, id) => {
 			unregisterSettingListener(id, listener);
 		});
