@@ -4,6 +4,7 @@
 	import CodeBlock from "@ui/shared/views/CodeBlock.svelte";
 	import ResizeBar from "@ui/shared/views/ResizeBar.svelte";
 	import SidebarScrollLayout from "@ui/shared/views/SidebarScrollLayout.svelte";
+	import { scrollToSection } from "@ui/shared/scrollSpy";
 	import {
 		fileLabelFor,
 		parseDocTags,
@@ -14,8 +15,7 @@
 	} from "../apiReferenceData";
 	import type { SidebarResize } from "../sidebarResize.svelte";
 	import DocEntry from "./DocEntry.svelte";
-	import { openFunctionCode } from "../playground.svelte";
-	import { callStubFor } from "../apiReferenceData";
+	import { openFunctionCode, playground } from "../playground.svelte";
 	import DocsRail from "./DocsRail.svelte";
 	import ParamTable from "./ParamTable.svelte";
 
@@ -23,6 +23,18 @@
 
 	let activeEntry = $state("");
 	let contentEl: HTMLElement | null = $state(null);
+
+	function scrollToFile(file: string) {
+		const first = groups.find((group) => group.file === file)?.functions[0];
+		if (first) scrollToSection(contentEl, "data-docs-entry", `fn:${first.label}`);
+	}
+
+	$effect(() => {
+		const file = playground.focusFile;
+		if (!file) return;
+		playground.focusFile = null;
+		scrollToFile(file);
+	});
 </script>
 
 <div class="docs-view">
@@ -65,12 +77,7 @@
 
 					<h3 class="doc-sub">Definition</h3>
 					<p class="doc-hint">Declaration only. See Example for how to call it.</p>
-					<CodeBlock
-						code={signatureFor(fn)}
-						language="javascript"
-						tryLabel="Try a call"
-						onTry={() => openFunctionCode(callStubFor(fn))}
-					/>
+					<CodeBlock code={signatureFor(fn)} language="javascript" />
 
 					{#if params.length}
 						<h3 class="doc-sub">Parameters</h3>

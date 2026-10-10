@@ -42,6 +42,10 @@
 		});
 	}
 
+	function showNotifications() {
+		playground.focusFile = "notifications.ts";
+	}
+
 	function handleKeys(event: KeyboardEvent) {
 		if (
 			playground.open &&
@@ -77,7 +81,17 @@
 	</header>
 
 	{#if playground.mode === "functions"}
-		<p class="playground-hint">Run has no output. Use createNotification(...) to see results.</p>
+		<div class="playground-notice" role="note">
+			<Icon name="info" size={18} />
+			<div class="playground-notice-text">
+				<strong>Run has no output.</strong>
+				<span>Use createNotification(...) to see results.</span>
+			</div>
+			<button class="playground-action primary" onclick={showNotifications}>
+				<span>Go to Notifications</span>
+				<Icon name="arrow_forward" size={16} />
+			</button>
+		</div>
 	{/if}
 
 	<div class="playground-editor">
@@ -168,10 +182,37 @@
 		color: var(--font-color-dim);
 	}
 
-	.playground-hint {
-		margin: 0;
-		font-size: 12px;
-		color: var(--font-color-dim);
+	.playground-notice {
+		display: flex;
+		align-items: center;
+		gap: 10px;
+		padding: 10px 12px;
+		border-radius: 8px;
+		border: 1px solid color-mix(in srgb, var(--accent) 60%, transparent);
+		background: color-mix(in srgb, var(--accent) 14%, transparent);
+		color: var(--font-color);
+	}
+
+	.playground-notice-text {
+		flex: 1;
+		display: flex;
+		flex-direction: column;
+		gap: 2px;
+		min-width: 0;
+		font-size: 13px;
+
+		strong {
+			font-weight: 700;
+		}
+
+		span {
+			font-size: 12px;
+			color: var(--font-color-dim);
+		}
+	}
+
+	.playground-notice .playground-action {
+		flex-shrink: 0;
 	}
 
 	.playground-editor {

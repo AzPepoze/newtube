@@ -2,13 +2,17 @@ export type PlaygroundMode = "functions" | "kinds";
 
 export type KindParse = { ok: true; value: unknown } | { ok: false; error: string };
 
-/** Shared state for the playground panel. `version` changes when code is loaded from outside the editor. */
+/**
+ * Shared state for the playground panel. `version` changes when code is loaded from outside the editor.
+ * `focusFile` asks the function list to scroll to a source file's group, then clears itself.
+ */
 export const playground = $state({
 	open: false,
 	mode: "functions" as PlaygroundMode,
 	functionsCode: "",
 	kindsJson: "",
 	version: 0,
+	focusFile: null as string | null,
 });
 
 function load(mode: PlaygroundMode, code: string) {
