@@ -6,11 +6,11 @@ import {
 	groupFunctionsByFile,
 	groupKindsByCategory,
 	parseDocTags,
+	parseParamBody,
+	parseReturnsBody,
 	signatureFor,
 	splitSignature,
 	splitTagBody,
-	verbColorFor,
-	verbFor,
 } from "../../../src/ui/docs/apiReferenceData";
 
 const ENTRIES = [
@@ -112,22 +112,26 @@ test("file labels speak human", () => {
 	expect(fileLabelFor("myUtil.ts")).toBe("My Util");
 });
 
-test("verb tags come from the name root", () => {
-	expect(verbFor("getScrollParent")).toBe("get");
-	expect(verbFor("setValue")).toBe("set");
-	expect(verbFor("isScrollable")).toBe("is");
-	expect(verbFor("copyToClipboard")).toBe("copy");
-	expect(verbFor("rearrangeSelector")).toBe("rearrange");
-	expect(verbFor("dynamicAppend")).toBe(null);
-	expect(verbFor("lowercase")).toBe(null);
+test("param tags split name, type and text", () => {
+	expect(parseParamBody("{HTMLElement | null} element - The starting element.")).toEqual({
+		name: "element",
+		type: "HTMLElement | null",
+		text: "The starting element.",
+	});
+	expect(parseParamBody("count The number of items.")).toEqual({
+		name: "count",
+		type: null,
+		text: "The number of items.",
+	});
 });
 
-test("verbs map to colors with a gray fallback", () => {
-	expect(verbColorFor("get")).toBe("#2196f3");
-	expect(verbColorFor("set")).toBe("#4caf50");
-	expect(verbColorFor("copy")).toBe("#e45eff");
-	expect(verbColorFor("wait")).toBe("#ff9800");
-	expect(verbColorFor("nope")).toBe("#9e9e9e");
+test("returns tags split type and text", () => {
+	expect(parseReturnsBody("{string} The label.")).toEqual({ name: "", type: "string", text: "The label." });
+});
+
+test("keyboardShortcuts is hidden from setting kinds", () => {
+	const groups = groupKindsByCategory([{ type: "button" }, { type: "keyboardShortcuts" }]);
+	expect(groups.flatMap((group) => group.kinds.map((kind) => kind.type))).toEqual(["button"]);
 });
 
 test("kinds group into fixed categories in order", () => {

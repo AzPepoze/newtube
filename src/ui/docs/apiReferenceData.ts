@@ -52,11 +52,38 @@ export interface SplitTagBody {
 	text: string;
 }
 
-/** Splits a leading {type} from tag text. */
+/** Splits a leading {type} from tag text. The type keeps its braces. */
 export function splitTagBody(body: string): SplitTagBody {
 	const match = /^\{([^}]*)\}\s*([\s\S]*)$/.exec(body.trim());
 	if (!match) return { type: null, text: body };
 	return { type: `{${match[1]}}`, text: match[2].trim() };
+}
+
+export interface ApiDocRow {
+	name: string;
+	type: string | null;
+	text: string;
+}
+
+/** Reads a @param body like "{string} name - text" into a table row. */
+export function parseParamBody(body: string): ApiDocRow {
+	const { type, text } = splitTagBody(body);
+	const match = /^(\S+)\s*(?:-\s*)?([\s\S]*)$/.exec(text);
+	return {
+		name: match ? match[1] : "",
+		type: stripBraces(type),
+		text: match ? match[2].trim() : text,
+	};
+}
+
+/** Reads a @returns body like "{string} text" into a table row. */
+export function parseReturnsBody(body: string): ApiDocRow {
+	const { type, text } = splitTagBody(body);
+	return { name: "", type: stripBraces(type), text };
+}
+
+function stripBraces(type: string | null): string | null {
+	return type ? type.slice(1, -1) : null;
 }
 
 const FILE_LABELS: Record<string, string> = {
@@ -81,88 +108,6 @@ export function fileLabelFor(file: string): string {
 		.replace(/\.ts$/, "")
 		.replace(/([a-z0-9])([A-Z])/g, "$1 $2")
 		.replace(/^./, (first) => first.toUpperCase());
-}
-
-const KNOWN_VERBS = new Set([
-	"get",
-	"set",
-	"is",
-	"has",
-	"can",
-	"wait",
-	"open",
-	"close",
-	"copy",
-	"create",
-	"load",
-	"save",
-	"check",
-	"show",
-	"hide",
-	"enable",
-	"disable",
-	"toggle",
-	"remove",
-	"add",
-	"on",
-	"fire",
-	"trigger",
-	"fetch",
-	"parse",
-	"format",
-	"sort",
-	"apply",
-	"import",
-	"export",
-	"download",
-	"rearrange",
-]);
-
-/** Verb root of a camelCase name, or null when it names no known action. */
-export function verbFor(label: string): string | null {
-	const match = /^([a-z]+)(?=[A-Z])/.exec(label);
-	if (!match || !KNOWN_VERBS.has(match[1])) return null;
-	return match[1];
-}
-
-const VERB_COLORS: Record<string, string> = {
-	get: "#2196f3",
-	set: "#4caf50",
-	is: "#3eadad",
-	has: "#3eadad",
-	can: "#3eadad",
-	wait: "#ff9800",
-	open: "#7f5db7",
-	close: "#f44336",
-	copy: "#e45eff",
-	create: "#ffb020",
-	load: "#38bdf8",
-	save: "#4caf50",
-	check: "#3eadad",
-	show: "#7f5db7",
-	hide: "#9e9e9e",
-	enable: "#4caf50",
-	disable: "#f44336",
-	toggle: "#ffb020",
-	remove: "#f44336",
-	add: "#4caf50",
-	on: "#2196f3",
-	fire: "#ff9800",
-	trigger: "#ff9800",
-	fetch: "#38bdf8",
-	parse: "#a3e635",
-	format: "#a3e635",
-	sort: "#a3e635",
-	apply: "#3eadad",
-	import: "#7f8cff",
-	export: "#7f8cff",
-	download: "#7f8cff",
-	rearrange: "#f472b6",
-};
-
-/** Badge color for a verb, gray when unknown. */
-export function verbColorFor(verb: string): string {
-	return VERB_COLORS[verb] ?? "#9e9e9e";
 }
 
 /** Groups entries by source file, keeping first-seen file order. */
@@ -190,13 +135,16 @@ const KIND_CATEGORIES: Array<{ category: string; types: string[] }> = [
 	},
 	{ category: "Action", types: ["button"] },
 	{ category: "Structure", types: ["group", "combineSetting", "conditionSetting"] },
-	{ category: "Advanced", types: ["custom", "keyboardShortcuts"] },
+	{ category: "Advanced", types: ["custom"] },
 ];
 
-/** Groups setting kinds into fixed categories, unknown types land in Other. */
+const HIDDEN_KIND_TYPES = new Set(["keyboardShortcuts"]);
+
+/** Groups setting kinds into fixed categories, unknown types land in Other. Hidden kinds are skipped. */
 export function groupKindsByCategory<T extends { type: string }>(kinds: readonly T[]): ApiKindGroup<T>[] {
 	const groups = new Map<string, T[]>();
 	for (const kind of kinds) {
+		if (HIDDEN_KIND_TYPES.has(kind.type)) continue;
 		const match = KIND_CATEGORIES.find((entry) => entry.types.includes(kind.type));
 		const category = match ? match.category : "Other";
 		const list = groups.get(category);
