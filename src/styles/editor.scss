@@ -171,7 +171,21 @@
 			}
 		}
 
-		// Slots slide in over the row edges on hover, so the row content never reflows.
+		// The row widens sideways on hover; the margin and padding cancel out, so the content keeps its place.
+		.styleshift-setting-row-content {
+			transition:
+				margin 0.25s cubic-bezier(0.4, 0, 0.2, 1),
+				padding 0.25s cubic-bezier(0.4, 0, 0.2, 1);
+		}
+
+		&:not([draging])
+			.styleshift-setting-frame:is(:hover, :focus-within)
+			> .styleshift-setting-row-content:has(.styleshift-setting-slot) {
+			margin-inline: -24px;
+			padding-inline: 24px;
+		}
+
+		// Slots sit in the side space the row opens on hover.
 		.styleshift-setting-slot {
 			position: absolute;
 			top: 50%;
@@ -202,7 +216,7 @@
 
 		.styleshift-config-actions {
 			display: flex;
-			flex-direction: row;
+			flex-direction: column;
 			gap: 5px;
 			opacity: 0;
 			transition: all 0.2s;
@@ -273,6 +287,7 @@
 			transition: all 0.3s ease-out;
 
 			&.show {
+				min-height: 40px;
 				border: 2px dashed var(--fg-opacity-40);
 				background: var(--fg-opacity-05);
 				opacity: 1;
