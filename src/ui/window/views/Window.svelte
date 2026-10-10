@@ -183,6 +183,7 @@
 	class:mini
 	class:auto-hide-topbar={autoHideTopbar}
 	class:disable-backdrop-filter={disableBackdropFilter || blurOff}
+	class:solid-background={blurOff}
 	class:hide-topbar={autoHideTopbar && !logic.isHovering && !logic.isDragging && !logic.isResizing}
 	style:width={fullscreen ? "100vw" : currentWidth}
 	style:height={fullscreen ? "100vh" : currentHeight}
@@ -245,6 +246,10 @@
 		&.disable-backdrop-filter {
 			backdrop-filter: none !important;
 			-webkit-backdrop-filter: none !important;
+		}
+
+		&.solid-background {
+			background: var(--bg-main);
 		}
 
 		border: 1px solid var(--fg-opacity-10);
