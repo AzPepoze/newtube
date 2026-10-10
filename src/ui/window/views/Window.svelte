@@ -120,7 +120,11 @@
 	});
 
 	function handleViewportResize() {
-		if (!windowEl || logic.isMaximized || logic.isDragging || logic.isResizing || fullscreen) return;
+		if (!windowEl || logic.isDragging || logic.isResizing || fullscreen) return;
+		if (logic.snapZone) {
+			logic.refreshSnap();
+			return;
+		}
 
 		const [x, y] = currentTranslate.split(" ");
 		const currentLeft = parseInt(x) || 0;
@@ -170,6 +174,7 @@
 	class:fullscreen
 	class:dragging={logic.isDragging}
 	class:resizing={logic.isResizing}
+	class:snapping={logic.isSnapping}
 	class:minimized={logic.isMinimized}
 	class:picking-mode={isPicking}
 	class:mini
@@ -185,7 +190,7 @@
 	data-window-id={windowId}
 	role="presentation"
 >
-	{#if windowEl && !logic.isMaximized && !fullscreen}
+	{#if windowEl && !logic.snapZone && !fullscreen}
 		<WindowResizer
 			target={windowEl}
 			{aspectRatio}
@@ -272,6 +277,20 @@
 		&.dragging,
 		&.resizing {
 			transition: none !important;
+		}
+
+		/* Ease-out quart: fast start, long soft landing, no overshoot */
+		&.snapping {
+			transition:
+				translate 0.22s cubic-bezier(0.25, 1, 0.5, 1),
+				width 0.22s cubic-bezier(0.25, 1, 0.5, 1),
+				height 0.22s cubic-bezier(0.25, 1, 0.5, 1),
+				border-radius 0.3s,
+				opacity 0.3s;
+
+			@media (prefers-reduced-motion: reduce) {
+				transition: opacity 0.2s;
+			}
 		}
 
 		&.minimized {
