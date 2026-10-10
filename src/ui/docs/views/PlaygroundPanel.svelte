@@ -4,8 +4,9 @@
 	import type { Setting } from "@settings/types/styleshiftTypes";
 	import CodeEditor from "@ui/settings/views/base/editor/CodeEditor.svelte";
 	import SettingRenderer from "@ui/settings/views/setting/SettingRenderer.svelte";
+	import OutputBox from "@ui/shared/views/OutputBox.svelte";
+	import { runScript } from "@ui/shared/run/runner";
 	import { parseKindJson, playground, type KindParse } from "../playground.svelte";
-	import { runPlayground } from "@ui/shared/run/runner";
 
 	let editor: { setValue: (value: string) => void } | undefined = $state();
 
@@ -39,7 +40,7 @@
 		playground.running = true;
 		playground.output = [];
 		try {
-			await runPlayground(playground.functionsCode, (line) => playground.output.push(line));
+			await runScript(playground.functionsCode, (line) => playground.output.push(line));
 		} finally {
 			playground.running = false;
 		}
@@ -96,17 +97,12 @@
 	</div>
 
 	{#if playground.mode === "functions"}
-		<div class="playground-output" aria-live="polite">
+		<div class="playground-output">
 			<div class="playground-section-title">Output</div>
-			{#if playground.output.length === 0}
-				<p class="playground-empty">Press Run or Ctrl+Enter. Runs in the current YouTube tab.</p>
-			{/if}
-			{#each playground.output as line, i (i)}
-				<pre class="playground-line {line.kind}">{line.text}</pre>
-			{/each}
+			<OutputBox lines={playground.output} label="Playground output" />
 		</div>
 	{:else}
-		<div class="playground-output" aria-live="polite">
+		<div class="playground-output">
 			<div class="playground-section-title">Preview</div>
 			{#if kindError}
 				<p class="playground-error">{kindError}</p>
@@ -195,8 +191,6 @@
 		display: flex;
 		flex-direction: column;
 		gap: 6px;
-		max-height: 35%;
-		overflow-y: auto;
 	}
 
 	.playground-section-title {
@@ -211,30 +205,6 @@
 		margin: 0;
 		font-size: 13px;
 		color: var(--font-color-dim);
-	}
-
-	.playground-line {
-		margin: 0;
-		padding: 6px 10px;
-		border-radius: 6px;
-		background: var(--fg-opacity-05);
-		font-family: ui-monospace, monospace;
-		font-size: 13px;
-		white-space: pre-wrap;
-		word-break: break-word;
-		color: var(--font-color);
-
-		&.result {
-			color: var(--theme-success);
-		}
-
-		&.error {
-			color: var(--theme-error);
-		}
-
-		&.note {
-			color: var(--font-color-dim);
-		}
 	}
 
 	.playground-error {

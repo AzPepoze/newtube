@@ -1,4 +1,4 @@
-import type { PlaygroundLine } from "../shared/run/script";
+import type { RunLine } from "@ui/shared/run/script";
 
 export type PlaygroundMode = "functions" | "kinds";
 
@@ -11,7 +11,7 @@ export const playground = $state({
 	functionsCode: "",
 	kindsJson: "",
 	version: 0,
-	output: [] as PlaygroundLine[],
+	output: [] as RunLine[],
 	running: false,
 });
 

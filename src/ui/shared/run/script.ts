@@ -1,23 +1,23 @@
 /**
- * Pure helpers for the playground. The page-side wrapper reports back with a
- * CustomEvent, and these read that event. No DOM or extension imports here.
+ * Pure helpers for running code in the page. The page-side wrapper reports back
+ * with a CustomEvent, and these read that event. No DOM or extension imports here.
  */
 
-export const PLAYGROUND_EVENT = "StyleShift:PlaygroundResult";
+export const RUN_EVENT = "StyleShift:RunResult";
 
-export type PlaygroundLineKind = "log" | "result" | "error" | "note";
+export type RunLineKind = "log" | "result" | "error" | "note";
 
-export interface PlaygroundLine {
-	kind: PlaygroundLineKind;
+export interface RunLine {
+	kind: RunLineKind;
 	text: string;
 }
 
-export type PlaygroundEvent = PlaygroundLine | { kind: "done"; text: "" };
+export type RunEvent = RunLine | { kind: "done"; text: "" };
 
-const LINE_KINDS = new Set<string>(["log", "result", "error", "done"]);
+const EVENT_KINDS = new Set<string>(["log", "result", "error", "done"]);
 
 /** Wraps user code so logs, the return value, and errors are sent back to the docs. */
-export function wrapPlaygroundScript(code: string, runId: string): string {
+export function wrapRunScript(code: string, runId: string): string {
 	return `(async () => {
 	const __styleshiftFormat = (value) => {
 		if (typeof value === "string") return value;
@@ -28,7 +28,7 @@ export function wrapPlaygroundScript(code: string, runId: string): string {
 		}
 	};
 	const __styleshiftSend = (kind, value) => {
-		window.dispatchEvent(new CustomEvent(${JSON.stringify(PLAYGROUND_EVENT)}, {
+		window.dispatchEvent(new CustomEvent(${JSON.stringify(RUN_EVENT)}, {
 			detail: JSON.stringify({ runId: ${JSON.stringify(runId)}, kind, text: __styleshiftFormat(value) }),
 		}));
 	};
@@ -49,14 +49,14 @@ ${code}
 }
 
 /** Reads one event sent by the wrapper. Returns null for other runs or bad payloads. */
-export function readPlaygroundEvent(detail: string, runId: string): PlaygroundEvent | null {
+export function readRunEvent(detail: string, runId: string): RunEvent | null {
 	let data: { runId?: unknown; kind?: unknown; text?: unknown };
 	try {
 		data = JSON.parse(detail);
 	} catch (_error) {
 		return null;
 	}
-	if (data.runId !== runId || typeof data.kind !== "string" || !LINE_KINDS.has(data.kind)) return null;
+	if (data.runId !== runId || typeof data.kind !== "string" || !EVENT_KINDS.has(data.kind)) return null;
 	const text = typeof data.text === "string" ? data.text : "";
-	return { kind: data.kind as PlaygroundEvent["kind"], text } as PlaygroundEvent;
+	return { kind: data.kind as RunEvent["kind"], text } as RunEvent;
 }
