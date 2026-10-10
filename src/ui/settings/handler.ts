@@ -4,12 +4,14 @@ import { saveItems, synchronizeAvailableFunctions } from "@core/runtime/controll
 import { getUserSetting, saveToStorage } from "@core/storage/manager";
 import { attachBehaviorToSetting, migrateSettingRuntimeState, triggerSettingUpdate } from "@settings/engine/functions";
 import { getSettingsList } from "@settings/registry/items";
+import { bumpEditRevision } from "./editRevision.svelte";
 import { migrateSettingUiRegistry, refreshSettingUi } from "./settingsManager";
 
 export async function handleLogicUpdate(callback?: Function) {
 	logger.debug("config", "Handling logic update...");
 
 	await saveItems();
+	bumpEditRevision();
 	await synchronizeAvailableFunctions();
 
 	// Avoid full UI recreation if the callback is the global refresh function
@@ -81,4 +83,5 @@ export async function applyPropertyUpdate(
 	}
 
 	await saveItems();
+	bumpEditRevision();
 }

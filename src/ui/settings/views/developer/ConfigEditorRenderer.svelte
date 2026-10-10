@@ -9,6 +9,7 @@
 	import SettingRenderer from "@renderers/setting/SettingRenderer.svelte";
 	import Title from "@base/Title.svelte";
 	import { getCategoryParts } from "@ui/window/utils";
+	import { getEditRevision } from "../../editRevision.svelte";
 
 	let { setting }: { setting: Setting } = $props();
 
@@ -17,12 +18,17 @@
 	const categoryParts = $derived(getCategoryParts((setting as any).category));
 	const categoryRainbow = $derived(Boolean((setting as any).rainbow));
 
-	const previewSnapshot = $derived(JSON.stringify(setting));
+	// The setting is raw (not reactive), so reading the revision re-runs these after each saved edit.
+	const previewSnapshot = $derived.by(() => {
+		getEditRevision();
+		return JSON.stringify(setting);
+	});
 	const previewSetting = $derived({ ...JSON.parse(previewSnapshot), id: `preview-${setting.id ?? ""}` } as Setting);
 
-	const displayName = $derived(
-		(setting as any).name || (setting as any).category?.label || (setting as any).category || "New Item",
-	);
+	const displayName = $derived.by(() => {
+		getEditRevision();
+		return (setting as any).name || (setting as any).category?.label || (setting as any).category || "New Item";
+	});
 
 	const tabs = [
 		{ id: "general", label: "General", icon: "settings" },

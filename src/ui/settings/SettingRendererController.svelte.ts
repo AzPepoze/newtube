@@ -19,7 +19,8 @@ import { showUserConfirmation } from "@ui/window/windowFactory";
 import { SvelteMap } from "svelte/reactivity";
 
 export class SettingRendererController {
-	setting = $state<Setting>();
+	// Raw, not deep: a deep proxy keeps edits in its own signals and never reaches the stored object.
+	setting = $state.raw<Setting>();
 	value = $state<any>(null);
 	isDeveloperMode = $state(false);
 	requirementsMet = $state(true);
