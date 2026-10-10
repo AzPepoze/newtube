@@ -6,6 +6,7 @@
 	import SettingsGroup from "@base/SettingsGroup.svelte";
 	import AddSettingButton from "../developer/AddSettingButton.svelte";
 	import { categoryKey, settingKeys } from "@ui/settings/listKeys";
+	import { addDropTarget, removeDropTarget } from "@ui/settings/reorder";
 
 	let {
 		items = [],
@@ -19,6 +20,16 @@
 
 	function isHeaderItem(item: Category | SeparateCategory): item is SeparateCategory {
 		return "isHeader" in item;
+	}
+
+	/** Lets a setting be dropped on a category's list, so empty categories can receive settings. */
+	function categoryDropZone(node: HTMLElement, category: Category) {
+		const parent = node.parentElement!;
+		addDropTarget(node, parent, category, "categoryList");
+		return {
+			update: (next: Category) => addDropTarget(node, parent, next, "categoryList"),
+			destroy: () => removeDropTarget(node),
+		};
 	}
 </script>
 
@@ -37,7 +48,7 @@
 				{isDeveloperMode}
 				editable={category.editable}
 			/>
-			<div class="styleshift-settings-items" class:grid={category.layout === "grid"}>
+			<div class="styleshift-settings-items" class:grid={category.layout === "grid"} use:categoryDropZone={category}>
 				{#each category.settings as setting, j (keys[j])}
 					<SettingRenderer {setting} {category} highlight={searchQuery} layout={category.layout} />
 				{/each}

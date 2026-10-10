@@ -1,9 +1,10 @@
 import { saveAndRefreshAll } from "@core/runtime/controller";
 import { logger } from "@shared/logger";
-import { getAddOnItems, getSettingCategory } from "@settings/registry/items";
+import { findAddOnCategory, getAddOnItems, getSettingCategory } from "@settings/registry/items";
 import { reorderCategory } from "@settings/registry/category";
 import type { Category, Setting } from "@settings/types/styleshiftTypes";
 import { type DropCandidate, type DropHit, startDragSession } from "./dragSort";
+import { moveSetting } from "./settingMove";
 
 interface DropInfo {
 	data: Setting | Category;
@@ -33,10 +34,21 @@ function isCategoryData(data: Setting | Category): data is Category {
 	return (data as Category).category != null;
 }
 
+/** A setting can drop onto another setting, or onto a category's list (for empty categories). */
+function isSettingDropZone(info: DropInfo) {
+	return info.dataType === "setting" || info.dataType === "categoryList";
+}
+
+/** The stored category for a drop target. Sidebar and list copies are not the stored objects, so they are looked up by label. */
+function targetCategoryOf(info: DropInfo): Category | null {
+	if (info.dataType === "setting") return getSettingCategory(info.data as Setting);
+	return findAddOnCategory(info.data as Category) ?? null;
+}
+
 function isEligibleTarget(info: DropInfo, dragging: Setting | Category) {
 	if (info.data === dragging) return false;
 	if (isCategoryData(dragging)) return info.dataType === "category" && (info.data as Category).editable;
-	return info.dataType === "setting" && Boolean(getSettingCategory(info.data as Setting)?.editable);
+	return isSettingDropZone(info) && Boolean(targetCategoryOf(info)?.editable);
 }
 
 function getDropCandidates(dragging: Setting | Category): DropCandidate<DropInfo>[] {
@@ -47,41 +59,17 @@ function getDropCandidates(dragging: Setting | Category): DropCandidate<DropInfo
 	return candidates;
 }
 
-/** Takes a setting out of `settings`. A group also takes the settings below it, up to the next group or sub-title. */
-function takeSettingBlock(settings: Setting[], item: Setting): Setting[] {
-	const startIdx = settings.indexOf(item);
-	if (startIdx === -1) return [];
-	if (item.type !== "group") return settings.splice(startIdx, 1);
-
-	let endIdx = settings.length;
-	for (let i = startIdx + 1; i < settings.length; i++) {
-		if (["group", "subTitle"].includes(settings[i].type)) {
-			endIdx = i;
-			break;
-		}
-	}
-	return settings.splice(startIdx, endIdx - startIdx);
-}
-
 function moveCategoryItem(source: Category, target: DropInfo, isAfter: boolean): boolean {
 	return reorderCategory(getAddOnItems(), source, target.data as Category, isAfter);
 }
 
 function moveSettingItem(item: Setting, target: DropInfo, isAfter: boolean): boolean {
 	const sourceCategory = getSettingCategory(item);
-	const targetCategory =
-		target.dataType === "category" ? (target.data as Category) : getSettingCategory(target.data as Setting);
+	const targetCategory = targetCategoryOf(target);
 	if (!sourceCategory?.editable || !targetCategory?.editable) return false;
 
-	const targetIsSetting = target.dataType !== "category";
-	if (targetIsSetting && !targetCategory.settings.includes(target.data as Setting)) return false;
-
-	const itemsToInsert = takeSettingBlock(sourceCategory.settings, item);
-	if (itemsToInsert.length === 0) return false;
-
-	const dropIndex = targetIsSetting ? targetCategory.settings.indexOf(target.data as Setting) + (isAfter ? 1 : 0) : 0;
-	targetCategory.settings.splice(dropIndex, 0, ...itemsToInsert);
-	return true;
+	const anchor = target.dataType === "setting" ? (target.data as Setting) : null;
+	return moveSetting(sourceCategory.settings, targetCategory.settings, item, anchor, isAfter);
 }
 
 async function dropItem(dragging: Setting | Category, hit: DropHit<DropInfo>) {
