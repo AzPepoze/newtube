@@ -217,3 +217,39 @@ export function parseDocTags(info?: string): ParsedApiDoc {
 	parsed.summary = summaryLines.join("\n").trim();
 	return parsed;
 }
+
+/** Top-level parameter names read from a detail like "(a: T, b?: U) => any". */
+function parameterNamesFor(detail: string): string[] {
+	const flat = detail.replace(/=>/g, "");
+	let depth = 0;
+	let end = -1;
+	for (let i = 0; i < flat.length && end === -1; i++) {
+		if ("([{<".includes(flat[i])) depth++;
+		else if (")]}>".includes(flat[i])) {
+			depth--;
+			if (depth === 0) end = i;
+		}
+	}
+	const inside = end === -1 ? "" : flat.slice(1, end).trim();
+	if (!inside) return [];
+
+	const parts: string[] = [];
+	let current = "";
+	let level = 0;
+	for (const char of inside) {
+		if ("([{<".includes(char)) level++;
+		if (")]}>".includes(char)) level--;
+		if (char === "," && level === 0) {
+			parts.push(current);
+			current = "";
+		} else current += char;
+	}
+	parts.push(current);
+
+	return parts.map((part) => /^\s*\.{0,3}([A-Za-z_$][\w$]*)/.exec(part)?.[1] ?? "").filter(Boolean);
+}
+
+/** A call line like "getScrollParent(element)" that the playground can run after editing. */
+export function callStubFor(entry: ApiFunctionDoc): string {
+	return `${entry.label}(${parameterNamesFor(entry.detail).join(", ")})`;
+}

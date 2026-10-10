@@ -1,6 +1,7 @@
 // @ts-nocheck -- Bun's test globals are not part of the extension TypeScript program.
 import { expect, test } from "bun:test";
 import {
+	callStubFor,
 	fileLabelFor,
 	filterFunctions,
 	groupFunctionsByFile,
@@ -174,4 +175,17 @@ test("kinds group into fixed categories in order", () => {
 test("kind groups skip empty categories", () => {
 	const groups = groupKindsByCategory([{ type: "button" }]);
 	expect(groups.map((group) => group.category)).toEqual(["Action"]);
+});
+
+test("call stub lists top-level parameter names", () => {
+	expect(callStubFor({ label: "getScrollParent", detail: "(element: HTMLElement | null) => any" })).toBe(
+		"getScrollParent(element)",
+	);
+	expect(callStubFor({ label: "pick", detail: "(map: Record<string, number>, key?: string) => void" })).toBe(
+		"pick(map, key)",
+	);
+	expect(callStubFor({ label: "wrap", detail: "(cb: (x: number) => void, ...rest: any[]) => any" })).toBe(
+		"wrap(cb, rest)",
+	);
+	expect(callStubFor({ label: "waitDocumentLoaded", detail: "() => Promise<any>" })).toBe("waitDocumentLoaded()");
 });
