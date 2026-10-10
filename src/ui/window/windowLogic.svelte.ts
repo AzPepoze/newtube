@@ -1,5 +1,6 @@
 import { windowManager } from "@ui/window/windowManager.svelte";
 import { getSnapRect, getSnapZone, type SnapZone, type WindowRect } from "./snap";
+import { registerSnapped, snapSplit, unregisterSnapped } from "./snapLayout";
 import { hideSnapPreview, showSnapPreview } from "./snapPreview";
 import { constrainWindowPosition } from "./windowUtils";
 
@@ -91,6 +92,7 @@ export class WindowLogic {
 	toggleMinimize = (e?: MouseEvent) => {
 		if (e) e.stopPropagation();
 		this.isMinimized = true;
+		unregisterSnapped(this);
 		windowManager.addWindow({
 			id: this.windowId,
 			title: this.title,
@@ -101,6 +103,7 @@ export class WindowLogic {
 	restoreFromTaskbar = (e?: MouseEvent) => {
 		if (e) e.stopPropagation();
 		this.isMinimized = false;
+		if (this.snapZone) registerSnapped(this);
 		windowManager.removeWindow(this.windowId);
 	};
 
@@ -176,6 +179,7 @@ export class WindowLogic {
 		clearTimeout(this.activityTimeout);
 		clearTimeout(this.snapTimeout);
 		hideSnapPreview();
+		unregisterSnapped(this);
 	}
 
 	private getWindowElement() {
@@ -187,7 +191,7 @@ export class WindowLogic {
 	}
 
 	private snapRectFor(zone: SnapZone) {
-		return getSnapRect(zone, window.innerWidth, window.innerHeight);
+		return getSnapRect(zone, window.innerWidth, window.innerHeight, snapSplit);
 	}
 
 	private updateSnapPreview(zone: SnapZone | null) {
@@ -209,6 +213,7 @@ export class WindowLogic {
 	private snapTo(windowEl: HTMLElement, zone: SnapZone) {
 		this.saveRect(windowEl);
 		this.snapZone = zone;
+		registerSnapped(this);
 		this.applyRect(windowEl, this.snapRectFor(zone));
 	}
 
@@ -216,6 +221,7 @@ export class WindowLogic {
 		const saved = this.previousRect;
 		this.snapZone = null;
 		this.previousRect = null;
+		unregisterSnapped(this);
 		if (saved) this.applyRect(windowEl, saved, animate);
 	}
 

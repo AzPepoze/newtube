@@ -25,3 +25,57 @@
 		transition: opacity 0.1s ease;
 	}
 }
+
+/* Wide invisible hit area with a thin line in the middle. */
+.styleshift-split-divider {
+	position: fixed;
+	z-index: 10001;
+	display: none;
+	pointer-events: auto;
+
+	&::after {
+		content: "";
+		position: absolute;
+		background: var(--fg-opacity-15);
+		transition:
+			background 0.15s ease,
+			box-shadow 0.15s ease;
+	}
+
+	&.vertical {
+		width: 10px;
+		transform: translateX(-50%);
+		cursor: col-resize;
+
+		&::after {
+			top: 0;
+			bottom: 0;
+			left: 50%;
+			width: 2px;
+			transform: translateX(-50%);
+		}
+	}
+
+	&.horizontal {
+		height: 10px;
+		transform: translateY(-50%);
+		cursor: row-resize;
+
+		&::after {
+			left: 0;
+			right: 0;
+			top: 50%;
+			height: 2px;
+			transform: translateY(-50%);
+		}
+	}
+
+	&.visible {
+		display: block;
+	}
+
+	&:hover::after {
+		background: var(--theme-0-50);
+		box-shadow: 0 0 12px var(--theme-0-30);
+	}
+}

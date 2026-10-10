@@ -174,6 +174,7 @@
 <div
 	class="styleshift-window-container styleshift-window styleshift-main"
 	class:maximized={logic.isMaximized || fullscreen}
+	class:snapped={!!logic.snapZone}
 	class:fullscreen
 	class:dragging={logic.isDragging}
 	class:resizing={logic.isResizing}
@@ -275,6 +276,22 @@
 		&.maximized {
 			border-radius: 0;
 			border: none;
+		}
+
+		/* Snapped windows sit flush against each other, so they drop the frame. */
+		&.snapped {
+			border-radius: 0;
+			border: none;
+			box-shadow: none;
+
+			.styleshift-window-clipper {
+				box-shadow: none;
+			}
+
+			.styleshift-window-content {
+				border-bottom-left-radius: 0;
+				border-bottom-right-radius: 0;
+			}
 		}
 
 		&.fullscreen {

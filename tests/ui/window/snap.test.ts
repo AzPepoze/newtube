@@ -1,6 +1,6 @@
 // @ts-nocheck
 import { expect, test } from "bun:test";
-import { getSnapRect, getSnapZone } from "@ui/window/snap";
+import { getSnapRect, getSnapZone, getSplitDividers } from "@ui/window/snap";
 
 const VIEW_WIDTH = 1600;
 const VIEW_HEIGHT = 900;
@@ -68,4 +68,50 @@ test("maximize rect fills the viewport", () => {
 		width: 1600,
 		height: 900,
 	});
+});
+
+test("a moved split changes the snapped rects", () => {
+	const split = { x: 0.7, y: 0.5 };
+	expect(getSnapRect("left", VIEW_WIDTH, VIEW_HEIGHT, split)).toEqual({
+		left: 0,
+		top: 0,
+		width: 1120,
+		height: 900,
+	});
+	expect(getSnapRect("right", VIEW_WIDTH, VIEW_HEIGHT, split)).toEqual({
+		left: 1120,
+		top: 0,
+		width: 480,
+		height: 900,
+	});
+});
+
+test("two windows side by side give one full-height vertical divider", () => {
+	const split = { x: 0.5, y: 0.5 };
+	expect(getSplitDividers(["left", "right"], split, VIEW_WIDTH, VIEW_HEIGHT)).toEqual([
+		{ axis: "x", position: 800, start: 0, end: 900 },
+	]);
+});
+
+test("a single snapped window has no divider", () => {
+	expect(getSplitDividers(["left"], { x: 0.5, y: 0.5 }, VIEW_WIDTH, VIEW_HEIGHT)).toEqual([]);
+});
+
+test("four quarters give a cross", () => {
+	const split = { x: 0.5, y: 0.5 };
+	const zones = ["top-left", "top-right", "bottom-left", "bottom-right"];
+	expect(getSplitDividers(zones, split, VIEW_WIDTH, VIEW_HEIGHT)).toEqual([
+		{ axis: "x", position: 800, start: 0, end: 900 },
+		{ axis: "y", position: 450, start: 0, end: 1600 },
+	]);
+});
+
+test("a top quarter next to a right half only spans the top", () => {
+	const split = { x: 0.5, y: 0.5 };
+	expect(getSplitDividers(["top-left", "right"], split, VIEW_WIDTH, VIEW_HEIGHT)).toEqual([
+		{ axis: "x", position: 800, start: 0, end: 900 },
+	]);
+	expect(getSplitDividers(["top-left", "top-right"], split, VIEW_WIDTH, VIEW_HEIGHT)).toEqual([
+		{ axis: "x", position: 800, start: 0, end: 450 },
+	]);
 });
