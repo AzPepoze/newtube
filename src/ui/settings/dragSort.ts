@@ -2,9 +2,15 @@ import { autoScrollDelta, pickNearest, type Box, type NearestTarget } from "./dr
 import { createDragGhost } from "./dragGhost";
 import { createPlaceholder } from "./dragPlaceholder";
 
+export interface PreviewSlot {
+	anchor: HTMLElement;
+	isAfter: boolean;
+}
+
 export interface DropCandidate<T> {
 	el: HTMLElement;
 	value: T;
+	preview?: (isAfter: boolean) => PreviewSlot;
 }
 
 export interface DropHit<T> {
@@ -54,7 +60,8 @@ export function startDragSession<T>(options: DragSessionOptions<T>) {
 
 		lastHitEl = candidate.el;
 		lastHit = { value: candidate.value, isAfter };
-		placeholder.showAt(candidate.el, isAfter);
+		const slot = candidate.preview?.(isAfter) ?? { anchor: candidate.el, isAfter };
+		placeholder.showAt(slot.anchor, slot.isAfter);
 	}
 
 	function update() {

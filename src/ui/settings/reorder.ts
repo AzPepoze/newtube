@@ -54,9 +54,19 @@ function isEligibleTarget(info: DropInfo, dragging: Setting | Category) {
 function getDropCandidates(dragging: Setting | Category): DropCandidate<DropInfo>[] {
 	const candidates: DropCandidate<DropInfo>[] = [];
 	for (const [el, info] of dropTargets) {
-		if (isEligibleTarget(info, dragging)) candidates.push({ el, value: info });
+		if (isEligibleTarget(info, dragging)) candidates.push({ el, value: info, preview: previewFor(el, info) });
 	}
 	return candidates;
+}
+
+/** A category list previews between its setting rows, never after its add button. */
+function previewFor(el: HTMLElement, info: DropInfo): DropCandidate<DropInfo>["preview"] {
+	if (info.dataType !== "categoryList") return undefined;
+	return (isAfter) => {
+		const rows = el.querySelectorAll<HTMLElement>(":scope > .styleshift-setting-frame");
+		if (rows.length === 0) return { anchor: (el.firstElementChild as HTMLElement | null) ?? el, isAfter: false };
+		return isAfter ? { anchor: rows[rows.length - 1], isAfter: true } : { anchor: rows[0], isAfter: false };
+	};
 }
 
 function moveCategoryItem(source: Category, target: DropInfo, isAfter: boolean): boolean {
