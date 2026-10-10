@@ -62,11 +62,15 @@
 		gap: 10px;
 	}
 
-	@container settings-group (min-width: 520px) {
-		.styleshift-settings-items.grid {
-			display: grid;
-			grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
-			align-items: stretch;
+	/* Flex wrap with grow fills every row, including a partly filled last row, for any card count. */
+	.styleshift-settings-items.grid {
+		display: flex;
+		flex-direction: row;
+		flex-wrap: wrap;
+		align-items: stretch;
+
+		> :global(*) {
+			flex: 1 1 150px;
 		}
 	}
 </style>

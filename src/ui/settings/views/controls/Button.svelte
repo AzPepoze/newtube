@@ -189,45 +189,43 @@
 		z-index: 10;
 	}
 
-	@container settings-group (min-width: 520px) {
-		.layout-grid {
-			flex-direction: column;
+	.layout-grid {
+		flex-direction: column;
+		justify-content: center !important;
+		gap: 12px;
+		min-height: 140px;
+		height: 100%;
+		padding: 20px 12px;
+
+		:global(.styleshift-icon.styleshift-button-icon) {
+			margin-right: 0;
+		}
+
+		:global(.styleshift-main-description) {
+			align-items: center !important;
+			text-align: center !important;
+			flex: 0;
+		}
+
+		:global(.styleshift-main-description .setting-name) {
 			justify-content: center !important;
-			gap: 12px;
-			min-height: 140px;
-			height: 100%;
-			padding: 20px 12px;
+		}
 
-			:global(.styleshift-icon.styleshift-button-icon) {
-				margin-right: 0;
-			}
+		:global(.styleshift-main-description .setting-description) {
+			display: none;
+		}
 
-			:global(.styleshift-main-description) {
-				align-items: center !important;
-				text-align: center !important;
-				flex: 0;
-			}
+		.help-trigger {
+			position: absolute;
+			top: 8px;
+			right: 8px;
+			margin-left: 0;
+		}
 
-			:global(.styleshift-main-description .setting-name) {
-				justify-content: center !important;
-			}
-
-			:global(.styleshift-main-description .setting-description) {
-				display: none;
-			}
-
-			.help-trigger {
-				position: absolute;
-				top: 8px;
-				right: 8px;
-				margin-left: 0;
-			}
-
-			.styleshift-tooltip {
-				top: 50%;
-				bottom: auto;
-				transform: translateY(-50%);
-			}
+		.styleshift-tooltip {
+			top: 50%;
+			bottom: auto;
+			transform: translateY(-50%);
 		}
 	}
 
