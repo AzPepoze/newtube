@@ -1,9 +1,7 @@
 <script lang="ts">
+	import { executeScriptString } from "@core/runtime/controller";
 	import { openApiReference } from "@ui/docs/apiReferenceService";
 	import CapsuleTabs from "@ui/window/views/CapsuleTabs.svelte";
-	import OutputBox from "@ui/shared/views/OutputBox.svelte";
-	import { runScript } from "@ui/shared/run/runner";
-	import type { RunLine } from "@ui/shared/run/script";
 	import { untrack } from "svelte";
 	import { fade, fly } from "svelte/transition";
 	import { settingsUi } from "../../settingsApi";
@@ -52,19 +50,15 @@
 	let title = $derived(runTypeNameMap[runType as keyof typeof runTypeNameMap] || runType);
 	let color = $derived(colorMap[runType as keyof typeof colorMap] || "#999999");
 
-	let output = $state<RunLine[]>([]);
-	let running = $state(false);
-
-	async function handleRunScript() {
+	function handleRunScript() {
 		const property = runType + activeExt;
 		const script = setting[property];
-		if (!script || running) return;
-		running = true;
-		output = [];
-		try {
-			await runScript(script, (line) => output.push(line));
-		} finally {
-			running = false;
+		if (script) {
+			executeScriptString({
+				scriptContent: script,
+				shouldSanitize: true,
+				sourceIdentifier: `Manual Run: ${property}`,
+			});
 		}
 	}
 
@@ -160,6 +154,10 @@
 			</div>
 		</header>
 
+		{#if activeExt.toLowerCase() === "function"}
+			<p class="section-hint">Run has no output. Use createNotification(...) to see results.</p>
+		{/if}
+
 		<div class="section-editor-area">
 			{#each extArray as ext (ext)}
 				{#if activeExt === ext}
@@ -172,16 +170,6 @@
 				{/if}
 			{/each}
 		</div>
-
-		{#if activeExt.toLowerCase() === "function"}
-			<div class="section-output">
-				<div class="section-output-header">
-					<span class="section-output-title">Output</span>
-					<button class="section-output-clear" onclick={() => (output = [])} disabled={running}>Clear</button>
-				</div>
-				<OutputBox lines={output} label="{title} output" />
-			</div>
-		{/if}
 	</div>
 {:else}
 	<DevCard {title} {color}>
@@ -232,6 +220,12 @@
 		color: var(--font-color-dim);
 	}
 
+	.section-hint {
+		margin: 0 0 8px;
+		font-size: 12px;
+		color: var(--font-color-dim);
+	}
+
 	.section-editor-area {
 		width: 100%;
 		flex: 1;
@@ -258,47 +252,6 @@
 			&:focus-within {
 				border-color: var(--fg-opacity-20) !important;
 			}
-		}
-	}
-
-	.section-output {
-		display: flex;
-		flex-direction: column;
-		gap: 6px;
-		margin-top: 12px;
-	}
-
-	.section-output-header {
-		display: flex;
-		align-items: center;
-		justify-content: space-between;
-	}
-
-	.section-output-title {
-		font-size: 12px;
-		font-weight: 700;
-		letter-spacing: 0.06em;
-		text-transform: uppercase;
-		color: var(--font-color-dim);
-	}
-
-	.section-output-clear {
-		height: 26px;
-		padding: 0 10px;
-		border-radius: 8px;
-		border: 1px solid var(--fg-opacity-10);
-		background: var(--fg-opacity-05);
-		color: var(--font-color);
-		font-size: 12px;
-		cursor: pointer;
-
-		&:hover:not(:disabled) {
-			background: var(--fg-opacity-10);
-		}
-
-		&:disabled {
-			opacity: 0.6;
-			cursor: default;
 		}
 	}
 </style>

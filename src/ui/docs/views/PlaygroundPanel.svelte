@@ -1,11 +1,10 @@
 <script lang="ts">
 	import { untrack } from "svelte";
+	import { executeScriptString } from "@core/runtime/controller";
 	import Icon from "@base/Icon.svelte";
 	import type { Setting } from "@settings/types/styleshiftTypes";
 	import CodeEditor from "@ui/settings/views/base/editor/CodeEditor.svelte";
 	import SettingRenderer from "@ui/settings/views/setting/SettingRenderer.svelte";
-	import OutputBox from "@ui/shared/views/OutputBox.svelte";
-	import { runScript } from "@ui/shared/run/runner";
 	import { parseKindJson, playground, type KindParse } from "../playground.svelte";
 
 	let editor: { setValue: (value: string) => void } | undefined = $state();
@@ -35,15 +34,12 @@
 		untrack(() => editor?.setValue(currentCode()));
 	});
 
-	async function run() {
-		if (playground.running) return;
-		playground.running = true;
-		playground.output = [];
-		try {
-			await runScript(playground.functionsCode, (line) => playground.output.push(line));
-		} finally {
-			playground.running = false;
-		}
+	function run() {
+		executeScriptString({
+			scriptContent: playground.functionsCode,
+			shouldSanitize: true,
+			sourceIdentifier: "Playground Run",
+		});
 	}
 
 	function handleKeys(event: KeyboardEvent) {
@@ -65,11 +61,10 @@
 	<header class="playground-header">
 		<span class="playground-title">Playground</span>
 		{#if playground.mode === "functions"}
-			<button class="playground-action primary" onclick={run} disabled={playground.running}>
+			<button class="playground-action primary" onclick={run}>
 				<Icon name="play_arrow" size={16} />
-				<span>{playground.running ? "Running" : "Run"}</span>
+				<span>Run</span>
 			</button>
-			<button class="playground-action" onclick={() => (playground.output = [])}>Clear</button>
 		{/if}
 		<button
 			class="playground-close"
@@ -80,6 +75,10 @@
 			<Icon name="close" size={16} />
 		</button>
 	</header>
+
+	{#if playground.mode === "functions"}
+		<p class="playground-hint">Run has no output. Use createNotification(...) to see results.</p>
+	{/if}
 
 	<div class="playground-editor">
 		{#key playground.mode}
@@ -96,12 +95,7 @@
 		{/key}
 	</div>
 
-	{#if playground.mode === "functions"}
-		<div class="playground-output">
-			<div class="playground-section-title">Output</div>
-			<OutputBox lines={playground.output} label="Playground output" />
-		</div>
-	{:else}
+	{#if playground.mode === "kinds"}
 		<div class="playground-output">
 			<div class="playground-section-title">Preview</div>
 			{#if kindError}
@@ -157,13 +151,8 @@
 		font-weight: 600;
 		cursor: pointer;
 
-		&:hover:not(:disabled) {
+		&:hover {
 			background: var(--fg-opacity-10);
-		}
-
-		&:disabled {
-			opacity: 0.6;
-			cursor: default;
 		}
 
 		&.primary {
@@ -176,6 +165,12 @@
 		width: 28px;
 		padding: 0;
 		justify-content: center;
+		color: var(--font-color-dim);
+	}
+
+	.playground-hint {
+		margin: 0;
+		font-size: 12px;
 		color: var(--font-color-dim);
 	}
 

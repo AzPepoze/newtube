@@ -1,5 +1,3 @@
-import type { RunLine } from "@ui/shared/run/script";
-
 export type PlaygroundMode = "functions" | "kinds";
 
 export type KindParse = { ok: true; value: unknown } | { ok: false; error: string };
@@ -11,8 +9,6 @@ export const playground = $state({
 	functionsCode: "",
 	kindsJson: "",
 	version: 0,
-	output: [] as RunLine[],
-	running: false,
 });
 
 function load(mode: PlaygroundMode, code: string) {
