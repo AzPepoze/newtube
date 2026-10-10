@@ -1,5 +1,6 @@
 import { mount } from "svelte";
 import ConfigEditorRenderer from "./views/developer/ConfigEditorRenderer.svelte";
+import SettingCatalog from "./views/developer/SettingCatalog.svelte";
 import ConfigWindow from "./views/developer/ConfigWindow.svelte";
 import SettingsWindow from "./views/panel/SettingsWindow.svelte";
 
@@ -13,6 +14,14 @@ export function settingsWindow(props: any, target: HTMLElement) {
 
 export function configWindow(props: any, target: HTMLElement) {
 	return mount(ConfigWindow as any, {
+		target,
+		intro: true,
+		props,
+	});
+}
+
+export function settingCatalog(props: any, target: HTMLElement) {
+	return mount(SettingCatalog as any, {
 		target,
 		intro: true,
 		props,

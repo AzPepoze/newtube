@@ -5,6 +5,9 @@
 	let { setting, props } = $props();
 
 	let activeSection = $state("");
+	let navItems: HTMLButtonElement[] = $state([]);
+	let indicatorTop = $state(0);
+	let indicatorHeight = $state(0);
 
 	const propertyTypeMap = {
 		0: ["Css", "Function"],
@@ -28,6 +31,14 @@
 		}
 	});
 
+	$effect(() => {
+		const activeIndex = sections.findIndex(([title]) => title === activeSection);
+		const activeItem = navItems[activeIndex];
+		if (!activeItem) return;
+		indicatorTop = activeItem.offsetTop;
+		indicatorHeight = activeItem.offsetHeight;
+	});
+
 	const runTypeNameMap = {
 		var: "Variable",
 		click: "On Click",
@@ -38,38 +49,33 @@
 		disable: "On Disable",
 		update: "On Change",
 	};
-
-	const colorMap = {
-		var: "#FFA500",
-		click: "#00DFFF",
-		constant: "#09ff00",
-		ui: "#3232FF",
-		setup: "#3232FF",
-		enable: "#32CD32",
-		disable: "#FF3232",
-		update: "#FF00F5",
-	};
 </script>
 
 <div class="styleshift-config-sub-section">
-	<aside class="logic-sidebar">
-		{#each sections as [title, _property] (title)}
+	<nav class="logic-sidebar">
+		<span
+			class="logic-indicator"
+			class:visible={indicatorHeight > 0}
+			style:transform="translateY({indicatorTop}px)"
+			style:height="{indicatorHeight}px"
+		></span>
+
+		{#each sections as [title, _property], index (title)}
 			<button
 				class="logic-nav-item"
 				class:active={activeSection === title}
+				bind:this={navItems[index]}
 				onclick={() => (activeSection = title)}
-				style:--section-color={colorMap[title as keyof typeof colorMap] || "#999999"}
 			>
-				<div class="nav-indicator"></div>
-				<span class="nav-label">{runTypeNameMap[title as keyof typeof runTypeNameMap] || title}</span>
+				{runTypeNameMap[title as keyof typeof runTypeNameMap] || title}
 			</button>
 		{/each}
-	</aside>
+	</nav>
 
 	<div class="logic-workspace-area">
 		{#each sections as [title, property] (title)}
 			{#if activeSection === title}
-				<div class="workspace-mount" in:fly={{ x: 10, duration: 300, delay: 150 }} out:fade={{ duration: 150 }}>
+				<div class="workspace-mount" in:fly={{ x: 12, duration: 280, delay: 120 }} out:fade={{ duration: 120 }}>
 					<DevSettingSection
 						{setting}
 						runType={title}
@@ -93,58 +99,55 @@
 	}
 
 	.logic-sidebar {
-		width: 200px;
+		position: relative;
+		width: 160px;
 		display: flex;
 		flex-direction: column;
-		padding: 20px 10px;
-		gap: 5px;
-		margin: 10px;
+		padding: 8px 0;
+		border-right: 1px solid var(--border-color);
+		box-sizing: border-box;
+		overflow-y: auto;
+	}
+
+	.logic-indicator {
+		position: absolute;
+		left: 0;
+		top: 0;
+		width: 2px;
+		background: var(--theme-0);
+		border-radius: 2px;
+		opacity: 0;
+		pointer-events: none;
+		transition:
+			transform 0.3s cubic-bezier(0.2, 0.8, 0.2, 1),
+			height 0.3s cubic-bezier(0.2, 0.8, 0.2, 1),
+			opacity 0.2s;
+
+		&.visible {
+			opacity: 1;
+		}
 	}
 
 	.logic-nav-item {
-		display: flex;
-		align-items: center;
-		gap: 12px;
-		padding: 10px 15px;
+		padding: 7px 16px;
 		background: transparent;
 		border: none;
 		color: var(--font-color-dim);
-		border-radius: 10px;
-		cursor: pointer;
+		font-size: 13px;
+		font-weight: 500;
 		text-align: left;
-		transition: all 0.2s;
-
-		.nav-indicator {
-			width: 6px;
-			height: 6px;
-			border-radius: 50%;
-			background: var(--section-color);
-			opacity: 0.4;
-			transition: all 0.2s;
-		}
-
-		.nav-label {
-			font-size: 13px;
-			font-weight: 600;
-		}
+		cursor: pointer;
+		transition:
+			color 0.2s,
+			font-weight 0.2s;
 
 		&:hover {
-			background: var(--bg-surface-hover);
 			color: var(--font-color);
-			.nav-indicator {
-				opacity: 0.8;
-				transform: scale(1.2);
-			}
 		}
 
 		&.active {
-			background: var(--bg-surface-hover);
-			color: var(--theme-1);
-			.nav-indicator {
-				opacity: 1;
-				transform: scale(1.3);
-				box-shadow: 0 0 8px var(--section-color);
-			}
+			color: var(--font-color);
+			font-weight: 600;
 		}
 	}
 
@@ -152,7 +155,7 @@
 		flex: 1;
 		height: 100%;
 		overflow-y: auto;
-		padding: 30px;
+		padding: 16px 20px;
 		box-sizing: border-box;
 
 		&::-webkit-scrollbar {

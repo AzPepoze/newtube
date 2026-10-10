@@ -113,8 +113,9 @@
 	.styleshift-input-group {
 		display: flex;
 		flex-direction: column;
-		flex: 1;
-		min-width: 250px;
+		flex: 1 1 250px;
+		min-width: 0;
+		max-width: 100%;
 		gap: 12px;
 		align-items: stretch;
 	}

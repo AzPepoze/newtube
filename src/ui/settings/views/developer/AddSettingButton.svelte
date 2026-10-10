@@ -2,15 +2,10 @@
 	import { createSettingPreset, isSettingKind } from "@settings/registry/defaultItems";
 	import { addSettingToCategory } from "@settings/registry/items";
 	import type { Category } from "@settings/types/styleshiftTypes";
+	import { openSettingCatalog } from "@ui/window/settingCatalog";
 	import Button from "../controls/Button.svelte";
-	import * as mainSettingUi from "../../controls";
-	import Dropdown from "../controls/Dropdown.svelte";
 
 	let { category }: { category: Category } = $props();
-	let isOpen = $state(false);
-	let triggerEl = $state<HTMLElement | null>(null);
-
-	const options = Object.keys(mainSettingUi).filter((key) => key !== "search");
 
 	async function handleSelect(selected: string) {
 		if (!isSettingKind(selected)) return;
@@ -19,30 +14,21 @@
 			editable: true,
 		});
 	}
+
+	function openCatalog() {
+		openSettingCatalog(handleSelect);
+	}
 </script>
 
-<div bind:this={triggerEl} class="styleshift-add-setting-button-wrapper">
+<div class="styleshift-add-setting-button-wrapper">
 	<Button
 		setting={{
 			type: "button",
 			name: "+",
 			color: "#FFFFFF",
-			clickFunction: () => (isOpen = !isOpen),
+			clickFunction: openCatalog,
 		}}
 		style="border-radius: 1000px; padding: 10px; width: 100%;"
-	/>
-	<Dropdown
-		justMenu={true}
-		bind:isOpen
-		{triggerEl}
-		setting={{
-			type: "dropdown",
-			id: "",
-			name: "Add Setting",
-			value: "",
-			options: options.map((opt) => ({ label: opt, value: opt })),
-			updateFunction: handleSelect,
-		}}
 	/>
 </div>
 

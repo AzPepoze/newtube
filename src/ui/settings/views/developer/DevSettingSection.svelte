@@ -1,10 +1,11 @@
 <script lang="ts">
 	import { executeScriptString } from "@core/runtime/controller";
-	import Icon from "@base/Icon.svelte";
+	import { openApiReference } from "@ui/docs/apiReferenceService";
 	import CapsuleTabs from "@ui/window/views/CapsuleTabs.svelte";
 	import { untrack } from "svelte";
 	import { fade, fly } from "svelte/transition";
 	import { settingsUi } from "../../settingsApi";
+	import Button from "../controls/Button.svelte";
 	import DevCard from "./DevCard.svelte";
 	import { handleLogicUpdate } from "../../handler";
 
@@ -109,26 +110,48 @@
 </script>
 
 {#if isWorkspace}
-	<div class="styleshift-dev-section" style:--section-color={color}>
+	<div class="styleshift-dev-section">
 		<header class="section-header">
-			<div class="section-title-group">
-				<span class="section-title">{title}</span>
-				<div class="section-status-dot"></div>
+			<span class="section-title">{title}</span>
+
+			<div class="section-actions">
+				{#if extArray.length > 1}
+					<CapsuleTabs options={extOptions} bind:activeId={activeExt} />
+				{:else}
+					<span class="section-lang-hint">
+						{activeExt === "function" ? "JavaScript" : activeExt === "css" ? "CSS" : activeExt}
+					</span>
+				{/if}
+
+				<Button
+					setting={{
+						type: "button",
+						name: "API reference",
+						icon: "code",
+						color: "#7f5db7",
+						clickFunction: openApiReference,
+					}}
+					variant="subtle"
+					iconSize={14}
+					fontSize={12}
+					style="padding: 6px 12px; border-radius: 8px; white-space: nowrap;"
+				/>
+
 				{#if activeExt.toLowerCase() === "function"}
-					<button class="run-script-btn" onclick={handleRunScript} title="Run Script">
-						<Icon name="code" size={14} />
-						Run
-					</button>
+					<Button
+						setting={{
+							type: "button",
+							name: "Run",
+							icon: "code",
+							color: "#7f5db7",
+							clickFunction: handleRunScript,
+						}}
+						iconSize={14}
+						fontSize={12}
+						style="padding: 6px 14px; border-radius: 8px; white-space: nowrap; background: var(--theme-0); border-color: var(--theme-0); color: #fff;"
+					/>
 				{/if}
 			</div>
-
-			{#if extArray.length > 1}
-				<CapsuleTabs options={extOptions} bind:activeId={activeExt} />
-			{:else}
-				<span class="section-lang-hint">
-					{activeExt === "function" ? "JavaScript" : activeExt === "css" ? "CSS" : activeExt}
-				</span>
-			{/if}
 		</header>
 
 		<div class="section-editor-area">
@@ -162,66 +185,35 @@
 		display: flex;
 		justify-content: space-between;
 		align-items: center;
-		margin-bottom: 20px;
-		padding-inline: 5px;
-	}
-
-	.section-title-group {
-		display: flex;
-		align-items: center;
 		gap: 12px;
+		margin-bottom: 12px;
+		min-height: 32px;
 	}
 
 	.section-title {
-		font-size: 18px;
-		font-weight: 700;
+		font-size: 14px;
+		font-weight: 600;
 		color: var(--font-color);
-		letter-spacing: -0.5px;
 	}
 
-	.run-script-btn {
-		margin-left: 10px;
-		background: var(--theme-0-20);
-		border: 1px solid var(--theme-0);
-		color: var(--theme-1);
-		padding: 4px 12px;
-		border-radius: 6px;
-		font-size: 12px;
-		font-weight: 700;
-		cursor: pointer;
+	.section-actions {
 		display: flex;
 		align-items: center;
-		gap: 6px;
-		transition: all 0.2s;
+		gap: 8px;
 
-		&:hover {
-			background: var(--theme-0);
-			color: white;
-			box-shadow: 0 0 10px var(--theme-0);
+		:global(.styleshift-button) {
+			width: auto;
 		}
 
-		&:active {
-			transform: scale(0.95);
+		:global(.styleshift-button *) {
+			white-space: nowrap !important;
 		}
-	}
-
-	.section-status-dot {
-		width: 8px;
-		height: 8px;
-		border-radius: 50%;
-		background: var(--section-color);
-		box-shadow: 0 0 10px var(--section-color);
 	}
 
 	.section-lang-hint {
-		font-size: 11px;
-		font-weight: 700;
+		font-family: "Fira Code", monospace;
+		font-size: 12px;
 		color: var(--font-color-dim);
-		text-transform: uppercase;
-		letter-spacing: 1px;
-		background: var(--bg-surface);
-		padding: 4px 10px;
-		border-radius: 6px;
 	}
 
 	.section-editor-area {
@@ -244,14 +236,11 @@
 			flex-direction: column;
 			border: 1px solid var(--border-color) !important;
 			background: var(--bg-input) !important;
-			border-radius: 16px !important;
+			border-radius: 8px !important;
 			margin-top: 0 !important;
-			box-shadow: 0 4px 20px var(--shadow-color);
 
 			&:focus-within {
-				border-color: var(--section-color) !important;
-				background: var(--bg-input) !important;
-				box-shadow: 0 8px 40px var(--shadow-color);
+				border-color: var(--fg-opacity-20) !important;
 			}
 		}
 	}

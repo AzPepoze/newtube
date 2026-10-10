@@ -3,9 +3,9 @@
 	import { settingsUi } from "../../settingsApi";
 	import { applyPropertyUpdate as applyUpdate } from "../../handler";
 
-	let { setting, props, updateUi = () => {} } = $props();
+	let { setting, groups, updateUi = () => {} } = $props();
 
-	const settingSnapshot = $derived(JSON.stringify(setting));
+	const wideEditorProperties = ["html", "text", "description", "options", "syncId"];
 
 	async function handlePropertyUpdate(property: string, newValue: any, customCallback?: Function) {
 		await applyUpdate(setting, property, newValue, {
@@ -24,6 +24,14 @@
 				node.replaceWith(frame);
 			}
 		})();
+	}
+
+	function getSliderRange(property: string) {
+		if (property === "fontSize") return { min: 0, max: 50 };
+		if (property === "min") return { min: 0, max: setting.max ?? 1000 };
+		if (property === "max") return { min: setting.min ?? 0, max: 1000 };
+		if (property === "step") return { min: 0.1, max: 10 };
+		return { min: 0, max: 1000 };
 	}
 
 	function getComponentConfig(title: string, property: string, update: any) {
@@ -101,6 +109,7 @@
 		}
 
 		if (isNumberValue) {
+			const sliderRange = getSliderRange(property);
 			const updateFunc = createUpdateFunc(property);
 			return {
 				type: "numberSlide",
@@ -108,8 +117,8 @@
 					type: "numberSlide",
 					name: title,
 					value: propertyValue,
-					min: property === "max" ? propertyValue : property === "step" ? 0.1 : 0,
-					max: property === "fontSize" ? 50 : property === "min" ? propertyValue : property === "step" ? 10 : 1000,
+					min: sliderRange.min,
+					max: sliderRange.max,
 					step: property === "step" ? 0.1 : 1,
 					updateFunction: updateFunc,
 				},
@@ -133,6 +142,9 @@
 				[title]: property,
 			});
 			const mainUi = textEditor.mainUi;
+			mainUi.classList.add(
+				wideEditorProperties.includes(property) ? "styleshift-config-wide" : "styleshift-config-compact",
+			);
 			node.replaceWith(mainUi);
 
 			const editorWrapper = textEditor.textEditors[title];
@@ -158,40 +170,71 @@
 </script>
 
 <div class="styleshift-config-main-section">
-	{#each Object.entries(props) as [title, propertyValueEntry] (`${title}:${settingSnapshot}`)}
-		{@const property = Array.isArray(propertyValueEntry) ? propertyValueEntry[0] : propertyValueEntry}
-		{@const update = Array.isArray(propertyValueEntry) ? propertyValueEntry[1] : updateUi}
-		{@const componentConfig = getComponentConfig(title, property, update)}
+	{#each groups as group (group.label)}
+		<section class="config-group">
+			<h3 class="config-group-title">{group.label}</h3>
+			<div class="config-group-fields">
+				{#each Object.entries(group.fields) as [title, propertyValueEntry] (title)}
+					{@const property = Array.isArray(propertyValueEntry) ? propertyValueEntry[0] : propertyValueEntry}
+					{@const update = Array.isArray(propertyValueEntry) ? propertyValueEntry[1] : updateUi}
+					{@const componentConfig = getComponentConfig(title, property, update)}
 
-		{#if componentConfig}
-			<div use:mountWrapper={componentConfig}></div>
-		{:else}
-			<div class="full-width" use:renderEditor={{ title, property, update }}></div>
-		{/if}
+					{#if componentConfig}
+						<div use:mountWrapper={componentConfig}></div>
+					{:else}
+						<div use:renderEditor={{ title, property, update }}></div>
+					{/if}
+				{/each}
+			</div>
+		</section>
 	{/each}
 </div>
 
 <style lang="scss">
 	.styleshift-config-main-section {
-		display: grid;
-		grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
-		gap: 16px;
+		display: flex;
+		flex-direction: column;
+		gap: 14px;
 		width: 100%;
 
-		.full-width {
+		.config-group {
+			background: var(--bg-surface);
+			border: 1px solid var(--border-color);
+			border-radius: var(--border-radius);
+			padding: 14px 16px;
+		}
+
+		.config-group-title {
+			margin: 0 0 10px;
+			font-size: 11px;
+			font-weight: 700;
+			letter-spacing: 0.8px;
+			text-transform: uppercase;
+			color: var(--font-color-dim);
+		}
+
+		.config-group-fields {
+			display: grid;
+			grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+			gap: 12px 16px;
+			align-items: start;
+		}
+
+		:global(.styleshift-config-wide) {
 			grid-column: 1 / -1;
 		}
 
 		:global(.styleshift-config-sub-frame) {
-			margin-bottom: 0 !important;
-			background: var(--bg-surface) !important;
-			border: 1px solid var(--border-color) !important;
-			box-shadow: none !important;
+			margin-bottom: 0;
+			background: transparent;
+			border: none;
+			box-shadow: none;
+		}
 
-			&:focus-within {
-				border-color: var(--theme-0) !important;
-				background: var(--bg-surface-hover) !important;
-			}
+		:global(.styleshift-config-compact .styleshift-text-editor) {
+			min-height: 34px;
+			height: 34px;
+			resize: none;
 		}
 	}
 </style>
