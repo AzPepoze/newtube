@@ -1,6 +1,5 @@
 <script lang="ts">
 	import { executeSettingScript } from "@core/runtime/controller";
-	import { getLatestSettingObject } from "@settings/registry/items";
 	import type { Setting } from "@settings/types/styleshiftTypes";
 	import { getJustifyContent } from "../../utils";
 	import Description from "../base/Description.svelte";
@@ -47,13 +46,12 @@
 		scale = 0.95;
 		setTimeout(() => (scale = 1), 100);
 
-		const latest = getLatestSettingObject(setting);
-		if (!latest.clickFunction) return;
+		if (!setting.clickFunction) return;
 
-		if (typeof latest.clickFunction === "string") {
+		if (typeof setting.clickFunction === "string") {
 			executeSettingScript(setting, "clickFunction");
 		} else {
-			latest.clickFunction();
+			setting.clickFunction();
 		}
 	}
 

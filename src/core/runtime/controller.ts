@@ -1,7 +1,7 @@
 import { sleep } from "@/core/shared/utilities";
 import { createNotification } from "@core/shared/notifications";
 import { persistCachedDataToStorage, saveToStorage } from "@core/storage/manager";
-import { getAddOnItems, getLatestSettingObject } from "@settings/registry/items";
+import { getAddOnItems } from "@settings/registry/items";
 import { logger } from "@shared/logger";
 
 import { IS_IN_EXTENSION_SETTINGS_PAGE, refreshExtensionState } from "../";
@@ -149,9 +149,8 @@ export async function executeScriptString({
 }
 
 export function executeSettingScript(settingObject: any, functionProperty: string = "script"): void {
-	const latest = getLatestSettingObject(settingObject);
 	executeScriptString({
-		scriptContent: latest[functionProperty],
+		scriptContent: settingObject[functionProperty],
 		sourceIdentifier: `${settingObject.id} : ${functionProperty}`,
 		executionArguments: JSON.stringify({ settingId: settingObject.id }),
 	});
