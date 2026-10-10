@@ -207,6 +207,14 @@
 		}
 	}
 
+	:global(.styleshift-main[data-theme="light"]) .styleshift-category-title {
+		border: 1px solid rgba(0, 0, 0, 0.1);
+	}
+
+	:global(.styleshift-main[data-theme="light"]) .styleshift-category-title-rainbow::before {
+		display: none;
+	}
+
 	.styleshift-category-title-rainbow {
 		&::before {
 			z-index: -1;
