@@ -5,6 +5,7 @@
 	import SettingRenderer from "@renderers/setting/SettingRenderer.svelte";
 	import SettingsGroup from "@base/SettingsGroup.svelte";
 	import AddSettingButton from "../developer/AddSettingButton.svelte";
+	import { categoryKey, settingKeys } from "@ui/settings/listKeys";
 
 	let {
 		items = [],
@@ -21,12 +22,13 @@
 	}
 </script>
 
-{#each items as item, i (i)}
+{#each items as item (categoryKey(item))}
 	{#if isHeaderItem(item)}
 		<div class="styleshift-category-separator"></div>
 	{:else}
 		{@const category = item}
 		{@const parts = getCategoryParts(category.category)}
+		{@const keys = settingKeys(category.settings)}
 		<SettingsGroup className="styleshift-category-frame" attrs={{ "data-category": parts.text }}>
 			<Title
 				text={parts.text}
@@ -36,7 +38,7 @@
 				editable={category.editable}
 			/>
 			<div class="styleshift-settings-items" class:grid={category.layout === "grid"}>
-				{#each category.settings as setting, j (j)}
+				{#each category.settings as setting, j (keys[j])}
 					<SettingRenderer {setting} {category} highlight={searchQuery} layout={category.layout} />
 				{/each}
 				{#if isDeveloperMode && category.editable}

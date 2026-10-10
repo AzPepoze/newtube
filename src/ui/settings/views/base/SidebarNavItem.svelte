@@ -23,9 +23,22 @@
 		actionArg?: any;
 		style?: string;
 	} = $props();
+
+	let settled = $state(false);
+
+	function handleEntryEnd(event: AnimationEvent) {
+		if (event.target === event.currentTarget) settled = true;
+	}
 </script>
 
-<button class="styleshift-sidebar-item-wrapper" {style} onclick={onSelect} use:action={actionArg}>
+<button
+	class="styleshift-sidebar-item-wrapper"
+	class:settled
+	{style}
+	onclick={onSelect}
+	onanimationend={handleEntryEnd}
+	use:action={actionArg}
+>
 	<LeftTitle {category} {selected} {isDeveloperMode} {editable} {onMove} />
 </button>
 
@@ -50,6 +63,10 @@
 		width: 100%;
 		display: block;
 		animation: sidebar-animation 0.2s both;
+
+		&.settled {
+			animation: none;
+		}
 
 		:global(.skip-animation) & {
 			animation: none;

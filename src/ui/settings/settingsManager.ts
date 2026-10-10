@@ -1,6 +1,5 @@
 import { IS_IN_EXTENSION_SETTINGS_PAGE } from "@core/index";
 import { isDevModulesLoaded } from "@core/runtime/controller";
-import { waitOneFrame } from "@core/shared/eventHelpers";
 import { createError } from "@core/shared/notifications";
 import { getRootValue } from "@core/storage/manager";
 import { getStyleShiftDevOnlyItems } from "@extensions/youtube/developerItems";
@@ -8,7 +7,8 @@ import { addCategory, getAddOnItems, getSettingsList, updateStyleShiftItems } fr
 import { type Category } from "@settings/types/styleshiftTypes";
 import { logger } from "@shared/logger";
 import { createStyleShiftWindow, showUserPrompt } from "@ui/window/windowFactory";
-import { unmount } from "svelte";
+import { createSettingsProps } from "./settingsProps.svelte";
+import { tick, unmount } from "svelte";
 import { SvelteSet } from "svelte/reactivity";
 import { settingsUi } from "./settingsApi";
 
@@ -94,7 +94,7 @@ interface SettingsWindow {
  */
 async function fetchSettingsData(getCategory: (() => Category[] | Promise<Category[]>) | null) {
 	return {
-		internalSettings: getCategory ? await getCategory() : [],
+		internalSettings: getCategory ? [...(await getCategory())] : [],
 		externalSettings: [...getAddOnItems(), ...getExternalCategories()],
 		devOnlyItems: isDevModulesLoaded ? getStyleShiftDevOnlyItems() : [],
 		isDeveloperMode: (await getRootValue("developerMode")) as boolean,
@@ -109,54 +109,30 @@ export async function createMainSettingsUi({
 }) {
 	let settingsWindow: SettingsWindow | null = null;
 	let svelteInstance: any = null;
+	let svelteProps: ReturnType<typeof createSettingsProps<Record<string, any>>> | null = null;
 	let cooldown = false;
 
 	async function mountSettingsComponent(skipAnimation = false) {
 		if (!settingsWindow) return;
 
 		const settingsData = await fetchSettingsData(getCategory);
-		svelteInstance = settingsUi.settingsWindow(
-			{
-				...settingsData,
-				showCategoryList,
-				skipAnimation,
-				onClose: () => returnObject.removeUi(),
-				onAddCategory: async () => {
-					const categoryName = (await showUserPrompt("Add category", "Enter category name..."))?.trim();
-					if (categoryName) await addCategory(categoryName);
-				},
+		svelteProps = createSettingsProps({
+			...settingsData,
+			showCategoryList,
+			skipAnimation,
+			onClose: () => returnObject.removeUi(),
+			onAddCategory: async () => {
+				const categoryName = (await showUserPrompt("Add category", "Enter category name..."))?.trim();
+				if (categoryName) await addCategory(categoryName);
 			},
-			settingsWindow.contentElement,
-		);
-	}
-
-	function getScrollPositions() {
-		const sidebar = settingsWindow?.contentElement.querySelector(".styleshift-sidebar");
-		const content = settingsWindow?.contentElement.querySelector(".styleshift-settings-list");
-		return {
-			sidebar: sidebar?.scrollTop || 0,
-			content: content?.scrollTop || 0,
-		};
-	}
-
-	function restoreScrollPositions(positions: { sidebar: number; content: number }) {
-		const sidebar = settingsWindow?.contentElement.querySelector(".styleshift-sidebar");
-		const content = settingsWindow?.contentElement.querySelector(".styleshift-settings-list");
-		if (sidebar) sidebar.scrollTop = positions.sidebar;
-		if (content) content.scrollTop = positions.content;
+		});
+		svelteInstance = settingsUi.settingsWindow(svelteProps.props, settingsWindow.contentElement);
 	}
 
 	const returnObject = {
-		renderContent: async function () {
-			if (svelteInstance) {
-				const data = await fetchSettingsData(getCategory);
-				Object.assign(svelteInstance, data);
-			}
-		},
-
 		createUi: async function (skipAnimation = false) {
 			if (settingsWindow) {
-				returnObject.recreateUi(skipAnimation);
+				returnObject.recreateUi();
 				return;
 			}
 
@@ -181,6 +157,7 @@ export async function createMainSettingsUi({
 			if (svelteInstance) {
 				unmount(svelteInstance);
 				svelteInstance = null;
+				svelteProps = null;
 			}
 
 			if (skipAnimation) {
@@ -192,24 +169,17 @@ export async function createMainSettingsUi({
 			settingsWindow = null;
 		},
 
-		recreateUi: async function (skipAnimation = true) {
+		recreateUi: async function () {
 			if (!settingsWindow) return;
 
 			await updateStyleShiftItems();
 
-			const positions = getScrollPositions();
-
-			if (svelteInstance) {
-				unmount(svelteInstance);
-				svelteInstance = null;
+			if (!svelteProps) {
+				await mountSettingsComponent();
+				return;
 			}
-
-			settingsWindow.contentElement.innerHTML = "";
-			await mountSettingsComponent(skipAnimation);
-
-			await waitOneFrame();
-			await waitOneFrame();
-			restoreScrollPositions(positions);
+			svelteProps.update(await fetchSettingsData(getCategory));
+			await tick();
 		},
 
 		toggle: async function () {

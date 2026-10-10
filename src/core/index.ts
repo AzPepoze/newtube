@@ -45,11 +45,11 @@ styleshiftContainer.style.display = "none";
 -------------------------------------------------------
 */
 
-export function refreshExtensionState(): void {
+export async function refreshExtensionState(): Promise<void> {
 	logger.info("lifecycle", "Refreshing extension state...");
 	synchronizeAvailableFunctions();
-	updateStyleShiftItems();
-	updateAllUiComponents();
+	await updateStyleShiftItems();
+	await updateAllUiComponents();
 }
 
 async function injectPageScripts(): Promise<void> {

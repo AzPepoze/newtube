@@ -70,7 +70,7 @@
 		bind:sidebarEl={controller.leftSidebar}
 	>
 		{#snippet sidebar({ scrollTo })}
-			{#each controller.sidebarData as item, i (i)}
+			{#each controller.sidebarData as item, i (controller.sidebarKey(item))}
 				{#if controller.isHeaderItem(item)}
 					<div
 						class="styleshift-sidebar-header"

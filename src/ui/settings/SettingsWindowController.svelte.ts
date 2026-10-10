@@ -1,8 +1,8 @@
-import { refreshExtensionState } from "@core/index";
-import { saveToStorage } from "@core/storage/manager";
-import { getAddOnItems, updateStyleShiftItems } from "@settings/registry/items";
+import { saveAndRefreshAll } from "@core/runtime/controller";
+import { shiftCategory } from "@settings/registry/category";
+import { getAddOnItems } from "@settings/registry/items";
 import type { Category, SeparateCategory } from "@settings/types/styleshiftTypes";
-import { addDrag, addDropTarget, clearDropTargets } from "@ui/settings/reorder";
+import { addDrag, addDropTarget, clearDropTargets, removeDropTarget } from "@ui/settings/reorder";
 import { getCategoryParts } from "@ui/window/utils";
 
 export interface SettingsWindowProps {
@@ -143,29 +143,26 @@ export class SettingsWindowController {
 
 	// Actions
 	async moveCategory(category: Category, direction: "up" | "down") {
-		const addOnItems = getAddOnItems();
-		const index = addOnItems.indexOf(category);
-		if (index === -1) return;
+		if (shiftCategory(getAddOnItems(), category, direction)) await saveAndRefreshAll();
+	}
 
-		const newIndex = direction === "up" ? index - 1 : index + 1;
-		if (newIndex < 0 || newIndex >= addOnItems.length) return;
-
-		const [movedItem] = addOnItems.splice(index, 1);
-		addOnItems.splice(newIndex, 0, movedItem);
-
-		await saveToStorage("addOnStyleShiftItems", addOnItems);
-		await updateStyleShiftItems();
-		refreshExtensionState();
+	sidebarKey(item: Category | SeparateCategory): string {
+		return this.isHeaderItem(item) ? `header:${item.label}` : `category:${this.#categoryLabel(item)}`;
 	}
 
 	setupDragAndDrop(node: HTMLElement, item: Category | SeparateCategory) {
 		if (this.isHeaderItem(item) || !this.#props.isDeveloperMode || !(item as Category).editable) return;
 
 		const dragHandle = node.querySelector(".drag-handle") as HTMLElement;
-		if (dragHandle) {
-			addDrag(dragHandle, node, this.leftSidebar, item);
-			addDropTarget(node, this.leftSidebar!, item, "category");
-		}
+		if (!dragHandle) return;
+
+		addDrag(dragHandle, node, this.leftSidebar, item);
+		addDropTarget(node, this.leftSidebar!, item, "category");
+
+		return {
+			update: (next: Category) => addDropTarget(node, this.leftSidebar!, next, "category"),
+			destroy: () => removeDropTarget(node),
+		};
 	}
 
 	clearTargets() {

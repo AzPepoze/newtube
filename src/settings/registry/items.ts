@@ -85,7 +85,7 @@ function autoAddHightlight(array: (Category | { isHeader: boolean; label: string
 
 async function saveAddOnItemsAndRefreshExtensionState(addOnItems) {
 	await saveToStorage("addOnStyleShiftItems", addOnItems);
-	refreshExtensionState();
+	await refreshExtensionState();
 }
 
 export async function updateStyleShiftItems() {

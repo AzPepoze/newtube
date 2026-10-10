@@ -17,6 +17,7 @@
 	let titleEl: HTMLDivElement = $state(null!);
 
 	let parts = $derived(getCategoryParts(category as any));
+	let showControls = $derived(isDeveloperMode && !isHeader && editable);
 
 	onMount(() => {
 		if (titleEl && isNew) {
@@ -36,34 +37,10 @@
 	data-is-header={isHeader}
 	data-is-new={isNew}
 >
-	{#if isDeveloperMode && !isHeader && editable}
-		<div class="styleshift-sidebar-controls">
-			<button class="styleshift-sidebar-control-btn drag-handle" title="Drag to reorder">
-				<Icon name="drag" size={14} />
-			</button>
-			<div class="styleshift-sidebar-arrows">
-				<button
-					class="styleshift-sidebar-control-btn arrow"
-					onclick={(e) => {
-						e.stopPropagation();
-						onMove?.("up");
-					}}
-					title="Move Up"
-				>
-					<Icon name="arrowUp" size={12} />
-				</button>
-				<button
-					class="styleshift-sidebar-control-btn arrow"
-					onclick={(e) => {
-						e.stopPropagation();
-						onMove?.("down");
-					}}
-					title="Move Down"
-				>
-					<Icon name="arrowDown" size={12} />
-				</button>
-			</div>
-		</div>
+	{#if showControls}
+		<button class="styleshift-sidebar-control drag-handle" title="Drag to reorder" aria-label="Drag to reorder">
+			<Icon name="drag" size={16} />
+		</button>
 	{/if}
 
 	{#if isHeader}
@@ -78,6 +55,33 @@
 		{/if}
 		<div class="styleshift-left-category-text">
 			{parts.text}
+		</div>
+	{/if}
+
+	{#if showControls}
+		<div class="styleshift-sidebar-arrows">
+			<button
+				class="styleshift-sidebar-control"
+				onclick={(e) => {
+					e.stopPropagation();
+					onMove?.("up");
+				}}
+				title="Move up"
+				aria-label="Move up"
+			>
+				<Icon name="arrowUp" size={16} />
+			</button>
+			<button
+				class="styleshift-sidebar-control"
+				onclick={(e) => {
+					e.stopPropagation();
+					onMove?.("down");
+				}}
+				title="Move down"
+				aria-label="Move down"
+			>
+				<Icon name="arrowDown" size={16} />
+			</button>
 		</div>
 	{/if}
 </div>
@@ -97,7 +101,7 @@
 		color: var(--fg-opacity-80);
 
 		&.is-editable {
-			padding-right: 45px; // Reserve space for hover controls
+			padding-right: 8px;
 		}
 
 		&.has-separator {
@@ -166,58 +170,42 @@
 		&.is-new {
 			animation: styleshift-new-category-pop 1s cubic-bezier(0.175, 0.885, 0.32, 1.275);
 		}
-
-		&:hover {
-			.styleshift-sidebar-controls {
-				opacity: 1;
-			}
-		}
 	}
 
-	.styleshift-sidebar-controls {
-		display: flex;
-		align-items: center;
-		gap: 4px;
-		opacity: 0;
-		transition: opacity 0.2s;
-		position: absolute;
-		right: 10px;
-		background: var(--fg-opacity-10);
-		padding: 2px 4px;
-		border-radius: 8px;
-		backdrop-filter: blur(5px);
-		z-index: 10;
-	}
-
-	.styleshift-sidebar-arrows {
-		display: flex;
-		flex-direction: column;
-		gap: 2px;
-	}
-
-	.styleshift-sidebar-control-btn {
-		background: transparent;
-		border: none;
-		color: var(--fg-opacity-60);
-		cursor: pointer;
-		padding: 2px;
+	.styleshift-sidebar-control {
+		flex-shrink: 0;
+		width: 30px;
+		height: 30px;
 		display: flex;
 		align-items: center;
 		justify-content: center;
-		border-radius: 4px;
+		border: none;
+		border-radius: 9px;
+		background: var(--fg-opacity-10);
+		color: var(--fg-opacity-80);
+		cursor: pointer;
+		transition:
+			background 0.2s ease,
+			transform 0.15s ease;
 
 		&:hover {
 			background: var(--fg-opacity-20);
 			color: var(--fg-opacity-100);
 		}
 
+		&:active {
+			transform: scale(0.92);
+		}
+
 		&.drag-handle {
 			cursor: grab;
 		}
+	}
 
-		&.arrow {
-			padding: 0;
-		}
+	.styleshift-sidebar-arrows {
+		display: flex;
+		gap: 6px;
+		margin-left: auto;
 	}
 
 	@keyframes styleshift-new-category-pop {
@@ -248,6 +236,7 @@
 	}
 
 	.styleshift-left-category-text {
+		flex: 1;
 		font-weight: 500;
 		font-size: 14px;
 		min-width: 0;

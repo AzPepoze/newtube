@@ -276,8 +276,8 @@ export async function updateAllUiComponents(): Promise<void> {
 		await initializeDeveloperEnvironment();
 	}
 
-	if (extensionSettingsUi) extensionSettingsUi.recreateUi();
-	if (editorUi) editorUi.recreateUi();
+	if (extensionSettingsUi) await extensionSettingsUi.recreateUi();
+	if (editorUi) await editorUi.recreateUi();
 
 	if (!isDevMode) {
 		removeConfigUi();

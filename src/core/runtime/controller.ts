@@ -10,7 +10,7 @@ import { isSafeCode } from "../utils/security";
 export async function saveAndRefreshAll(): Promise<void> {
 	logger.info("STORAGE", "Saving structure and refreshing all...");
 	await saveItems();
-	refreshExtensionState();
+	await refreshExtensionState();
 }
 
 export async function saveItems(): Promise<void> {

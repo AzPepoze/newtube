@@ -98,8 +98,14 @@ export async function saveAddOnStyleShiftItems(items: any[], delayPersistence = 
 export async function persistCachedDataToStorage(): Promise<boolean> {
 	if (!isStorageInitialized || isPersistenceSuppressed) return false;
 	logger.info("STORAGE", "Persisting data to disk:", currentContextDomain);
-	await chrome.storage.local.set({ [currentContextDomain]: cachedStorageData });
-	return true;
+	try {
+		await chrome.storage.local.set({ [currentContextDomain]: cachedStorageData });
+		return true;
+	} catch (error) {
+		logger.error("STORAGE", "Failed to save data:", error);
+		createError("Could not save your changes. Check the console for details.");
+		return false;
+	}
 }
 
 export async function getRootValue(key?: string): Promise<any> {

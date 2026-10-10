@@ -1,161 +1,100 @@
-import { refreshExtensionState } from "@core/index";
-import { insertAfter } from "@core/shared/eventHelpers";
-import { saveToStorage } from "@core/storage/manager";
+import { saveAndRefreshAll } from "@core/runtime/controller";
+import { logger } from "@shared/logger";
 import { getAddOnItems, getSettingCategory } from "@settings/registry/items";
+import { reorderCategory } from "@settings/registry/category";
 import type { Category, Setting } from "@settings/types/styleshiftTypes";
+import { type DropCandidate, type DropHit, startDragSession } from "./dragSort";
 
-let dragingSetting: { size: number; Data: Setting | Category } | null = null;
-const dropTargets = new Map<HTMLElement, { data: Setting | Category; dataType: string }>();
-
-interface Placeholder {
-	show: () => void;
-	hide: () => void;
-	element: HTMLElement;
+interface DropInfo {
+	data: Setting | Category;
+	dataType: string;
 }
 
-let currentPlaceholder: Placeholder | null = null;
-
-function clearCurrentPlaceholder() {
-	if (currentPlaceholder) {
-		currentPlaceholder.hide();
-		currentPlaceholder = null;
-	}
-}
-
-function createPlaceholder(size: number) {
-	const space = document.createElement("div");
-	space.className = "styleshift-drag-hint";
-	space.style.height = "0px";
-	space.style.opacity = "0";
-
-	function show() {
-		requestAnimationFrame(() => {
-			space.classList.add("show");
-			space.style.height = size + "px";
-			space.style.opacity = "1";
-		});
-	}
-
-	function hide() {
-		space.classList.remove("show");
-		space.style.height = "0px";
-		space.style.opacity = "0";
-		setTimeout(() => {
-			if (space.parentNode) space.remove();
-		}, 300);
-	}
-
-	return {
-		show,
-		hide,
-		element: space,
-	};
-}
+const dropTargets = new Map<HTMLElement, DropInfo>();
 
 export function clearDropTargets() {
 	dropTargets.clear();
 }
 
-function applyDragStyles(targetFrame: HTMLElement, frameBound: DOMRect, scrollerRect: DOMRect, scroller: HTMLElement) {
-	const initialTop = frameBound.top - scrollerRect.top + scroller.scrollTop;
-	const initialLeft = frameBound.left - scrollerRect.left;
-
-	Object.assign(targetFrame.style, {
-		width: `${frameBound.width}px`,
-		height: `${frameBound.height}px`,
-		boxSizing: "border-box",
-		position: "absolute",
-		pointerEvents: "none",
-		zIndex: "10000",
-		boxShadow: "0 10px 30px rgba(0,0,0,0.5)",
-		translate: `${initialLeft}px ${initialTop}px`,
-		margin: "0",
-		transition: "none",
-	});
-
-	const handle = targetFrame.querySelector(".drag-handle") as HTMLElement;
-	if (handle) handle.style.display = "none";
+export async function addDropTarget(
+	frame: HTMLElement,
+	_parent: HTMLElement,
+	thisData: Setting | Category,
+	dataType: string,
+) {
+	dropTargets.set(frame, { data: thisData, dataType });
 }
 
-function findHitTarget(x: number, y: number, draggingData: any) {
-	let hitInfo = null;
-	let isAfter = false;
-	let closestDist = Infinity;
-
-	for (const [targetEl, info] of dropTargets.entries()) {
-		if (info.data === draggingData && info.dataType === "setting") continue;
-
-		const targetCategory: Category | null =
-			info.dataType === "category" ? (info.data as Category) : getSettingCategory(info.data as Setting);
-		if (!targetCategory || !targetCategory.editable) continue;
-
-		const rect = targetEl.getBoundingClientRect();
-		if (x >= rect.left && x <= rect.right) {
-			const centerY = rect.top + rect.height / 2;
-			const dist = Math.abs(y - centerY);
-			const range = info.dataType === "category" ? rect.height : rect.height + 10;
-
-			if (y >= rect.top - range / 2 && y <= rect.bottom + range / 2) {
-				if (dist < closestDist) {
-					closestDist = dist;
-					hitInfo = { targetEl, ...info };
-					isAfter = y > centerY;
-				}
-			}
-		}
-	}
-	return hitInfo ? { ...hitInfo, isAfter } : null;
+export function removeDropTarget(frame: HTMLElement) {
+	dropTargets.delete(frame);
 }
 
-async function moveItem(draggingData: any, targetInfo: any) {
-	const isGroup = draggingData.type === "group";
-	const isCategory = draggingData.category != null;
+function isCategoryData(data: Setting | Category): data is Category {
+	return (data as Category).category != null;
+}
 
-	if (isCategory) {
-		const addOnItems = getAddOnItems();
-		const sourceIdx = addOnItems.indexOf(draggingData as Category);
-		if (sourceIdx > -1) {
-			addOnItems.splice(sourceIdx, 1);
-			const targetIdx = addOnItems.indexOf(targetInfo.data as Category) + (targetInfo.isAfter ? 1 : 0);
-			addOnItems.splice(targetIdx, 0, draggingData as Category);
-			await saveToStorage("addOnStyleShiftItems", addOnItems);
-		}
-		return;
+function isEligibleTarget(info: DropInfo, dragging: Setting | Category) {
+	if (info.data === dragging) return false;
+	if (isCategoryData(dragging)) return info.dataType === "category" && (info.data as Category).editable;
+	return info.dataType === "setting" && Boolean(getSettingCategory(info.data as Setting)?.editable);
+}
+
+function getDropCandidates(dragging: Setting | Category): DropCandidate<DropInfo>[] {
+	const candidates: DropCandidate<DropInfo>[] = [];
+	for (const [el, info] of dropTargets) {
+		if (isEligibleTarget(info, dragging)) candidates.push({ el, value: info });
 	}
+	return candidates;
+}
 
-	const itemToMove = draggingData as Setting;
-	const sourceCategory = getSettingCategory(itemToMove);
-	if (!sourceCategory || !sourceCategory.editable) return;
+/** Takes a setting out of `settings`. A group also takes the settings below it, up to the next group or sub-title. */
+function takeSettingBlock(settings: Setting[], item: Setting): Setting[] {
+	const startIdx = settings.indexOf(item);
+	if (startIdx === -1) return [];
+	if (item.type !== "group") return settings.splice(startIdx, 1);
 
-	const allSettings = sourceCategory.settings;
-	const targetCategory: Category | null =
-		targetInfo.dataType === "category" ? (targetInfo.data as Category) : getSettingCategory(targetInfo.data as Setting);
-
-	if (!targetCategory || !targetCategory.editable) return;
-
-	let itemsToInsert = [itemToMove];
-	if (isGroup) {
-		const startIdx = allSettings.indexOf(itemToMove);
-		let endIdx = allSettings.length;
-		for (let i = startIdx + 1; i < allSettings.length; i++) {
-			if (["group", "subTitle"].includes((allSettings[i] as any).type)) {
-				endIdx = i;
-				break;
-			}
+	let endIdx = settings.length;
+	for (let i = startIdx + 1; i < settings.length; i++) {
+		if (["group", "subTitle"].includes(settings[i].type)) {
+			endIdx = i;
+			break;
 		}
-		itemsToInsert = allSettings.splice(startIdx, endIdx - startIdx);
-	} else {
-		const idx = allSettings.indexOf(itemToMove);
-		if (idx > -1) allSettings.splice(idx, 1);
 	}
+	return settings.splice(startIdx, endIdx - startIdx);
+}
 
-	const dropIndex =
-		targetInfo.dataType === "category"
-			? 0
-			: targetCategory.settings.indexOf(targetInfo.data as Setting) + (targetInfo.isAfter ? 1 : 0);
+function moveCategoryItem(source: Category, target: DropInfo, isAfter: boolean): boolean {
+	return reorderCategory(getAddOnItems(), source, target.data as Category, isAfter);
+}
 
+function moveSettingItem(item: Setting, target: DropInfo, isAfter: boolean): boolean {
+	const sourceCategory = getSettingCategory(item);
+	const targetCategory =
+		target.dataType === "category" ? (target.data as Category) : getSettingCategory(target.data as Setting);
+	if (!sourceCategory?.editable || !targetCategory?.editable) return false;
+
+	const targetIsSetting = target.dataType !== "category";
+	if (targetIsSetting && !targetCategory.settings.includes(target.data as Setting)) return false;
+
+	const itemsToInsert = takeSettingBlock(sourceCategory.settings, item);
+	if (itemsToInsert.length === 0) return false;
+
+	const dropIndex = targetIsSetting ? targetCategory.settings.indexOf(target.data as Setting) + (isAfter ? 1 : 0) : 0;
 	targetCategory.settings.splice(dropIndex, 0, ...itemsToInsert);
-	await saveToStorage("addOnStyleShiftItems", getAddOnItems());
+	return true;
+}
+
+async function dropItem(dragging: Setting | Category, hit: DropHit<DropInfo>) {
+	const moved = isCategoryData(dragging)
+		? moveCategoryItem(dragging, hit.value, hit.isAfter)
+		: moveSettingItem(dragging, hit.value, hit.isAfter);
+	if (!moved) return;
+
+	try {
+		await saveAndRefreshAll();
+	} catch (error) {
+		logger.error("ui", "Could not apply the new order:", error);
+	}
 }
 
 export async function addDrag(
@@ -168,82 +107,15 @@ export async function addDrag(
 		event.preventDefault();
 
 		const targetFrame = frame || (dragHandle.closest(".styleshift-setting-frame") as HTMLElement);
-		const currentParent = targetFrame?.parentElement;
-		const scroller = currentParent?.closest(".styleshift-scrollable") as HTMLElement;
-		if (!targetFrame || !currentParent || !scroller) return;
+		const scroller = targetFrame?.parentElement?.closest(".styleshift-scrollable") as HTMLElement | null;
+		if (!targetFrame || !scroller) return;
 
-		const frameBound = targetFrame.getBoundingClientRect();
-		const scrollerRect = scroller.getBoundingClientRect();
-		const offsetY = event.clientY - frameBound.top;
-
-		dragingSetting = { size: frameBound.height, Data: thisData };
-
-		clearCurrentPlaceholder();
-		currentPlaceholder = createPlaceholder(dragingSetting.size);
-		currentParent.insertBefore(currentPlaceholder.element, targetFrame);
-		currentPlaceholder.show();
-
-		applyDragStyles(targetFrame, frameBound, scrollerRect, scroller);
-		scroller.setAttribute("draging", "");
-
-		let currentMouseEvent = event;
-		let renderDrag = true;
-		let lastHitEl: HTMLElement | null = null;
-		let lastHitIsAfter = false;
-
-		const updateLoop = () => {
-			if (!renderDrag) return;
-
-			const targetY = currentMouseEvent.clientY - scrollerRect.top + scroller.scrollTop - offsetY;
-			targetFrame.style.translate = `${frameBound.left - scrollerRect.left}px ${targetY}px`;
-
-			const hit = findHitTarget(currentMouseEvent.clientX, currentMouseEvent.clientY, thisData);
-
-			if (hit && (hit.targetEl !== lastHitEl || hit.isAfter !== lastHitIsAfter)) {
-				clearCurrentPlaceholder();
-				currentPlaceholder = createPlaceholder(dragingSetting!.size);
-
-				if (hit.isAfter) {
-					insertAfter(currentPlaceholder.element, hit.targetEl, hit.targetEl.parentElement!);
-				} else {
-					hit.targetEl.parentElement!.insertBefore(currentPlaceholder.element, hit.targetEl);
-				}
-
-				currentPlaceholder.show();
-				lastHitEl = hit.targetEl;
-				lastHitIsAfter = hit.isAfter;
-			}
-			requestAnimationFrame(updateLoop);
-		};
-		updateLoop();
-
-		const onMouseMove = (moveEvent: MouseEvent) => (currentMouseEvent = moveEvent);
-
-		const onMouseUp = async () => {
-			document.removeEventListener("mousemove", onMouseMove);
-			renderDrag = false;
-			scroller.removeAttribute("draging");
-			clearCurrentPlaceholder();
-
-			if (lastHitEl) {
-				const targetInfo = { ...dropTargets.get(lastHitEl), targetEl: lastHitEl, isAfter: lastHitIsAfter };
-				if (targetInfo.data) await moveItem(thisData, targetInfo);
-			}
-
-			dragingSetting = null;
-			refreshExtensionState();
-		};
-
-		document.addEventListener("mousemove", onMouseMove);
-		document.addEventListener("mouseup", onMouseUp, { once: true });
+		startDragSession<DropInfo>({
+			event,
+			frame: targetFrame,
+			scroller,
+			getCandidates: () => getDropCandidates(thisData),
+			onDrop: (hit) => dropItem(thisData, hit),
+		});
 	});
-}
-
-export async function addDropTarget(
-	frame: HTMLElement,
-	_parent: HTMLElement,
-	thisData: Setting | Category,
-	dataType: string,
-) {
-	dropTargets.set(frame, { data: thisData, dataType });
 }
