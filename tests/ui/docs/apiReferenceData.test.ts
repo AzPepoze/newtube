@@ -129,6 +129,19 @@ test("returns tags split type and text", () => {
 	expect(parseReturnsBody("{string} The label.")).toEqual({ name: "", type: "string", text: "The label." });
 });
 
+test("nested braces stay inside the type", () => {
+	expect(parseReturnsBody("{{ x: number; y: number }} An object with coordinates.")).toEqual({
+		name: "",
+		type: "{ x: number; y: number }",
+		text: "An object with coordinates.",
+	});
+	expect(parseParamBody("{{ x: number }} point - The origin.")).toEqual({
+		name: "point",
+		type: "{ x: number }",
+		text: "The origin.",
+	});
+});
+
 test("keyboardShortcuts is hidden from setting kinds", () => {
 	const groups = groupKindsByCategory([{ type: "button" }, { type: "keyboardShortcuts" }]);
 	expect(groups.flatMap((group) => group.kinds.map((kind) => kind.type))).toEqual(["button"]);

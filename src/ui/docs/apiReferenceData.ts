@@ -52,11 +52,25 @@ export interface SplitTagBody {
 	text: string;
 }
 
-/** Splits a leading {type} from tag text. The type keeps its braces. */
+/** Splits a leading {type} from tag text. The type keeps its braces and may contain nested ones. */
 export function splitTagBody(body: string): SplitTagBody {
-	const match = /^\{([^}]*)\}\s*([\s\S]*)$/.exec(body.trim());
-	if (!match) return { type: null, text: body };
-	return { type: `{${match[1]}}`, text: match[2].trim() };
+	const trimmed = body.trim();
+	const end = trimmed.startsWith("{") ? findClosingBrace(trimmed) : -1;
+	if (end === -1) return { type: null, text: body };
+	return { type: trimmed.slice(0, end + 1), text: trimmed.slice(end + 1).trim() };
+}
+
+/** Index of the brace that closes the one at position 0, or -1. */
+function findClosingBrace(text: string): number {
+	let depth = 0;
+	for (let i = 0; i < text.length; i++) {
+		if (text[i] === "{") depth++;
+		else if (text[i] === "}") {
+			depth--;
+			if (depth === 0) return i;
+		}
+	}
+	return -1;
 }
 
 export interface ApiDocRow {
