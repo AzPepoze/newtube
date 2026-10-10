@@ -19,6 +19,7 @@
 		noPadding = false,
 		minVisibleRatio = 0.1,
 		disableBackdropFilter = false,
+		blurToggle = false,
 		topbarChildren = null,
 		children,
 		el = $bindable(null),
@@ -37,6 +38,7 @@
 		noPadding?: boolean;
 		minVisibleRatio?: number;
 		disableBackdropFilter?: boolean;
+		blurToggle?: boolean;
 		topbarChildren?: any;
 		children: any;
 		el?: HTMLElement | null;
@@ -47,6 +49,7 @@
 	const windowId = Math.random().toString(36).substring(2, 9);
 	let windowEl = $state<HTMLElement | null>(null);
 	let contentEl = $state<HTMLElement | null>(null);
+	let blurOff = $state(false);
 
 	const vw =
 		typeof window !== "undefined" ? Math.max(document.documentElement.clientWidth || 0, window.innerWidth || 0) : 0;
@@ -179,7 +182,7 @@
 	class:picking-mode={isPicking}
 	class:mini
 	class:auto-hide-topbar={autoHideTopbar}
-	class:disable-backdrop-filter={disableBackdropFilter}
+	class:disable-backdrop-filter={disableBackdropFilter || blurOff}
 	class:hide-topbar={autoHideTopbar && !logic.isHovering && !logic.isDragging && !logic.isResizing}
 	style:width={fullscreen ? "100vw" : currentWidth}
 	style:height={fullscreen ? "100vh" : currentHeight}
@@ -218,6 +221,9 @@
 				onMinimize={logic.toggleMinimize}
 				onClose={logic.handleClose}
 				{topbarChildren}
+				showBlurToggle={blurToggle}
+				{blurOff}
+				onToggleBlur={() => (blurOff = !blurOff)}
 			/>
 		{/if}
 

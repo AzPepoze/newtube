@@ -15,6 +15,7 @@ export async function openApiReference(): Promise<void> {
 		width: "80%",
 		height: "85%",
 		center: true,
+		blurToggle: true,
 		onWindowClosed: () => {
 			activeWindow = null;
 		},

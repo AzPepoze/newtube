@@ -1,4 +1,5 @@
 <script lang="ts">
+	import Icon from "@base/Icon.svelte";
 	import { getAssetUrl } from "@ui/window/utils";
 	import WindowControls from "./WindowControls.svelte";
 
@@ -10,6 +11,9 @@
 		onMinimize,
 		onClose,
 		topbarChildren,
+		showBlurToggle = false,
+		blurOff = false,
+		onToggleBlur = () => {},
 	}: {
 		title: string;
 		isMaximized: boolean;
@@ -18,6 +22,9 @@
 		onMinimize: (e: MouseEvent) => void;
 		onClose: (e: MouseEvent) => void;
 		topbarChildren?: any;
+		showBlurToggle?: boolean;
+		blurOff?: boolean;
+		onToggleBlur?: () => void;
 	} = $props();
 </script>
 
@@ -31,6 +38,17 @@
 			<div class="topbar-extra">
 				{@render topbarChildren()}
 			</div>
+		{/if}
+		{#if showBlurToggle}
+			<button
+				class="blur-toggle"
+				class:active={blurOff}
+				onclick={onToggleBlur}
+				title={blurOff ? "Turn blur on" : "Turn blur off"}
+				aria-pressed={blurOff}
+			>
+				<Icon name={blurOff ? "blur_off" : "blur_on"} size={16} />
+			</button>
 		{/if}
 		<WindowControls {isMaximized} {onMinimize} {onMaximize} {onClose} />
 	</div>
@@ -61,6 +79,30 @@
 		display: flex;
 		align-items: center;
 		gap: 15px;
+	}
+
+	.blur-toggle {
+		width: 30px;
+		height: 30px;
+		border-radius: 6px;
+		border: none;
+		background: transparent;
+		color: var(--fg-opacity-60);
+		display: flex;
+		align-items: center;
+		justify-content: center;
+		cursor: pointer;
+		transition: all 0.2s;
+
+		&:hover {
+			background: var(--fg-opacity-10);
+			color: white;
+		}
+
+		&.active {
+			background: color-mix(in srgb, var(--accent) 22%, transparent);
+			color: var(--font-color);
+		}
 	}
 
 	.topbar-extra {

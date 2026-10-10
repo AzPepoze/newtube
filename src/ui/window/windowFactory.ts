@@ -21,6 +21,7 @@ export async function createStyleShiftWindow({
 	title = "StyleShift",
 	fullscreen = false,
 	center = false,
+	blurToggle = false,
 	onWindowClosed = null as (() => void) | null,
 }) {
 	// Ensure developer tools are ready if mode is enabled
@@ -60,6 +61,7 @@ export async function createStyleShiftWindow({
 			height,
 			fullscreen,
 			center,
+			blurToggle,
 			onClose: closeWindowHandler,
 			children: (_target: HTMLElement) => {
 				return "";
