@@ -37,11 +37,13 @@
 
 		:global(.doc-sub) {
 			margin: 8px 0 0;
-			font-size: 13px;
-			font-weight: 700;
-			color: var(--font-color-dim);
+			padding-left: 10px;
+			border-left: 3px solid var(--accent);
+			font-size: 15px;
+			font-weight: 800;
+			color: var(--font-color);
 			text-transform: uppercase;
-			letter-spacing: 0.06em;
+			letter-spacing: 0.08em;
 		}
 
 		:global(.doc-hint) {
