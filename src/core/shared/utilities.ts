@@ -13,20 +13,21 @@
  */
 export function sequencedTask(task: Function): Function {
 	let isRunning = false;
-	let hasPending = false;
+	let pendingArgs: any[] | null = null;
 
 	return async function (...args: any[]) {
 		if (isRunning) {
-			hasPending = true;
+			pendingArgs = args;
 			return;
 		}
 
 		isRunning = true;
 		try {
-			await task(...args);
-			while (hasPending) {
-				hasPending = false;
-				await task(...args);
+			let currentArgs: any[] | null = args;
+			while (currentArgs) {
+				pendingArgs = null;
+				await task(...currentArgs);
+				currentArgs = pendingArgs;
 			}
 		} finally {
 			isRunning = false;
