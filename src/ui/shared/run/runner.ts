@@ -1,6 +1,6 @@
 import { executeScriptString } from "@core/runtime/controller";
 import { IS_IN_EXTENSION_SETTINGS_PAGE } from "@core/shared/context";
-import { PLAYGROUND_EVENT, readPlaygroundEvent, wrapPlaygroundScript, type PlaygroundLine } from "./playgroundScript";
+import { PLAYGROUND_EVENT, readPlaygroundEvent, wrapPlaygroundScript, type PlaygroundLine } from "./script";
 
 const QUIET_TIMEOUT_MS = 3000;
 

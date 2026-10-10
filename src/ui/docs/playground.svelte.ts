@@ -1,4 +1,4 @@
-import type { PlaygroundLine } from "./playgroundScript";
+import type { PlaygroundLine } from "../shared/run/script";
 
 export type PlaygroundMode = "functions" | "kinds";
 

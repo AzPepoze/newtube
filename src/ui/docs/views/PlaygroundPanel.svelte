@@ -5,7 +5,7 @@
 	import CodeEditor from "@ui/settings/views/base/editor/CodeEditor.svelte";
 	import SettingRenderer from "@ui/settings/views/setting/SettingRenderer.svelte";
 	import { parseKindJson, playground, type KindParse } from "../playground.svelte";
-	import { runPlayground } from "../playgroundRunner";
+	import { runPlayground } from "@ui/shared/run/runner";
 
 	let editor: { setValue: (value: string) => void } | undefined = $state();
 

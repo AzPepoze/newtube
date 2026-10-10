@@ -1,6 +1,6 @@
 // @ts-nocheck -- Bun's test globals are not part of the extension TypeScript program.
 import { expect, test } from "bun:test";
-import { PLAYGROUND_EVENT, readPlaygroundEvent, wrapPlaygroundScript } from "../../../src/ui/docs/playgroundScript";
+import { PLAYGROUND_EVENT, readPlaygroundEvent, wrapPlaygroundScript } from "../../../../src/ui/shared/run/script";
 
 test("wrapper embeds the user code and tags events with the run id", () => {
 	const script = wrapPlaygroundScript("return 1 + 1;", "run-7");
