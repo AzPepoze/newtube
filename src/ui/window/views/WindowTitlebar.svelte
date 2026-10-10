@@ -42,13 +42,15 @@
 		{#if showBlurToggle}
 			<button
 				class="blur-toggle"
-				class:active={blurOff}
+				class:on={!blurOff}
 				onclick={onToggleBlur}
 				title={blurOff ? "Turn blur on" : "Turn blur off"}
-				aria-pressed={blurOff}
+				aria-pressed={!blurOff}
 			>
 				<Icon name={blurOff ? "blur_off" : "blur_on"} size={16} />
+				<span>Blur</span>
 			</button>
+			<span class="topbar-divider"></span>
 		{/if}
 		<WindowControls {isMaximized} {onMinimize} {onMaximize} {onClose} />
 	</div>
@@ -82,27 +84,36 @@
 	}
 
 	.blur-toggle {
-		width: 30px;
-		height: 30px;
-		border-radius: 6px;
-		border: none;
-		background: transparent;
-		color: var(--fg-opacity-60);
+		height: 26px;
+		padding: 0 10px;
+		border-radius: 999px;
+		border: 1px solid var(--fg-opacity-10);
+		background: var(--fg-opacity-05);
+		color: var(--font-color-dim);
 		display: flex;
 		align-items: center;
-		justify-content: center;
+		gap: 6px;
+		font-size: 12px;
+		font-weight: 600;
 		cursor: pointer;
 		transition: all 0.2s;
 
 		&:hover {
 			background: var(--fg-opacity-10);
-			color: white;
-		}
-
-		&.active {
-			background: color-mix(in srgb, var(--accent) 22%, transparent);
 			color: var(--font-color);
 		}
+
+		&.on {
+			background: color-mix(in srgb, var(--accent) 22%, transparent);
+			border-color: color-mix(in srgb, var(--accent) 50%, transparent);
+			color: var(--font-color);
+		}
+	}
+
+	.topbar-divider {
+		width: 1px;
+		height: 18px;
+		background: var(--fg-opacity-15);
 	}
 
 	.topbar-extra {
