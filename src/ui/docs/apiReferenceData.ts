@@ -96,6 +96,44 @@ export function parseReturnsBody(body: string): ApiDocRow {
 	return { name: "", type: stripBraces(type), text };
 }
 
+export type TypeTokenKind = "keyword" | "name" | "string" | "number" | "punct" | "plain";
+
+export interface TypeToken {
+	text: string;
+	kind: TypeTokenKind;
+}
+
+const TYPE_KEYWORDS = new Set([
+	"string",
+	"number",
+	"boolean",
+	"null",
+	"undefined",
+	"void",
+	"any",
+	"unknown",
+	"never",
+	"object",
+	"true",
+	"false",
+]);
+
+const TYPE_PIECE = /"[^"]*"|'[^']*'|\d+(?:\.\d+)?|[A-Za-z_$][\w$]*|\s+|[\s\S]/g;
+
+/** Splits a type string into colorable pieces. Joining the text gives back the input. */
+export function tokenizeType(type: string): TypeToken[] {
+	return Array.from(type.matchAll(TYPE_PIECE), ([text]) => ({ text, kind: kindOfPiece(text) }));
+}
+
+function kindOfPiece(text: string): TypeTokenKind {
+	if (/^\s+$/.test(text)) return "plain";
+	if (text.startsWith('"') || text.startsWith("'")) return "string";
+	if (/^\d/.test(text)) return "number";
+	if (/^[A-Za-z_$]/.test(text)) return TYPE_KEYWORDS.has(text) ? "keyword" : "name";
+	if ("|<>[]{}:;,()=".includes(text)) return "punct";
+	return "plain";
+}
+
 function stripBraces(type: string | null): string | null {
 	return type ? type.slice(1, -1) : null;
 }

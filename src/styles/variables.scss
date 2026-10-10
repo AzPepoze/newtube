@@ -139,6 +139,13 @@
 	--window-bg: var(--bg-main);
 	--window-blur: none;
 	--window-saturate: saturate(100%);
+
+	/* --- Code syntax (dracula palette) --- */
+	--code-keyword: #ff79c6;
+	--code-type: #8be9fd;
+	--code-string: #f1fa8c;
+	--code-number: #bd93f9;
+	--code-punct: rgba(248, 248, 242, 0.6);
 	--modal-blur: 0px;
 }
 
@@ -158,6 +165,11 @@
 
 .styleshift-main[data-theme="light"] {
 	--bg-main: rgb(248, 248, 250);
+	--code-keyword: #c2185b;
+	--code-type: #00758a;
+	--code-string: #7a6000;
+	--code-number: #6a1b9a;
+	--code-punct: rgba(0, 0, 0, 0.55);
 	--bg-surface: rgba(0, 0, 0, 0.03);
 	--bg-surface-hover: rgba(0, 0, 0, 0.06);
 	--bg-input: rgb(255, 255, 255);

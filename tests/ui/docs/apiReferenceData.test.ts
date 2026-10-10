@@ -2,6 +2,7 @@
 import { expect, test } from "bun:test";
 import {
 	callStubFor,
+	tokenizeType,
 	fileLabelFor,
 	filterFunctions,
 	groupFunctionsByFile,
@@ -175,6 +176,27 @@ test("kinds group into fixed categories in order", () => {
 test("kind groups skip empty categories", () => {
 	const groups = groupKindsByCategory([{ type: "button" }]);
 	expect(groups.map((group) => group.category)).toEqual(["Action"]);
+});
+
+test("type tokens keep the text and label each piece", () => {
+	const tokens = tokenizeType("Promise<Object>");
+	expect(tokens.map((token) => token.text).join("")).toBe("Promise<Object>");
+	expect(tokens.map((token) => [token.text, token.kind])).toEqual([
+		["Promise", "name"],
+		["<", "punct"],
+		["Object", "name"],
+		[">", "punct"],
+	]);
+});
+
+test("type tokens recognize keywords, literals, and nested braces", () => {
+	const union = tokenizeType('"info" | null');
+	expect(union.map((token) => token.kind)).toEqual(["string", "plain", "punct", "plain", "keyword"]);
+
+	const shape = tokenizeType("{ x: number; y: 2 }");
+	expect(shape.find((token) => token.text === "number")?.kind).toBe("keyword");
+	expect(shape.find((token) => token.text === "2")?.kind).toBe("number");
+	expect(shape.map((token) => token.text).join("")).toBe("{ x: number; y: 2 }");
 });
 
 test("call stub lists top-level parameter names", () => {

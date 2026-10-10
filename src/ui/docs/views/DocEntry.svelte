@@ -44,6 +44,12 @@
 			letter-spacing: 0.06em;
 		}
 
+		:global(.doc-hint) {
+			margin: 0;
+			font-size: 13px;
+			color: var(--font-color-dim);
+		}
+
 		:global(.doc-summary) {
 			margin: 0;
 			font-size: 15px;

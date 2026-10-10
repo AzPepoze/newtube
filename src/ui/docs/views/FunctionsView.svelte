@@ -62,7 +62,14 @@
 						<p class="doc-summary">{doc.summary}</p>
 					{/if}
 
-					<CodeBlock code={signatureFor(fn)} language="javascript" onTry={() => openFunctionCode(callStubFor(fn))} />
+					<h3 class="doc-sub">Definition</h3>
+					<p class="doc-hint">Declaration only. See Example for how to call it.</p>
+					<CodeBlock
+						code={signatureFor(fn)}
+						language="javascript"
+						tryLabel="Try a call"
+						onTry={() => openFunctionCode(callStubFor(fn))}
+					/>
 
 					{#if params.length}
 						<h3 class="doc-sub">Parameters</h3>
