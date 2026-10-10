@@ -2,21 +2,28 @@
 	import type { Snippet } from "svelte";
 	import { onDestroy } from "svelte";
 	import Icon from "@base/Icon.svelte";
+	import CodeEditor from "@ui/settings/views/base/editor/CodeEditor.svelte";
 	import { copyToClipboard } from "@core/shared/extensionHelpers";
 
 	let {
 		code,
 		tone = "default",
+		language = "",
 		children,
 	}: {
 		/** Raw text copied to the clipboard. */
 		code: string;
 		tone?: "default" | "accent";
-		children: Snippet;
+		/** Set to highlight the code with a read-only editor. */
+		language?: string;
+		children?: Snippet;
 	} = $props();
 
 	let copied = $state(false);
 	let timer: number | null = null;
+	let nearViewport = $state(false);
+
+	const showEditor = $derived(Boolean(language) && nearViewport);
 
 	function copy() {
 		copyToClipboard(code);
@@ -25,12 +32,28 @@
 		timer = window.setTimeout(() => (copied = false), 1500);
 	}
 
+	/** Mounts the highlighted editor only once the block is near the viewport. */
+	function watchViewport(node: HTMLElement) {
+		const observer = new IntersectionObserver(
+			(entries) => {
+				if (!entries.some((entry) => entry.isIntersecting)) return;
+				nearViewport = true;
+				observer.disconnect();
+			},
+			{ rootMargin: "200px" },
+		);
+		observer.observe(node);
+		return {
+			destroy: () => observer.disconnect(),
+		};
+	}
+
 	onDestroy(() => {
 		if (timer) clearTimeout(timer);
 	});
 </script>
 
-<div class="shared-code-block" class:tone-accent={tone === "accent"}>
+<div class="shared-code-block" class:tone-accent={tone === "accent"} use:watchViewport>
 	<button
 		class="shared-code-copy"
 		class:copied
@@ -40,7 +63,11 @@
 	>
 		<Icon name={copied ? "check" : "content_copy"} size={14} />
 	</button>
-	<pre class="shared-code-pre">{@render children()}</pre>
+	{#if showEditor}
+		<CodeEditor value={code} {language} readOnly height="auto" />
+	{:else}
+		<pre class="shared-code-pre">{#if children}{@render children()}{:else}{code}{/if}</pre>
+	{/if}
 </div>
 
 <style lang="scss">
@@ -59,6 +86,7 @@
 		position: absolute;
 		top: 8px;
 		right: 8px;
+		z-index: 1;
 		display: flex;
 		align-items: center;
 		justify-content: center;

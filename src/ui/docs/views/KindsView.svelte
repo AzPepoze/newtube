@@ -43,7 +43,7 @@
 				</div>
 
 				<h3 class="doc-sub">Schema</h3>
-				<CodeBlock code={kindJson}>{kindJson}</CodeBlock>
+				<CodeBlock code={kindJson} language="json" />
 			</DocEntry>
 		{/each}
 	{/each}

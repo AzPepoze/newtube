@@ -10,7 +10,6 @@
 		parseParamBody,
 		parseReturnsBody,
 		signatureFor,
-		splitSignature,
 		type ApiFileGroup,
 	} from "../apiReferenceData";
 	import type { SidebarResize } from "../sidebarResize.svelte";
@@ -43,7 +42,6 @@
 	{#each groups as group (group.file)}
 		{#each group.functions as fn (fn.label)}
 			{@const doc = parseDocTags(fn.info)}
-			{@const sig = splitSignature(signatureFor(fn))}
 			{@const params = doc.tags.filter((tag) => tag.tag === "@param").map((tag) => parseParamBody(tag.body))}
 			{@const returns = doc.tags
 				.filter((tag) => tag.tag === "@returns" || tag.tag === "@return")
@@ -53,9 +51,7 @@
 					<p class="doc-summary">{doc.summary}</p>
 				{/if}
 
-				<CodeBlock code={signatureFor(fn)}
-					><span class="kw">function</span> <span class="fn">{sig.name}</span><span>{sig.rest}</span></CodeBlock
-				>
+				<CodeBlock code={signatureFor(fn)} language="javascript" />
 
 				{#if params.length}
 					<h3 class="doc-sub">Parameters</h3>
@@ -69,20 +65,9 @@
 
 				{#each doc.examples as example, i (`example-${i}`)}
 					<h3 class="doc-sub">Example</h3>
-					<CodeBlock code={example} tone="accent">{example}</CodeBlock>
+					<CodeBlock code={example} language="javascript" tone="accent" />
 				{/each}
 			</DocEntry>
 		{/each}
 	{/each}
 </SidebarScrollLayout>
-
-<style lang="scss">
-	.kw {
-		color: var(--font-color-dim);
-	}
-
-	.fn {
-		color: var(--accent);
-		font-weight: 700;
-	}
-</style>
