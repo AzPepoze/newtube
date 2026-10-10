@@ -23,29 +23,29 @@
 	const RAIN_EVERY_N_FRAMES = 4;
 	const MAX_RAIN_PIECES = 240;
 
-	function spawnInitial(confetti: Confetto[], width: number, height: number): void {
-		if (mode === "rain") {
-			for (let i = 0; i < RAIN_BURST; i++) confetti.push(createRainPiece(width));
-			return;
-		}
-		for (let i = 0; i < BURST; i++) {
-			confetti.push(createConfetto(width * 0.04, height + 8, 1));
-			confetti.push(createConfetto(width * 0.96, height + 8, -1));
-		}
+	// Read the live size on every spawn so pieces cover the window after a resize.
+	function spawnCannonPair(confetti: Confetto[]): void {
+		const width = window.innerWidth;
+		const height = window.innerHeight;
+		confetti.push(createConfetto(width * 0.04, height + 8, 1));
+		confetti.push(createConfetto(width * 0.96, height + 8, -1));
 	}
 
-	function spawnTick(confetti: Confetto[], width: number, height: number): void {
-		for (let i = 0; i < PER_FRAME; i++) {
-			confetti.push(createConfetto(width * 0.04, height + 8, 1));
-			confetti.push(createConfetto(width * 0.96, height + 8, -1));
+	function spawnInitial(confetti: Confetto[]): void {
+		if (mode === "rain") {
+			for (let i = 0; i < RAIN_BURST; i++) confetti.push(createRainPiece(window.innerWidth));
+			return;
 		}
+		for (let i = 0; i < BURST; i++) spawnCannonPair(confetti);
+	}
+
+	function spawnTick(confetti: Confetto[]): void {
+		for (let i = 0; i < PER_FRAME; i++) spawnCannonPair(confetti);
 	}
 
 	function paintFrame(ctx: CanvasRenderingContext2D): void {
-		const width = window.innerWidth;
-		const height = window.innerHeight;
 		const confetti: Confetto[] = [];
-		spawnInitial(confetti, width, height);
+		spawnInitial(confetti);
 		const start = performance.now();
 		let frame = 0;
 		const tick = (now: number) => {
@@ -54,10 +54,10 @@
 			if (mode === "rain") {
 				// Snow never stops on its own: drizzle steadily until unmounted.
 				if (frame % RAIN_EVERY_N_FRAMES === 0 && confetti.length < MAX_RAIN_PIECES) {
-					confetti.push(createRainPiece(width));
+					confetti.push(createRainPiece(window.innerWidth));
 				}
 			} else if (now - start < SPAWN_MS) {
-				spawnTick(confetti, width, height);
+				spawnTick(confetti);
 			}
 			ctx.clearRect(0, 0, window.innerWidth, window.innerHeight);
 			for (let i = confetti.length - 1; i >= 0; i--) {
