@@ -139,12 +139,14 @@
 	--window-bg: var(--bg-main);
 	--window-blur: none;
 	--window-saturate: saturate(100%);
+	--modal-blur: 0px;
 }
 
 .styleshift-main[data-transparent="true"] {
 	--window-bg: rgba(43, 43, 43, 0.8);
 	--window-blur: blur(var(--setting-bg-blur-amount));
 	--window-saturate: saturate(180%);
+	--modal-blur: 10px;
 
 	--bg-surface: rgba(255, 255, 255, 0.05);
 }

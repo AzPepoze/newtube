@@ -46,17 +46,17 @@
 </script>
 
 <Modal {isOpen} onClose={() => handleAction(onCancel)} width={multiline ? "600px" : "400px"}>
-	<div class="header" in:fly={{ y: 20, duration: 600, easing: quintOut, delay: 100 }}>
+	<div class="header" in:fly={{ y: 12, duration: 420, easing: quintOut, delay: 80 }}>
 		{title}
 	</div>
 
 	{#if content}
-		<div class="content-desc" in:fly={{ y: 20, duration: 600, easing: quintOut, delay: 150 }}>
+		<div class="content-desc" in:fly={{ y: 12, duration: 420, easing: quintOut, delay: 110 }}>
 			{content}
 		</div>
 	{/if}
 
-	<div class="body" in:fly={{ y: 20, duration: 600, easing: quintOut, delay: 200 }}>
+	<div class="body" in:fly={{ y: 12, duration: 420, easing: quintOut, delay: 140 }}>
 		{#if multiline}
 			<textarea
 				bind:this={inputEl}
@@ -77,7 +77,7 @@
 		{/if}
 	</div>
 
-	<div class="footer" in:fly={{ y: 20, duration: 600, easing: quintOut, delay: 300 }}>
+	<div class="footer" in:fly={{ y: 12, duration: 420, easing: quintOut, delay: 200 }}>
 		<Button
 			setting={{
 				type: "button",

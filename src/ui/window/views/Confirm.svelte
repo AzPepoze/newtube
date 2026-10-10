@@ -37,15 +37,15 @@
 </script>
 
 <Modal {isOpen} onClose={() => handleAction(onClose || onCancel)} width="400px">
-	<div class="header" in:fly={{ y: 20, duration: 600, easing: quintOut, delay: 100 }}>
+	<div class="header" in:fly={{ y: 12, duration: 420, easing: quintOut, delay: 80 }}>
 		{title}
 	</div>
 	{#if message}
-		<div class="body" in:fly={{ y: 20, duration: 600, easing: quintOut, delay: 200 }}>
+		<div class="body" in:fly={{ y: 12, duration: 420, easing: quintOut, delay: 140 }}>
 			<Description name={message} {align} />
 		</div>
 	{/if}
-	<div class="footer {vertical ? 'vertical' : ''}" in:fly={{ y: 20, duration: 600, easing: quintOut, delay: 300 }}>
+	<div class="footer {vertical ? 'vertical' : ''}" in:fly={{ y: 12, duration: 420, easing: quintOut, delay: 200 }}>
 		{#if footer}
 			{@render footer()}
 		{:else if buttons}
