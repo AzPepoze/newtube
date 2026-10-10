@@ -8,6 +8,7 @@
 		offset = 100,
 		sidebarWidth = 150,
 		showSidebar = true,
+		indicator = false,
 		sidebarClass = "",
 		contentClass = "",
 		sidebarEl = $bindable(null),
@@ -22,6 +23,8 @@
 		offset?: number;
 		sidebarWidth?: number;
 		showSidebar?: boolean;
+		/** Draws one accent bar that slides to the selected sidebar row. */
+		indicator?: boolean;
 		sidebarClass?: string;
 		contentClass?: string;
 		sidebarEl?: HTMLElement | null;
@@ -32,6 +35,9 @@
 		children: Snippet;
 	} = $props();
 
+	let indicatorBox = $state({ visible: false, top: 0, left: 0, height: 0 });
+	let indicatorAnimated = $state(false);
+
 	function handleScroll() {
 		if (!contentEl) return;
 		const value = activeSectionValue(contentEl, attribute, offset);
@@ -41,11 +47,48 @@
 	function scrollTo(value: string) {
 		if (scrollToSection(contentEl, attribute, value)) activeValue = value;
 	}
+
+	/** Places the indicator beside the selected row. The aside is its offset parent, so it scrolls with the list. */
+	function measureIndicator() {
+		const selected = sidebarEl?.querySelector<HTMLElement>(".styleshift-left-category-title.selected");
+		indicatorBox.visible = Boolean(selected);
+		if (!selected) return;
+
+		indicatorBox.top = selected.offsetTop + 6;
+		indicatorBox.left = selected.offsetLeft;
+		indicatorBox.height = selected.offsetHeight - 12;
+	}
+
+	$effect(() => {
+		if (!indicator || !sidebarEl) return;
+		const aside = sidebarEl;
+		const observer = new ResizeObserver(measureIndicator);
+		observer.observe(aside);
+		return () => observer.disconnect();
+	});
+
+	$effect(() => {
+		if (!indicator) return;
+		void activeValue;
+		void sidebarEl;
+		measureIndicator();
+		// Skip the first placement so the bar appears in place instead of sliding in from the top.
+		requestAnimationFrame(() => (indicatorAnimated = true));
+	});
 </script>
 
 <div class="sidebar-scroll-layout">
 	{#if showSidebar && sidebar}
 		<aside bind:this={sidebarEl} class="sidebar-scroll-sidebar {sidebarClass}" style:width={`${sidebarWidth}px`}>
+			{#if indicator}
+				<span
+					class="sidebar-indicator"
+					class:animated={indicatorAnimated}
+					class:visible={indicatorBox.visible}
+					style:transform="translate({indicatorBox.left}px, {indicatorBox.top}px)"
+					style:height="{indicatorBox.height}px"
+				></span>
+			{/if}
 			{@render sidebar({ scrollTo, activeValue })}
 		</aside>
 		{#if resizer}{@render resizer()}{/if}
@@ -70,12 +113,35 @@
 	}
 
 	.sidebar-scroll-sidebar {
+		position: relative;
 		min-width: 150px;
 		display: flex;
 		flex-direction: column;
 		gap: 5px;
 		padding: 10px 8px;
 		overflow-y: auto;
+	}
+
+	.sidebar-indicator {
+		position: absolute;
+		top: 0;
+		left: 0;
+		width: 3px;
+		border-radius: 3px;
+		background: var(--accent);
+		opacity: 0;
+		pointer-events: none;
+
+		&.visible {
+			opacity: 1;
+		}
+
+		&.animated {
+			transition:
+				transform 0.25s cubic-bezier(0.4, 0, 0.2, 1),
+				height 0.25s cubic-bezier(0.4, 0, 0.2, 1),
+				opacity 0.2s ease;
+		}
 	}
 
 	.sidebar-scroll-content {

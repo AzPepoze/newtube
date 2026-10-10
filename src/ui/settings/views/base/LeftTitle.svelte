@@ -180,17 +180,6 @@
 			&.selected {
 				margin-left: 10px;
 				box-shadow: none;
-
-				&::before {
-					content: "";
-					position: absolute;
-					left: 0;
-					top: 6px;
-					bottom: 6px;
-					width: 3px;
-					border-radius: 3px;
-					background: var(--accent);
-				}
 			}
 		}
 

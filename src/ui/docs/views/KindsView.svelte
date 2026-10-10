@@ -23,6 +23,7 @@
 		bind:activeValue={activeEntry}
 		bind:contentEl
 		sidebarWidth={resize.width}
+		indicator
 	>
 		{#snippet resizer()}
 			<ResizeBar onResizeStart={resize.handleResizeStart} onResizeKeys={resize.handleResizeKeys} />
