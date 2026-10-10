@@ -36,6 +36,7 @@ export function createPlaceholder(height: number): Placeholder {
 	function fadeOut(el: HTMLElement) {
 		el.style.transition = "";
 		el.classList.remove("show");
+		el.classList.add("leaving");
 		el.style.height = "0px";
 		fading.add(el);
 		setTimeout(() => {

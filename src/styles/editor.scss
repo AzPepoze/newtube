@@ -155,7 +155,7 @@
 
 			&:hover {
 				.styleshift-config-button,
-				.styleshift-config-actions-overlay {
+				.styleshift-config-actions {
 					opacity: 1;
 					pointer-events: all;
 				}
@@ -165,24 +165,56 @@
 		// Hide buttons while dragging
 		&[draging] {
 			.styleshift-config-button,
-			.styleshift-config-actions-overlay {
+			.styleshift-config-actions {
 				opacity: 0 !important;
 				pointer-events: none !important;
 			}
 		}
 
-		.styleshift-config-actions-overlay {
-			position: absolute;
-			right: -16px;
-			top: 50%;
-			transform: translateY(-50%);
+		// Slots grow to their content width on hover, so the row text reflows instead of being covered.
+		.styleshift-setting-slot {
+			flex-shrink: 0;
+			display: grid;
+			grid-template-columns: 0fr;
+			opacity: 0;
+			visibility: hidden;
+			transition:
+				grid-template-columns 0.25s cubic-bezier(0.4, 0, 0.2, 1),
+				margin 0.25s cubic-bezier(0.4, 0, 0.2, 1),
+				opacity 0.2s ease,
+				visibility 0.25s;
+
+			&.drag-slot {
+				margin-right: -10px;
+			}
+
+			&.actions-slot {
+				margin-left: -10px;
+			}
+		}
+
+		// Padding gives the hover scale room; the matching negative margin keeps the layout unchanged.
+		.styleshift-setting-slot-inner {
+			min-width: 0;
+			padding: 4px;
+			margin: -4px;
+			overflow: hidden;
+		}
+
+		&:not([draging]) .styleshift-setting-frame:is(:hover, :focus-within) .styleshift-setting-slot {
+			grid-template-columns: 1fr;
+			margin: 0;
+			opacity: 1;
+			visibility: visible;
+		}
+
+		.styleshift-config-actions {
 			display: flex;
-			flex-direction: column;
+			flex-direction: row;
 			gap: 5px;
 			opacity: 0;
 			transition: all 0.2s;
 			pointer-events: none;
-			z-index: 10;
 		}
 
 		.styleshift-config-button {
@@ -203,19 +235,10 @@
 			transform-origin: center;
 
 			&.drag-handle {
-				position: absolute;
-				left: -16px;
-				top: 50%;
-				transform: translateY(-50%);
 				cursor: grab;
-				z-index: 10;
 
 				&:active {
 					cursor: grabbing;
-				}
-
-				&:hover {
-					transform: translateY(-50%) scale(1.1);
 				}
 			}
 
@@ -254,6 +277,7 @@
 			box-sizing: border-box;
 			pointer-events: none;
 			margin-block: -5px;
+			transform: translateX(-24px);
 			transition: all 0.3s ease-out;
 
 			&.show {
@@ -261,6 +285,11 @@
 				background: var(--fg-opacity-05);
 				opacity: 1;
 				margin-block: 0px;
+				transform: translateX(0);
+			}
+
+			&.leaving {
+				transform: translateX(24px);
 			}
 		}
 

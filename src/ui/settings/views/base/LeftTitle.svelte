@@ -38,9 +38,11 @@
 	data-is-new={isNew}
 >
 	{#if showControls}
-		<button class="styleshift-sidebar-control drag-handle" title="Drag to reorder" aria-label="Drag to reorder">
-			<Icon name="drag" size={16} />
-		</button>
+		<div class="styleshift-sidebar-slot drag-slot">
+			<button class="styleshift-sidebar-control drag-handle" title="Drag to reorder" aria-label="Drag to reorder">
+				<Icon name="drag" size={16} />
+			</button>
+		</div>
 	{/if}
 
 	{#if isHeader}
@@ -59,29 +61,31 @@
 	{/if}
 
 	{#if showControls}
-		<div class="styleshift-sidebar-arrows">
-			<button
-				class="styleshift-sidebar-control"
-				onclick={(e) => {
-					e.stopPropagation();
-					onMove?.("up");
-				}}
-				title="Move up"
-				aria-label="Move up"
-			>
-				<Icon name="arrowUp" size={16} />
-			</button>
-			<button
-				class="styleshift-sidebar-control"
-				onclick={(e) => {
-					e.stopPropagation();
-					onMove?.("down");
-				}}
-				title="Move down"
-				aria-label="Move down"
-			>
-				<Icon name="arrowDown" size={16} />
-			</button>
+		<div class="styleshift-sidebar-slot arrow-slot">
+			<div class="styleshift-sidebar-arrows">
+				<button
+					class="styleshift-sidebar-control"
+					onclick={(e) => {
+						e.stopPropagation();
+						onMove?.("up");
+					}}
+					title="Move up"
+					aria-label="Move up"
+				>
+					<Icon name="arrowUp" size={16} />
+				</button>
+				<button
+					class="styleshift-sidebar-control"
+					onclick={(e) => {
+						e.stopPropagation();
+						onMove?.("down");
+					}}
+					title="Move down"
+					aria-label="Move down"
+				>
+					<Icon name="arrowDown" size={16} />
+				</button>
+			</div>
 		</div>
 	{/if}
 </div>
@@ -175,10 +179,17 @@
 
 		&:hover,
 		&:focus-within {
-			.styleshift-sidebar-control,
-			.styleshift-sidebar-arrows {
-				display: flex;
-				animation: styleshift-sidebar-controls-in 0.2s cubic-bezier(0.4, 0, 0.2, 1) both;
+			.styleshift-sidebar-slot {
+				opacity: 1;
+				margin: 0;
+			}
+
+			.drag-slot {
+				width: 30px;
+			}
+
+			.arrow-slot {
+				width: 66px;
 			}
 		}
 
@@ -191,11 +202,31 @@
 		}
 	}
 
+	.styleshift-sidebar-slot {
+		flex-shrink: 0;
+		width: 0;
+		opacity: 0;
+		overflow: hidden;
+		display: flex;
+		transition:
+			width 0.25s cubic-bezier(0.4, 0, 0.2, 1),
+			margin 0.25s cubic-bezier(0.4, 0, 0.2, 1),
+			opacity 0.2s ease;
+
+		&.drag-slot {
+			margin-right: -12px;
+		}
+
+		&.arrow-slot {
+			margin-left: -12px;
+		}
+	}
+
 	.styleshift-sidebar-control {
 		flex-shrink: 0;
 		width: 30px;
 		height: 30px;
-		display: none;
+		display: flex;
 		align-items: center;
 		justify-content: center;
 		border: none;
@@ -222,20 +253,9 @@
 	}
 
 	.styleshift-sidebar-arrows {
-		display: none;
+		display: flex;
 		gap: 6px;
-		margin-left: auto;
-	}
-
-	@keyframes styleshift-sidebar-controls-in {
-		from {
-			opacity: 0;
-			transform: translateX(6px) scale(0.9);
-		}
-		to {
-			opacity: 1;
-			transform: none;
-		}
+		flex-shrink: 0;
 	}
 
 	@keyframes styleshift-new-category-pop {

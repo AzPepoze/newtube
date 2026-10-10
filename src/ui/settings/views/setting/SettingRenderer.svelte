@@ -97,90 +97,100 @@
 		(setting.type === "custom" && setting.transparent)}
 	vertical={isVerticalSetting}
 >
-	<div class="styleshift-setting-row-content" class:is-vertical={isVerticalSetting}>
+	<div class="styleshift-setting-row-content">
 		{#if controller.isDeveloperMode}
-			<button class="styleshift-config-button drag-handle" use:dragAction>
-				<Icon name="drag" size={16} />
-			</button>
+			<div class="styleshift-setting-slot drag-slot">
+				<div class="styleshift-setting-slot-inner">
+					<button class="styleshift-config-button drag-handle" use:dragAction>
+						<Icon name="drag" size={16} />
+					</button>
+				</div>
+			</div>
 		{/if}
 
-		{#if setting.type === "checkbox"}
-			<Checkbox {setting} disabled={isLocked} />
-		{:else if setting.type === "button"}
-			<Button {setting} {layout} showHelpIcon={layout === "grid"} showHoverPreview />
-		{:else if setting.type === "numberSlide"}
-			<Slider {setting} />
-		{:else if setting.type === "textInput"}
-			<TextInput {setting} />
-		{:else if setting.type === "color"}
-			<ColorPicker {setting} />
-		{:else if setting.type === "dropdown"}
-			<Dropdown {setting} inline />
-		{:else if setting.type === "text"}
-			<Text html={setting.html} fontSize={setting.fontSize} {textAlign} />
-		{:else if setting.type === "subText"}
-			<Text
-				text={setting.text}
-				fontSize={setting.fontSize}
-				color={setting.color}
-				{textAlign}
-				className="styleshift-setting-sub-title"
-			/>
-		{:else if setting.type === "imageInput"}
-			<ImageInput {setting} />
-		{:else if setting.type === "previewImage"}
-			<PreviewImage
-				src={controller.value}
-				title={setting.title}
-				preset={setting.preset}
-				settingIds={setting.settingIds}
-			/>
-		{:else if setting.type === "custom"}
-			<div use:controller.customSettingAction></div>
-		{:else if setting.type === "combineSetting"}
-			<Description name={setting.name} description={setting.description} />
-		{:else if setting.type === "conditionSetting"}
-			<div style="display: flex; flex-direction: column; width: 100%; gap: 5px;">
-				<Description name={setting.name} description={setting.description} />
-				<ConditionStatus
-					conditionsMet={controller.conditionsMet}
-					condition={setting.condition}
-					requiredSettings={controller.requiredSettings}
+		<div class="styleshift-setting-main" class:is-vertical={isVerticalSetting}>
+			{#if setting.type === "checkbox"}
+				<Checkbox {setting} disabled={isLocked} />
+			{:else if setting.type === "button"}
+				<Button {setting} {layout} showHelpIcon={layout === "grid"} showHoverPreview />
+			{:else if setting.type === "numberSlide"}
+				<Slider {setting} />
+			{:else if setting.type === "textInput"}
+				<TextInput {setting} />
+			{:else if setting.type === "color"}
+				<ColorPicker {setting} />
+			{:else if setting.type === "dropdown"}
+				<Dropdown {setting} inline />
+			{:else if setting.type === "text"}
+				<Text html={setting.html} fontSize={setting.fontSize} {textAlign} />
+			{:else if setting.type === "subText"}
+				<Text
+					text={setting.text}
+					fontSize={setting.fontSize}
+					color={setting.color}
+					{textAlign}
+					className="styleshift-setting-sub-title"
 				/>
-			</div>
-		{:else if setting.type === "keyboardShortcuts"}
-			<div use:controller.keyboardShortcutsAction></div>
-		{:else if setting.type === "selectorInput"}
-			<Selector {setting} />
-		{/if}
+			{:else if setting.type === "imageInput"}
+				<ImageInput {setting} />
+			{:else if setting.type === "previewImage"}
+				<PreviewImage
+					src={controller.value}
+					title={setting.title}
+					preset={setting.preset}
+					settingIds={setting.settingIds}
+				/>
+			{:else if setting.type === "custom"}
+				<div use:controller.customSettingAction></div>
+			{:else if setting.type === "combineSetting"}
+				<Description name={setting.name} description={setting.description} />
+			{:else if setting.type === "conditionSetting"}
+				<div style="display: flex; flex-direction: column; width: 100%; gap: 5px;">
+					<Description name={setting.name} description={setting.description} />
+					<ConditionStatus
+						conditionsMet={controller.conditionsMet}
+						condition={setting.condition}
+						requiredSettings={controller.requiredSettings}
+					/>
+				</div>
+			{:else if setting.type === "keyboardShortcuts"}
+				<div use:controller.keyboardShortcutsAction></div>
+			{:else if setting.type === "selectorInput"}
+				<Selector {setting} />
+			{/if}
+		</div>
 
 		{#if controller.isDeveloperMode || setting.quickCustomize}
-			<div class="styleshift-config-actions-overlay">
-				{#if setting.quickCustomize}
-					<button
-						class="styleshift-config-button quick-edit"
-						title="Edit in Quick Customize"
-						onclick={() => controller.handleQuickEdit()}
-					>
-						<Icon name="brush" size={16} color="var(--fg-opacity-100)" />
-					</button>
-				{/if}
+			<div class="styleshift-setting-slot actions-slot">
+				<div class="styleshift-setting-slot-inner">
+					<div class="styleshift-config-actions">
+						{#if setting.quickCustomize}
+							<button
+								class="styleshift-config-button quick-edit"
+								title="Edit in Quick Customize"
+								onclick={() => controller.handleQuickEdit()}
+							>
+								<Icon name="brush" size={16} color="var(--fg-opacity-100)" />
+							</button>
+						{/if}
 
-				{#if controller.isDeveloperMode}
-					<button class="styleshift-config-button edit" onclick={() => controller.handleEdit()}>
-						<Icon name="edit" size={16} />
-					</button>
-				{/if}
+						{#if controller.isDeveloperMode}
+							<button class="styleshift-config-button edit" onclick={() => controller.handleEdit()}>
+								<Icon name="edit" size={16} />
+							</button>
+						{/if}
 
-				{#if controller.isDeveloperMode || setting.quickCustomize}
-					<button
-						class="styleshift-config-button delete"
-						title="Remove setting"
-						onclick={() => controller.handleDelete()}
-					>
-						<Icon name="delete" size={16} />
-					</button>
-				{/if}
+						{#if controller.isDeveloperMode || setting.quickCustomize}
+							<button
+								class="styleshift-config-button delete"
+								title="Remove setting"
+								onclick={() => controller.handleDelete()}
+							>
+								<Icon name="delete" size={16} />
+							</button>
+						{/if}
+					</div>
+				</div>
 			</div>
 		{/if}
 	</div>
@@ -207,6 +217,15 @@
 		gap: 10px;
 		width: 100%;
 		position: relative;
+	}
+
+	.styleshift-setting-main {
+		display: flex;
+		flex-direction: row;
+		align-items: center;
+		gap: 10px;
+		flex: 1;
+		min-width: 0;
 
 		&.is-vertical {
 			flex-direction: column;
