@@ -13,6 +13,7 @@
 		isDeveloperMode = false,
 		editable = false,
 		onMove = null as ((direction: "up" | "down") => void) | null,
+		flat = false,
 	} = $props();
 	let titleEl: HTMLDivElement = $state(null!);
 
@@ -33,6 +34,7 @@
 	class:is-new={isNew}
 	class:has-separator={separator}
 	class:selected
+	class:flat
 	class:is-editable={editable}
 	data-is-header={isHeader}
 	data-is-new={isNew}
@@ -167,6 +169,27 @@
 				&:hover {
 					background: var(--sidebar-selected-control-bg-hover);
 					color: var(--sidebar-selected-control-fg);
+				}
+			}
+		}
+
+		&.flat {
+			--sidebar-selected-bg: transparent;
+			--sidebar-selected-fg: var(--font-color);
+
+			&.selected {
+				margin-left: 10px;
+				box-shadow: none;
+
+				&::before {
+					content: "";
+					position: absolute;
+					left: 0;
+					top: 6px;
+					bottom: 6px;
+					width: 3px;
+					border-radius: 3px;
+					background: var(--accent);
 				}
 			}
 		}

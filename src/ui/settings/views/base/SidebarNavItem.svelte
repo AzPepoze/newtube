@@ -12,6 +12,7 @@
 		action = (() => {}) as (node: HTMLElement, arg: any) => void,
 		actionArg = undefined,
 		style = "",
+		flat = false,
 	}: {
 		category: string | CategoryNameWithIcon;
 		selected?: boolean;
@@ -22,6 +23,7 @@
 		action?: (node: HTMLElement, arg: any) => void;
 		actionArg?: any;
 		style?: string;
+		flat?: boolean;
 	} = $props();
 
 	let settled = $state(false);
@@ -39,7 +41,7 @@
 	onanimationend={handleEntryEnd}
 	use:action={actionArg}
 >
-	<LeftTitle {category} {selected} {isDeveloperMode} {editable} {onMove} />
+	<LeftTitle {category} {selected} {isDeveloperMode} {editable} {onMove} {flat} />
 </button>
 
 <style lang="scss">

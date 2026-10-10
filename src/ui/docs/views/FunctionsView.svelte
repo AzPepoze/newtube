@@ -34,6 +34,7 @@
 					category={fn.label}
 					selected={activeValue === `fn:${fn.label}`}
 					onSelect={() => scrollTo(`fn:${fn.label}`)}
+					flat
 				/>
 			{/each}
 		{/each}

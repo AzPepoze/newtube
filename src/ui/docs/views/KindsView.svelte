@@ -27,6 +27,7 @@
 					category={String(kind.type)}
 					selected={activeValue === `kind:${String(kind.type)}`}
 					onSelect={() => scrollTo(`kind:${String(kind.type)}`)}
+					flat
 				/>
 			{/each}
 		{/each}
