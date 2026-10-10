@@ -2,6 +2,44 @@ import { codemirrorInstance, globalMetadataCache } from "@/core/runtime/controll
 import { logger } from "@/shared/logger";
 import { buildReadonlyExtensions } from "./codeEditorExtensions";
 
+/** Splits text on commas that sit outside any brackets. */
+function splitTopLevel(text: string): string[] {
+	const parts: string[] = [];
+	let depth = 0;
+	let current = "";
+
+	for (const char of text) {
+		if ("({[".includes(char)) depth++;
+		if (")}]".includes(char)) depth--;
+
+		if (char === "," && depth === 0) {
+			parts.push(current.trim());
+			current = "";
+		} else {
+			current += char;
+		}
+	}
+
+	if (current.trim()) parts.push(current.trim());
+	return parts;
+}
+
+/** Breaks a signature such as `({ a = 1, b }) => any` into one parameter per line. */
+function formatSignatureLines(detail: string): string[] {
+	const closeIndex = detail.lastIndexOf(") =>");
+	if (closeIndex === -1) return [detail];
+
+	const params = detail.slice(1, closeIndex);
+	const returnType = detail.slice(closeIndex + 1);
+	const isObjectParam = params.startsWith("{") && params.endsWith("}");
+	const items = splitTopLevel(isObjectParam ? params.slice(1, -1) : params);
+	if (items.length === 0) return [detail];
+
+	const opening = isObjectParam ? "({" : "(";
+	const closing = isObjectParam ? "})" : ")";
+	return [opening, ...items.map((item) => `  ${item},`), `${closing}${returnType}`];
+}
+
 export interface CodeEditorOptions {
 	language: string;
 	readOnly?: boolean;
@@ -197,12 +235,10 @@ export class CodeEditorController {
 
 	#renderTooltipDOM(metadata: any) {
 		const dom = this.#createDomElement("div", "cm-styleshift-tooltip");
-		dom.style.cssText = "max-width: 60ch; max-height: 34vh; overflow: auto;";
+		dom.style.cssText = "max-width: min(88ch, 66vw); max-height: 34vh; overflow: auto;";
 
-		const badge =
-			metadata.detail || metadata.type
-				? [this.#createDomElement("span", "cm-tooltip-badge", metadata.detail || metadata.type)]
-				: [];
+		const badgeText = metadata.detail ? formatSignatureLines(metadata.detail).join("\n") : metadata.type;
+		const badge = badgeText ? [this.#createDomElement("span", "cm-tooltip-badge", badgeText)] : [];
 
 		dom.append(
 			this.#createDomElement("div", "cm-tooltip-header", [

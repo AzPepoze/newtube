@@ -139,6 +139,7 @@
 
 	:global(.cm-tooltip-header) {
 		display: flex;
+		flex-wrap: wrap;
 		align-items: center;
 		justify-content: space-between;
 		gap: 12px;
@@ -155,14 +156,17 @@
 	}
 
 	:global(.cm-tooltip-badge) {
-		font-size: 14px;
-		line-height: 1;
-		padding: 5px 10px;
-		border-radius: 999px;
+		flex: 1 1 100%;
+		font-family: "Fira Code", monospace;
+		font-size: 13px;
+		line-height: 1.6;
+		padding: 8px 12px;
+		border-radius: 8px;
 		border: 1px solid rgba(189, 147, 249, 0.5);
 		background: rgba(189, 147, 249, 0.15);
 		color: #bd93f9;
-		white-space: nowrap;
+		white-space: pre;
+		overflow-x: auto;
 	}
 
 	:global(.cm-tooltip-info) {
