@@ -128,7 +128,7 @@
 		left: 0;
 		width: 3px;
 		border-radius: 3px;
-		background: var(--accent);
+		background: var(--theme-0);
 		opacity: 0;
 		pointer-events: none;
 
