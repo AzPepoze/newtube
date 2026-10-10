@@ -2,6 +2,7 @@
 	import SettingsListRenderer from "@renderers/list/SettingsListRenderer.svelte";
 	import type { Category, SeparateCategory } from "@settings/types/styleshiftTypes";
 	import SidebarNavItem from "@base/SidebarNavItem.svelte";
+	import SidebarHeader from "@base/SidebarHeader.svelte";
 	import ResizeBar from "@ui/shared/views/ResizeBar.svelte";
 	import SidebarScrollLayout from "@ui/shared/views/SidebarScrollLayout.svelte";
 	import { slide } from "svelte/transition";
@@ -72,13 +73,11 @@
 		{#snippet sidebar({ scrollTo })}
 			{#each controller.sidebarData as item, i (controller.sidebarKey(item))}
 				{#if controller.isHeaderItem(item)}
-					<div
-						class="styleshift-sidebar-header"
-						class:centered={item.label === "BUILD-IN" || item.label === "ADD-ON"}
-						style="animation-delay: {skipAnimation ? '0ms' : i * 50 + 'ms'};"
-					>
-						{item.label}
-					</div>
+					<SidebarHeader
+						label={item.label}
+						centered={item.label === "BUILD-IN" || item.label === "ADD-ON"}
+						delay={skipAnimation ? "0ms" : `${i * 50}ms`}
+					/>
 				{:else}
 					{@const category = item}
 					{@const parts = getCategoryParts(category.category)}
@@ -131,17 +130,6 @@
 </div>
 
 <style lang="scss">
-	@keyframes sidebar-animation {
-		from {
-			opacity: 0;
-			transform: translateX(-10px);
-		}
-		to {
-			opacity: 1;
-			transform: translateX(0);
-		}
-	}
-
 	.styleshift-settings-main {
 		width: 100%;
 		height: 100%;
@@ -166,61 +154,6 @@
 
 	.styleshift-add-category-button:hover {
 		background: var(--fg-opacity-10);
-	}
-
-	.styleshift-sidebar-header {
-		padding: 12px 10px 8px;
-		font-size: 14px;
-		color: var(--text-muted);
-		text-transform: uppercase;
-		letter-spacing: 1px;
-		font-weight: 700;
-		margin-bottom: 4px;
-		border-top: 2px solid var(--fg-opacity-10);
-		animation: sidebar-animation 1s both;
-
-		:global(.styleshift-main[data-theme="light"]) & {
-			color: var(--text-primary);
-		}
-
-		&.centered {
-			font-size: 18px;
-			color: var(--text-muted);
-			letter-spacing: 3px;
-			font-weight: 900;
-			display: flex;
-			align-items: center;
-			justify-content: center;
-			gap: 15px;
-			margin-top: 30px;
-			margin-bottom: 15px;
-			border-top: none;
-
-			&::before,
-			&::after {
-				content: "";
-				flex: 1;
-				height: 1px;
-				background: linear-gradient(to var(--direction), var(--fg-opacity-10), transparent);
-			}
-
-			&::before {
-				--direction: left;
-			}
-
-			&::after {
-				--direction: right;
-			}
-		}
-
-		:global(.skip-animation) & {
-			animation: none;
-		}
-	}
-
-	.styleshift-sidebar-header:first-child {
-		border-top: none;
-		margin-top: 0;
 	}
 
 	.styleshift-section-header {
