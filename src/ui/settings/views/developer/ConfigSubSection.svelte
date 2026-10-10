@@ -1,5 +1,6 @@
 <script lang="ts">
 	import { fade, fly } from "svelte/transition";
+	import Icon from "@base/Icon.svelte";
 	import DevSettingSection from "./DevSettingSection.svelte";
 
 	let { setting, props } = $props();
@@ -49,6 +50,17 @@
 		disable: "On Disable",
 		update: "On Change",
 	};
+
+	const runTypeIconMap: Record<string, string> = {
+		var: "data_object",
+		click: "touch_app",
+		constant: "palette",
+		ui: "web",
+		setup: "rocket_launch",
+		enable: "toggle_on",
+		disable: "toggle_off",
+		update: "sync",
+	};
 </script>
 
 <div class="styleshift-config-sub-section">
@@ -67,7 +79,8 @@
 				bind:this={navItems[index]}
 				onclick={() => (activeSection = title)}
 			>
-				{runTypeNameMap[title as keyof typeof runTypeNameMap] || title}
+				<Icon name={runTypeIconMap[title] ?? ""} size={16} />
+				<span>{runTypeNameMap[title as keyof typeof runTypeNameMap] || title}</span>
 			</button>
 		{/each}
 	</nav>
@@ -129,6 +142,9 @@
 	}
 
 	.logic-nav-item {
+		display: flex;
+		align-items: center;
+		gap: 8px;
 		padding: 7px 16px;
 		background: transparent;
 		border: none;
