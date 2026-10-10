@@ -7,6 +7,7 @@
 	import SettingRenderer from "@ui/settings/views/setting/SettingRenderer.svelte";
 	import type { ApiKindGroup } from "../apiReferenceData";
 	import type { SidebarResize } from "../sidebarResize.svelte";
+	import { openKindJson } from "../playground.svelte";
 	import DocEntry from "./DocEntry.svelte";
 	import DocsRail from "./DocsRail.svelte";
 
@@ -52,7 +53,7 @@
 					</div>
 
 					<h3 class="doc-sub">Schema</h3>
-					<CodeBlock code={kindJson} language="json" />
+					<CodeBlock code={kindJson} language="json" tryLabel="Try this schema" onTry={() => openKindJson(kindJson)} />
 				</DocEntry>
 			{/each}
 		{/each}

@@ -14,6 +14,8 @@
 	} from "../apiReferenceData";
 	import type { SidebarResize } from "../sidebarResize.svelte";
 	import DocEntry from "./DocEntry.svelte";
+	import { openFunctionCode } from "../playground.svelte";
+	import { callStubFor } from "../apiReferenceData";
 	import DocsRail from "./DocsRail.svelte";
 	import ParamTable from "./ParamTable.svelte";
 
@@ -60,7 +62,7 @@
 						<p class="doc-summary">{doc.summary}</p>
 					{/if}
 
-					<CodeBlock code={signatureFor(fn)} language="javascript" />
+					<CodeBlock code={signatureFor(fn)} language="javascript" onTry={() => openFunctionCode(callStubFor(fn))} />
 
 					{#if params.length}
 						<h3 class="doc-sub">Parameters</h3>
@@ -74,7 +76,7 @@
 
 					{#each doc.examples as example, i (`example-${i}`)}
 						<h3 class="doc-sub">Example</h3>
-						<CodeBlock code={example} language="javascript" tone="accent" />
+						<CodeBlock code={example} language="javascript" tone="accent" onTry={() => openFunctionCode(example)} />
 					{/each}
 				</DocEntry>
 			{/each}

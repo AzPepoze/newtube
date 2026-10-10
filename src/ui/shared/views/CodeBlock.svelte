@@ -9,6 +9,8 @@
 		code,
 		tone = "default",
 		language = "",
+		onTry = undefined,
+		tryLabel = "Try this code",
 		children,
 	}: {
 		/** Raw text copied to the clipboard. */
@@ -16,6 +18,9 @@
 		tone?: "default" | "accent";
 		/** Set to highlight the code with a read-only editor. */
 		language?: string;
+		/** Set to show the "Try" button in a header bar. */
+		onTry?: () => void;
+		tryLabel?: string;
 		children?: Snippet;
 	} = $props();
 
@@ -53,7 +58,7 @@
 	});
 </script>
 
-<div class="shared-code-block" class:tone-accent={tone === "accent"} use:watchViewport>
+{#snippet copyButton()}
 	<button
 		class="shared-code-copy"
 		class:copied
@@ -63,6 +68,20 @@
 	>
 		<Icon name={copied ? "check" : "content_copy"} size={14} />
 	</button>
+{/snippet}
+
+<div class="shared-code-block" class:tone-accent={tone === "accent"} use:watchViewport>
+	{#if onTry}
+		<div class="shared-code-bar">
+			<button class="shared-code-try" onclick={onTry}>
+				<Icon name="play_arrow" size={16} />
+				<span>{tryLabel}</span>
+			</button>
+			{@render copyButton()}
+		</div>
+	{:else}
+		{@render copyButton()}
+	{/if}
 	{#if showEditor}
 		<CodeEditor value={code} {language} readOnly height="auto" />
 	{:else}
@@ -79,6 +98,34 @@
 
 		&.tone-accent {
 			border-left: 3px solid var(--accent);
+		}
+	}
+
+	.shared-code-bar {
+		display: flex;
+		align-items: center;
+		justify-content: flex-end;
+		gap: 6px;
+		padding: 6px 6px 0;
+	}
+
+	.shared-code-try {
+		display: inline-flex;
+		align-items: center;
+		gap: 6px;
+		height: 28px;
+		padding: 0 10px;
+		border-radius: 8px;
+		border: 1px solid color-mix(in srgb, var(--accent) 50%, transparent);
+		background: color-mix(in srgb, var(--accent) 22%, transparent);
+		color: var(--font-color);
+		font-size: 12px;
+		font-weight: 600;
+		cursor: pointer;
+		transition: background 150ms ease;
+
+		&:hover {
+			background: color-mix(in srgb, var(--accent) 34%, transparent);
 		}
 	}
 
@@ -112,6 +159,10 @@
 			border-color: color-mix(in srgb, var(--accent) 50%, transparent);
 			color: var(--font-color);
 		}
+	}
+
+	.shared-code-bar .shared-code-copy {
+		position: static;
 	}
 
 	.shared-code-pre {
