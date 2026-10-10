@@ -171,41 +171,33 @@
 			}
 		}
 
-		// Slots grow to their content width on hover, so the row text reflows instead of being covered.
+		// Slots slide in over the row edges on hover, so the row content never reflows.
 		.styleshift-setting-slot {
-			flex-shrink: 0;
-			display: grid;
-			grid-template-columns: 0fr;
+			position: absolute;
+			top: 50%;
+			z-index: 1;
 			opacity: 0;
 			visibility: hidden;
 			transition:
-				grid-template-columns 0.25s cubic-bezier(0.4, 0, 0.2, 1),
-				margin 0.25s cubic-bezier(0.4, 0, 0.2, 1),
+				transform 0.25s cubic-bezier(0.4, 0, 0.2, 1),
 				opacity 0.2s ease,
 				visibility 0.25s;
 
 			&.drag-slot {
-				margin-right: -10px;
+				left: 0;
+				transform: translate(-8px, -50%);
 			}
 
 			&.actions-slot {
-				margin-left: -10px;
+				right: 0;
+				transform: translate(8px, -50%);
 			}
 		}
 
-		// Padding gives the hover scale room; the matching negative margin keeps the layout unchanged.
-		.styleshift-setting-slot-inner {
-			min-width: 0;
-			padding: 4px;
-			margin: -4px;
-			overflow: hidden;
-		}
-
 		&:not([draging]) .styleshift-setting-frame:is(:hover, :focus-within) .styleshift-setting-slot {
-			grid-template-columns: 1fr;
-			margin: 0;
 			opacity: 1;
 			visibility: visible;
+			transform: translate(0, -50%);
 		}
 
 		.styleshift-config-actions {
