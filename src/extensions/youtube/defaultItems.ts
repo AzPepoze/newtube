@@ -1,5 +1,4 @@
 import { openSettingPage } from "@core/shared/extensionHelpers";
-import { showExtensionUpdateNotification } from "@core/shared/versionUpdate";
 import { exportThemeWithSelection } from "@core/theme/exporter";
 import { exportCurrentSettingsObject, importThemeWorkflow } from "@core/theme/importer";
 import { checkAndUpdateTheme, openThemeStore, openThemeSubmitPage } from "@core/theme/storeIntegration";
@@ -12,7 +11,6 @@ import { playCelebration } from "@ui/tutorial/celebrationService";
 import { showThemeManager } from "@ui/themes/themeManagerService";
 import { showTryImportOldNPreset } from "./dangerzone";
 import { copyDiagnosticsToClipboard, exportDiagnosticsFile } from "./features/diagnostics/export";
-import { showWelcome } from "./welcome";
 
 const diagnosticsLinkStyle = [
 	"display: inline-flex",
@@ -272,26 +270,6 @@ const defaultStyleShiftItems: (Category | SeparateCategory)[] = [
 				name: "Keyboard Shortcuts",
 				description: "View all available keyboard shortcuts for quick access.",
 				type: "keyboardShortcuts",
-			},
-			{
-				id: "ShowWelcomePage",
-				name: "Show Welcome Page",
-				description: "Replay NewTube's welcome tour.",
-				clickFunction: showWelcome,
-				type: "button",
-				color: "#7f5db7",
-				align: "left",
-				icon: "waving_hand",
-			},
-			{
-				id: "TestVersionUpdateNotification",
-				name: "Test Version Update Notification",
-				description: "Show a preview notification for extension updates.",
-				clickFunction: showExtensionUpdateNotification,
-				type: "button",
-				color: "#7f5db7",
-				align: "left",
-				icon: "system_update",
 			},
 		],
 	},
