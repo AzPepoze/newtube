@@ -1,5 +1,10 @@
 import { expect, test } from "bun:test";
-import { PANEL_CATEGORY, TUTORIAL_STEPS, hasSpotlight, requiresSettingsPanel } from "../../../src/ui/tutorial/tutorialSteps";
+import {
+	PANEL_CATEGORY,
+	TUTORIAL_STEPS,
+	hasSpotlight,
+	requiresSettingsPanel,
+} from "../../../src/ui/tutorial/tutorialSteps";
 
 test("every step has a unique id", () => {
 	const ids = TUTORIAL_STEPS.map((step) => step.id);
