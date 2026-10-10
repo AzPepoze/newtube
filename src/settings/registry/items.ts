@@ -33,6 +33,13 @@ export function getAddOnSettings() {
 	return styleshiftItems.AddOn.map((item) => item.settings).flat();
 }
 
+/** The add-on copy of a setting, which holds the saved scripts. Falls back to the given object. */
+export function getLatestSettingObject<T extends { id?: string }>(setting: T): T {
+	if (!setting.id) return setting;
+	const latest = getAddOnSettings().find((item) => item.id === setting.id);
+	return (latest as unknown as T | undefined) ?? setting;
+}
+
 export function getAllStyleShiftItems() {
 	return [...styleshiftItems.Default, ...styleshiftItems.AddOn];
 }
