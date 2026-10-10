@@ -1,4 +1,6 @@
 import { openSettingPage } from "@core/shared/extensionHelpers";
+import { createError, createNotification, createSuccess, createWarning } from "@core/shared/notifications";
+import { showExtensionUpdateNotification } from "@core/shared/versionUpdate";
 import { exportThemeWithSelection } from "@core/theme/exporter";
 import { exportCurrentSettingsObject, importThemeWorkflow } from "@core/theme/importer";
 import { checkAndUpdateTheme, openThemeStore, openThemeSubmitPage } from "@core/theme/storeIntegration";
@@ -6,11 +8,14 @@ import { getAddOnItems } from "@settings/registry/items";
 import { type Category, type SeparateCategory } from "@settings/types/styleshiftTypes";
 import { toggleCustomize } from "@ui/highlight/highlight";
 import { startQuickCustomize } from "@ui/highlight/quickCustomizeService";
+import { openApiReference } from "@ui/docs/apiReferenceService";
 import { openTutorialOverlay } from "@ui/tutorial/tutorialService";
 import { playCelebration } from "@ui/tutorial/celebrationService";
 import { showThemeManager } from "@ui/themes/themeManagerService";
+import { showAlert, showSelection, showUserConfirmation, showUserPrompt } from "@ui/window/windowFactory";
 import { showTryImportOldNPreset } from "./dangerzone";
 import { copyDiagnosticsToClipboard, exportDiagnosticsFile } from "./features/diagnostics/export";
+import { showWelcome } from "./welcome";
 
 const diagnosticsLinkStyle = [
 	"display: inline-flex",
@@ -152,6 +157,17 @@ const defaultStyleShiftItems: (Category | SeparateCategory)[] = [
 				color: "#ffb020",
 				align: "left",
 				icon: "school",
+			},
+			{
+				id: "ApiReferenceButton",
+				name: "API Reference",
+				description: "Browse every built-in function and setting kind with copyable examples.",
+				type: "button",
+				color: "#2196f3",
+				fontSize: 15,
+				clickFunction: openApiReference,
+				align: "center",
+				icon: "menu_book",
 			},
 			{
 				clickFunction: () => playCelebration({ title: "Yay!", message: "Yay!", yayLabel: "Yay!" }),
@@ -317,6 +333,166 @@ const defaultStyleShiftItems: (Category | SeparateCategory)[] = [
 				icon: "file_open",
 				align: "center",
 				type: "button",
+			},
+		],
+	},
+	{
+		category: { icon: "science", label: "Test" },
+		settings: [
+			{
+				type: "subText",
+				fontSize: 14,
+				align: "center",
+				text: "Notification tests",
+			},
+			{
+				type: "button",
+				id: "TestNotificationButton",
+				name: "Test Notification",
+				description: "Fires a standard notification with an icon.",
+				clickFunction: () =>
+					createNotification({
+						icon: "notifications",
+						iconColor: "#7f5db7",
+						title: "Test Notification",
+						content: "This is a test notification.",
+						timeout: 5000,
+					}),
+				color: "#7f5db7",
+				fontSize: 15,
+				align: "left",
+				icon: "notifications",
+			},
+			{
+				type: "button",
+				id: "TestSuccessNotificationButton",
+				name: "Test Success",
+				description: "Fires a success notification.",
+				clickFunction: () => createSuccess("Test success message."),
+				color: "#4caf50",
+				fontSize: 15,
+				align: "left",
+				icon: "check_circle",
+			},
+			{
+				type: "button",
+				id: "TestWarningNotificationButton",
+				name: "Test Warning",
+				description: "Fires a warning notification.",
+				clickFunction: () => createWarning("Test warning message."),
+				color: "#ff9800",
+				fontSize: 15,
+				align: "left",
+				icon: "warning",
+			},
+			{
+				type: "button",
+				id: "TestErrorNotificationButton",
+				name: "Test Error",
+				description: "Fires an error notification.",
+				clickFunction: () => createError("Test error message."),
+				color: "#f44336",
+				fontSize: 15,
+				align: "left",
+				icon: "error",
+			},
+			{
+				type: "button",
+				id: "TestPersistentNotificationButton",
+				name: "Test Persistent",
+				description: "Fires a notification without auto-close (closes with the X).",
+				clickFunction: () =>
+					createNotification({
+						icon: "push_pin",
+						iconColor: "#2196f3",
+						title: "Persistent Notification",
+						content: "This notification stays until you close it.",
+						timeout: 0,
+					}),
+				color: "#2196f3",
+				fontSize: 15,
+				align: "left",
+				icon: "push_pin",
+			},
+			{
+				type: "subText",
+				fontSize: 14,
+				align: "center",
+				text: "Prompt tests",
+			},
+			{
+				type: "button",
+				id: "TestAlertButton",
+				name: "Test Alert",
+				description: "Opens an alert dialog with one OK button.",
+				clickFunction: () => showAlert("This is a test alert.", "Test Alert"),
+				color: "#7f5db7",
+				fontSize: 15,
+				align: "left",
+				icon: "info",
+			},
+			{
+				type: "button",
+				id: "TestConfirmButton",
+				name: "Test Confirm",
+				description: "Opens a confirm dialog with Confirm and Cancel.",
+				clickFunction: () => showUserConfirmation("This is a test confirmation.", "Test Confirm"),
+				color: "#4caf50",
+				fontSize: 15,
+				align: "left",
+				icon: "help",
+			},
+			{
+				type: "button",
+				id: "TestSelectionButton",
+				name: "Test Selection",
+				description: "Opens a selection dialog with several choices.",
+				clickFunction: () =>
+					showSelection("Pick one option.", "Test Selection", [
+						{ label: "Option A", description: "The first choice." },
+						{ label: "Option B", description: "The second choice." },
+					]),
+				color: "#ff9800",
+				fontSize: 15,
+				align: "left",
+				icon: "list",
+			},
+			{
+				type: "button",
+				id: "TestPromptButton",
+				name: "Test Prompt",
+				description: "Opens a text prompt dialog.",
+				clickFunction: () => showUserPrompt("Test Prompt", "Type something...", ""),
+				color: "#2196f3",
+				fontSize: 15,
+				align: "left",
+				icon: "edit_note",
+			},
+			{
+				type: "subText",
+				fontSize: 14,
+				align: "center",
+				text: "Tours and updates",
+			},
+			{
+				id: "ShowWelcomePage",
+				name: "Show Welcome Page",
+				description: "Replay NewTube's welcome tour.",
+				clickFunction: showWelcome,
+				type: "button",
+				color: "#7f5db7",
+				align: "left",
+				icon: "waving_hand",
+			},
+			{
+				id: "TestVersionUpdateNotification",
+				name: "Test Version Update Notification",
+				description: "Show a preview notification for extension updates.",
+				clickFunction: showExtensionUpdateNotification,
+				type: "button",
+				color: "#7f5db7",
+				align: "left",
+				icon: "system_update",
 			},
 		],
 	},

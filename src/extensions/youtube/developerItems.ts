@@ -1,16 +1,13 @@
 import { getRootValue } from "@core/storage/manager";
 import { getFile } from "@core/shared/extensionHelpers";
-import { createError, createNotification, createSuccess, createWarning } from "@core/shared/notifications";
-import { showExtensionUpdateNotification } from "@core/shared/versionUpdate";
+import { createError } from "@core/shared/notifications";
 import { exportThemeWithSelection } from "@core/theme/exporter";
 import { importThemeZipWithWorkflow } from "@core/theme/importer";
 import { type Category } from "@settings/types/styleshiftTypes";
 import { logger } from "@shared/logger";
-import { openApiReference } from "@ui/docs/apiReferenceService";
 import { showUserConfirmation } from "@ui/window/windowFactory";
 import { showAllCurrentSave } from "./dangerzone";
 import { applyDiagnosticsSettings, parseDiagnosticsReport } from "./features/diagnostics/replay";
-import { showWelcome } from "./welcome";
 
 type DevCategory = Category & { insertAfter?: string };
 
@@ -82,113 +79,6 @@ const devOnlyItems: DevCategory[] = [
 		],
 	},
 	{
-		category: { icon: "science", label: "Test" },
-		insertAfter: "Import / Export Theme",
-		settings: [
-			{
-				type: "subText",
-				fontSize: 14,
-				align: "center",
-				text: "Notification tests",
-			},
-			{
-				type: "button",
-				id: "TestNotificationButton",
-				name: "Test Notification",
-				description: "Fires a standard notification with an icon.",
-				clickFunction: () =>
-					createNotification({
-						icon: "notifications",
-						iconColor: "#7f5db7",
-						title: "Test Notification",
-						content: "This is a test notification.",
-						timeout: 5000,
-					}),
-				color: "#7f5db7",
-				fontSize: 15,
-				align: "left",
-				icon: "notifications",
-			},
-			{
-				type: "button",
-				id: "TestSuccessNotificationButton",
-				name: "Test Success",
-				description: "Fires a success notification.",
-				clickFunction: () => createSuccess("Test success message."),
-				color: "#4caf50",
-				fontSize: 15,
-				align: "left",
-				icon: "check_circle",
-			},
-			{
-				type: "button",
-				id: "TestWarningNotificationButton",
-				name: "Test Warning",
-				description: "Fires a warning notification.",
-				clickFunction: () => createWarning("Test warning message."),
-				color: "#ff9800",
-				fontSize: 15,
-				align: "left",
-				icon: "warning",
-			},
-			{
-				type: "button",
-				id: "TestErrorNotificationButton",
-				name: "Test Error",
-				description: "Fires an error notification.",
-				clickFunction: () => createError("Test error message."),
-				color: "#f44336",
-				fontSize: 15,
-				align: "left",
-				icon: "error",
-			},
-			{
-				type: "button",
-				id: "TestPersistentNotificationButton",
-				name: "Test Persistent",
-				description: "Fires a notification without auto-close (closes with the X).",
-				clickFunction: () =>
-					createNotification({
-						icon: "push_pin",
-						iconColor: "#2196f3",
-						title: "Persistent Notification",
-						content: "This notification stays until you close it.",
-						timeout: 0,
-					}),
-				color: "#2196f3",
-				fontSize: 15,
-				align: "left",
-				icon: "push_pin",
-			},
-			{
-				type: "subText",
-				fontSize: 14,
-				align: "center",
-				text: "Tours and updates",
-			},
-			{
-				id: "ShowWelcomePage",
-				name: "Show Welcome Page",
-				description: "Replay NewTube's welcome tour.",
-				clickFunction: showWelcome,
-				type: "button",
-				color: "#7f5db7",
-				align: "left",
-				icon: "waving_hand",
-			},
-			{
-				id: "TestVersionUpdateNotification",
-				name: "Test Version Update Notification",
-				description: "Show a preview notification for extension updates.",
-				clickFunction: showExtensionUpdateNotification,
-				type: "button",
-				color: "#7f5db7",
-				align: "left",
-				icon: "system_update",
-			},
-		],
-	},
-	{
 		category: { icon: "bug_report", label: "Diagnostics" },
 		settings: [
 			{
@@ -212,19 +102,6 @@ const devOnlyItems: DevCategory[] = [
 				align: "left",
 				icon: "data_object",
 				require: { developerMode: true },
-			},
-			{
-				id: "ApiReferenceButton",
-				name: "API Reference",
-				description: "Browse every built-in function and setting kind with copyable examples.",
-				type: "button",
-				color: "#2196f3",
-				fontSize: 15,
-				clickFunction: async function () {
-					await openApiReference();
-				},
-				align: "center",
-				icon: "menu_book",
 			},
 		],
 	},
