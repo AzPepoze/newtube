@@ -179,6 +179,16 @@ async function handleMessage(recivedMsg: ContentScriptMessage, sender: chrome.ru
 			return true;
 		}
 
+		case "openDiagnosticsPage": {
+			chrome.tabs.create({ url: chrome.runtime.getURL("diagnostics/diagnostics.html") });
+			return true;
+		}
+
+		case "openSandboxPage": {
+			chrome.tabs.create({ url: chrome.runtime.getURL("setting/sandbox.html?domain=sandbox&sandbox=1") });
+			return true;
+		}
+
 		case "getCommands": {
 			return await new Promise((resolve) => {
 				let resolved = false;

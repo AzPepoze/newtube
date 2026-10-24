@@ -1,4 +1,4 @@
-import { IS_IN_EXTENSION_SETTINGS_PAGE } from "@core/index";
+import { IS_IN_EXTENSION_SETTINGS_PAGE, IS_SANDBOX } from "@core/index";
 import { isDevModulesLoaded } from "@core/runtime/controller";
 import { createError } from "@core/shared/notifications";
 import { getRootValue } from "@core/storage/manager";
@@ -139,7 +139,7 @@ export async function createMainSettingsUi({
 					settingsWindow = await createStyleShiftWindow({
 						skipAnimation,
 						title: "StyleShift Settings",
-						fullscreen: IS_IN_EXTENSION_SETTINGS_PAGE,
+						fullscreen: IS_IN_EXTENSION_SETTINGS_PAGE && !IS_SANDBOX,
 						onWindowClosing: () => {
 							state = "closing";
 							void returnObject.removeUi();
