@@ -115,7 +115,10 @@ function queueRebind(): void {
 	rebindQueued = true;
 	queueMicrotask(async () => {
 		rebindQueued = false;
-		if (active) bindVideo(await getVideoElement());
+		if (!active) return;
+		const video = await getVideoElement();
+		bindVideo(video);
+		observePlayer(video);
 	});
 }
 
@@ -126,7 +129,8 @@ function mutationContainsVideo(mutation: MutationRecord): boolean {
 }
 
 function observePlayer(video: HTMLVideoElement | null): void {
-	const player = video?.closest("#movie_player") ?? document.getElementById("movie_player");
+	// Falls back to the page so a player that loads after the extension is still picked up.
+	const player = video?.closest("#movie_player") ?? document.getElementById("movie_player") ?? document.body;
 	if (player === observedPlayer) return;
 
 	playerObserver?.disconnect();
