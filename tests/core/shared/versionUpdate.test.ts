@@ -29,7 +29,7 @@ mock.module("@core/shared/notifications", () => ({
 	createNotification: async (notification) => notifications.push(notification),
 }));
 mock.module("@core/theme/config", () => ({ STYLESHIFT_VERSION: "2.0.0" }));
-mock.module("@shared/logger", () => ({ logger: { info() {} } }));
+mock.module("@shared/logger", () => ({ logger: { debug() {}, info() {}, warn() {}, error() {} } }));
 
 const { checkAndShowUpdateNotification } = await import("../../../src/core/shared/versionUpdate");
 const normal = PRESET_THEMES.find((preset) => preset.themeId === "preset-normal-youtube");
