@@ -14,7 +14,7 @@ import { playCelebration } from "@ui/tutorial/celebrationService";
 import { showThemeManager } from "@ui/themes/themeManagerService";
 import { showAlert, showSelection, showUserConfirmation, showUserPrompt } from "@ui/window/windowFactory";
 import { showTryImportOldNPreset } from "./dangerzone";
-import { copyDiagnosticsToClipboard, exportDiagnosticsFile } from "./features/diagnostics/export";
+import { copyDiagnosticsToClipboard, exportDiagnosticsFile, openShareReport } from "./features/diagnostics/export";
 import { showWelcome } from "./welcome";
 
 const diagnosticsLinkStyle = [
@@ -30,7 +30,7 @@ const diagnosticsLinkStyle = [
 const diagnosticsIntroHtml = `
 <div style="display: flex; flex-direction: column; gap: 14px; width: 100%;">
 	<p style="margin: 0;">
-		<b>Create a report</b> so I can find and fix your problem faster.
+		<b>Create a report</b> so I can find and fix your problem faster. The preview shows exactly what is shared.
 	</p>
 	<div>
 		<b>The report includes:</b>
@@ -504,6 +504,17 @@ const defaultStyleShiftItems: (Category | SeparateCategory)[] = [
 				html: diagnosticsIntroHtml,
 				fontSize: 13,
 				align: "left",
+			},
+			{
+				type: "button",
+				id: "PreviewSupportReportButton",
+				name: "Preview and share report",
+				description: "Opens the report in a viewer so you can read it first.",
+				clickFunction: openShareReport,
+				color: "#7f5db7",
+				fontSize: 15,
+				align: "left",
+				icon: "preview",
 			},
 			{
 				type: "button",
