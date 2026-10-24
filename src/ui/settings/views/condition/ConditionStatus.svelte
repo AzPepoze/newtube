@@ -92,6 +92,9 @@
 			grid-template-columns: 16px minmax(0, 1fr) auto;
 			align-items: center;
 			gap: 8px;
+			padding: 6px 8px;
+			border-radius: 8px;
+			background: var(--fg-opacity-06);
 
 			.item-icon {
 				width: 16px;
@@ -121,21 +124,18 @@
 				font-size: 11.5px;
 				font-weight: 600;
 				letter-spacing: 0.2px;
-				color: var(--fg-opacity-80);
-				background: var(--fg-opacity-08);
+				color: #fff;
+				background: none;
 				padding: 2px 8px;
 				border-radius: 6px;
 				white-space: nowrap;
 			}
 
 			&.is-met {
+				background: var(--theme-success-10);
+
 				.item-name {
 					color: var(--fg-opacity-90);
-				}
-
-				.item-target {
-					color: var(--theme-success);
-					background: var(--fg-opacity-08);
 				}
 			}
 		}
