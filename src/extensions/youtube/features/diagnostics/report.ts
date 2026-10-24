@@ -1,6 +1,6 @@
 import type { DiagnosticsReport, DiagnosticsReportInput } from "./types";
 
-export const DIAGNOSTICS_REPORT_VERSION = 2;
+export const DIAGNOSTICS_REPORT_VERSION = 5;
 
 export interface AnonymizedPage {
 	url: string;
@@ -62,6 +62,7 @@ export function buildDiagnosticsReport(input: DiagnosticsReportInput): Diagnosti
 		},
 		page: {
 			url: page.url,
+			rawUrl: input.url,
 			origin: page.origin,
 			pathname: page.pathname,
 			queryParamNames: page.queryParamNames,
@@ -72,6 +73,7 @@ export function buildDiagnosticsReport(input: DiagnosticsReportInput): Diagnosti
 			addOnStyleShiftItems: [...(input.addOnStyleShiftItems ?? [])],
 		},
 		layout: input.layout,
+		snapshot: input.snapshot,
 		css: input.css,
 		selectors: { ...input.selectors },
 	};

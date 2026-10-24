@@ -1,18 +1,9 @@
 // @ts-nocheck -- Bun's test globals are not part of the extension TypeScript program.
 import { expect, test } from "bun:test";
-import {
-	LAYOUT_OUTLINE_DEPTH_LIMIT,
-	buildLayoutOutline,
-} from "../../../../../src/extensions/youtube/features/diagnostics/outline";
-import {
-	anonymizePage,
-	buildDiagnosticsReport,
-} from "../../../../../src/extensions/youtube/features/diagnostics/report";
-import { detectPageMode } from "../../../../../src/extensions/youtube/features/diagnostics/selectors";
-import type {
-	DiagnosticsReportInput,
-	LayoutOutline,
-} from "../../../../../src/extensions/youtube/features/diagnostics/types";
+import { LAYOUT_OUTLINE_DEPTH_LIMIT, buildLayoutOutline } from "@extensions/youtube/features/diagnostics/outline";
+import { anonymizePage, buildDiagnosticsReport } from "@extensions/youtube/features/diagnostics/report";
+import { detectPageMode } from "@extensions/youtube/features/diagnostics/selectors";
+import type { DiagnosticsReportInput, LayoutOutline } from "@extensions/youtube/features/diagnostics/types";
 
 const emptyLayout: LayoutOutline = {
 	regions: {},
@@ -73,10 +64,11 @@ test("detects the main YouTube page modes", () => {
 
 test("builds report v2 with complete settings and an anonymized page", () => {
 	const report = buildDiagnosticsReport(baseInput);
-	expect(report.meta.reportVersion).toBe(2);
+	expect(report.meta.reportVersion).toBe(5);
 	expect(report.meta.generatedAt).toBe("2026-01-01T00:00:00.000Z");
 	expect(report.meta.extension).toEqual({ name: "NewTube", version: "1.2.3" });
 	expect(report.page.url).toBe("https://www.youtube.com/watch");
+	expect(report.page.rawUrl).toBe(baseInput.url);
 	expect(report.page.queryParamNames).toEqual(["v", "list", "hl"]);
 	expect(report.settings.currentSettings).toEqual({
 		CenterVideoTitleTheater: false,
@@ -95,6 +87,8 @@ function element(tagName: string, options: any = {}) {
 		textContent: options.textContent,
 		children: options.children ?? [],
 		getAttribute: (name: string) => attrs[name] ?? null,
+		getBoundingClientRect: () =>
+			options.rect ?? { x: 0, y: 0, width: 0, height: 0, top: 0, left: 0, right: 0, bottom: 0 },
 	};
 }
 
@@ -136,6 +130,17 @@ test("layout outline contains structure only, never text, scripts or hrefs", () 
 	expect(outline.regions.masthead?.classes).toEqual(["style-scope", "ytd-app"]);
 	expect(outline.regions.masthead?.role).toBe("banner");
 	expect(outline.regions.masthead?.children?.map((child) => child.tag)).toEqual(["a"]);
+});
+
+test("layout outline copies rounded element geometry into the node", () => {
+	const tree = element("div", {
+		rect: { x: 10.4, y: 20.6, width: 300.2, height: 150.9 },
+		children: [element("span", { rect: { x: 1, y: 2, width: 3, height: 4 } })],
+	});
+
+	const outline = buildLayoutOutline({ querySelector: () => tree }, { player: "ytd-player" });
+	expect(outline.regions.player?.rect).toEqual({ x: 10, y: 21, width: 300, height: 151 });
+	expect(outline.regions.player?.children?.[0].rect).toEqual({ x: 1, y: 2, width: 3, height: 4 });
 });
 
 test("layout outline is bounded by depth and reports truncation counts", () => {

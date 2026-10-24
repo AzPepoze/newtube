@@ -2,10 +2,12 @@ import { getRootValue } from "@core/storage/manager";
 import { logger } from "@shared/logger";
 
 import { buildCssSnapshot } from "./css";
+import { collectSnapshotFonts } from "./fonts";
 import { buildLayoutOutline } from "./outline";
 import { buildDiagnosticsReport } from "./report";
+import { buildPageSnapshot } from "./snapshot";
 import { YOUTUBE_DIAGNOSTIC_SELECTORS, countSelectors, detectPageMode } from "./selectors";
-import type { DiagnosticsEnvironment, DiagnosticsReport } from "./types";
+import type { DiagnosticsEnvironment, DiagnosticsReport, PageSnapshot } from "./types";
 
 function readManifestField(field: "name" | "version"): string {
 	try {
@@ -38,6 +40,13 @@ function readReducedMotion(): boolean {
 	return window.matchMedia("(prefers-reduced-motion: reduce)").matches;
 }
 
+async function buildSnapshotWithFonts(): Promise<PageSnapshot> {
+	const snapshot = buildPageSnapshot(document);
+	const fonts = await collectSnapshotFonts(document);
+	if (fonts.length) snapshot.fonts = fonts;
+	return snapshot;
+}
+
 /** Reads the live page. Only called from an explicit user action. */
 export async function collectDiagnosticsReport(): Promise<DiagnosticsReport> {
 	const currentSettings = (await getRootValue("currentSettings")) ?? {};
@@ -61,6 +70,7 @@ export async function collectDiagnosticsReport(): Promise<DiagnosticsReport> {
 		currentSettings,
 		addOnStyleShiftItems,
 		layout: buildLayoutOutline(document),
+		snapshot: await buildSnapshotWithFonts(),
 		css: buildCssSnapshot(document),
 		selectors: countSelectors(document, YOUTUBE_DIAGNOSTIC_SELECTORS),
 	});
