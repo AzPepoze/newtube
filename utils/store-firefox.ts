@@ -30,11 +30,13 @@ async function storeFirefox() {
 			"out/signed",
 			"--channel",
 			"listed",
+			"--approval-timeout",
+			"0",
 		];
 
 		console.log("Executing web-ext sign...");
 		execFileSync("bun", args, { stdio: "inherit" });
-		console.log("Successfully signed and uploaded to Firefox Add-ons!");
+		console.log("Submitted to Firefox Add-ons. Approval and signing will continue on Mozilla's servers.");
 	} catch (_error) {
 		console.error("Firefox Add-ons upload failed.");
 		process.exit(1);
