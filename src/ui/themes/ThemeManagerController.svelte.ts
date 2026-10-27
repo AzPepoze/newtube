@@ -132,7 +132,7 @@ export class ThemeManagerController {
 	storeThemes = $state<Theme[]>([]);
 	activeThemeId = $state<string | null>(null);
 	loadingThemeId = $state<string | null>(null);
-	isLoadingStore = $state(false);
+	isLoadingStore = $state(true);
 	isLoadingMoreStore = $state(false);
 	storeError = $state<string | null>(null);
 	storeOffset = $state(0);

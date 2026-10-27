@@ -132,10 +132,23 @@
 		display: grid;
 		place-items: center;
 		translate: 0 -50%;
-		transition: transform 0.45s cubic-bezier(0.34, 1.56, 0.64, 1);
+		transition:
+			transform 0.45s cubic-bezier(0.34, 1.56, 0.64, 1),
+			width 0.25s ease;
 	}
 
 	.styleshift-switch-input:checked + .styleshift-switch-track .styleshift-switch-knob {
 		transform: translateX(calc(3.6em - 1.5em - 0.3em));
+	}
+
+	.styleshift-switch:active:not(.is-disabled) .styleshift-switch-knob {
+		width: 2em;
+	}
+
+	.styleshift-switch:active:not(.is-disabled)
+		.styleshift-switch-input:checked
+		+ .styleshift-switch-track
+		.styleshift-switch-knob {
+		transform: translateX(calc(3.6em - 2em - 0.3em));
 	}
 </style>

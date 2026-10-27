@@ -1,5 +1,5 @@
 <script lang="ts">
-	import { showThemeManager, subscribeThemeManagerOpen } from "@ui/themes/themeManagerService";
+	import { showThemeManager, subscribeLivePreview, subscribeThemeManagerOpen } from "@ui/themes/themeManagerService";
 	import { onMount } from "svelte";
 	import { backOut, quintOut } from "svelte/easing";
 	import { fade, fly, scale } from "svelte/transition";
@@ -13,6 +13,7 @@
 	let visible = $state(false);
 	let stepIndex = $state(0);
 	let themeWindowOpen = $state(false);
+	let livePreviewActive = $state(false);
 
 	/** `showPage` steps drop the background so the real YouTube page shows through. */
 	const steps = [
@@ -24,9 +25,16 @@
 
 	onMount(() => {
 		visible = true;
-		return subscribeThemeManagerOpen((open) => {
+		const unsubscribeManager = subscribeThemeManagerOpen((open) => {
 			themeWindowOpen = open;
 		});
+		const unsubscribePreview = subscribeLivePreview((active) => {
+			livePreviewActive = active;
+		});
+		return () => {
+			unsubscribeManager();
+			unsubscribePreview();
+		};
 	});
 
 	function next() {
@@ -42,7 +50,7 @@
 	}
 
 	function handleKeydown(event: KeyboardEvent) {
-		if (themeWindowOpen) return;
+		if (themeWindowOpen || livePreviewActive) return;
 		if (event.key === "ArrowRight") next();
 		if (event.key === "ArrowLeft") back();
 	}
@@ -97,7 +105,7 @@
 	</div>
 {/snippet}
 
-{#if visible && !themeWindowOpen}
+{#if visible && !themeWindowOpen && !livePreviewActive}
 	<div
 		class="Welcome-Overlay styleshift-main"
 		class:Show-Page={currentStep.showPage}

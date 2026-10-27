@@ -240,6 +240,20 @@
 
 	<div class="card-actions-drawer">
 		<div class="card-actions">
+			{#if onApplyLivePreview}
+				<button
+					type="button"
+					class="live-preview-btn"
+					title="Preview on YouTube"
+					aria-label="Preview on YouTube"
+					onclick={(e) => {
+						e.stopPropagation();
+						onApplyLivePreview?.(currentThemeObject);
+					}}
+				>
+					<Icon name="play_arrow" size={18} />
+				</button>
+			{/if}
 			<IconButton
 				icon="visibility"
 				onClick={(e) => {
@@ -582,7 +596,7 @@
 		.slide-item {
 			min-width: 100%;
 			height: 100%;
-			background-size: contain;
+			background-size: cover;
 			background-repeat: no-repeat;
 			background-position: center;
 			flex-shrink: 0;
@@ -762,6 +776,27 @@
 		align-items: center;
 		justify-content: center;
 		width: 100%;
+
+		.live-preview-btn {
+			display: flex;
+			align-items: center;
+			justify-content: center;
+			padding: 10px;
+			border: 0;
+			border-radius: 8px;
+			background: color-mix(in srgb, var(--theme-0) 25%, #1d1d1f);
+			color: color-mix(in srgb, var(--theme-0) 50%, white);
+			font: inherit;
+			cursor: pointer;
+			transition:
+				transform 0.2s,
+				background 0.2s;
+
+			&:hover {
+				background: color-mix(in srgb, var(--theme-0) 40%, #1d1d1f);
+				transform: scale(1.1);
+			}
+		}
 
 		:global(.preview-btn) {
 			background: var(--fg-opacity-10) !important;
