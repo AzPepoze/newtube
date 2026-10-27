@@ -54,7 +54,6 @@
 
 			if (dir.includes("e")) {
 				newWidth = Math.max(minWidth, startWidth + dx);
-				// Keep at least 10% of the window visible.
 				if (newLeft + newWidth < minVisibleWidth) {
 					newWidth = minVisibleWidth - newLeft;
 				}
@@ -68,7 +67,6 @@
 					newWidth = minWidth;
 					newLeft = startLeft + (startWidth - minWidth);
 				}
-				// Keep at least 10% of the window visible.
 				const rightEdge = startLeft + startWidth;
 				if (newLeft > rightEdge - minVisibleWidth) {
 					newLeft = rightEdge - minVisibleWidth;
@@ -78,7 +76,6 @@
 
 			if (dir.includes("s")) {
 				newHeight = Math.max(minHeight, startHeight + dy);
-				// Keep at least 10% of the window visible.
 				if (newTop + newHeight < minVisibleHeight) {
 					newHeight = minVisibleHeight - newTop;
 				}
@@ -92,7 +89,6 @@
 					newHeight = minHeight;
 					newTop = startTop + (startHeight - minHeight);
 				}
-				// Keep the title bar on-screen.
 				if (newTop < 0) {
 					newTop = 0;
 					newHeight = startHeight + startTop;

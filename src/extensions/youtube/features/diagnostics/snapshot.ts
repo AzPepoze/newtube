@@ -252,7 +252,6 @@ function readTextKind(element: any, context: SnapshotContext): SnapshotNode["tex
 	return isNameElement(element) ? "name" : undefined;
 }
 
-/** Reads one attribute, or undefined when it is missing or empty. */
 function readAttribute(element: any, name: string): string | undefined {
 	const value = typeof element.getAttribute === "function" ? element.getAttribute(name) : null;
 	return value ? String(value) : undefined;

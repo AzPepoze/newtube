@@ -251,13 +251,11 @@ export class VideoBGRenderer {
 			gl.drawArrays(gl.TRIANGLES, 0, 6);
 		} else if (this.ctx2d && this.preCtx2d) {
 			if (this.settings.engine === "GPU") {
-				// Fall back to CPU rendering when GPU setup or rendering fails.
 				this.settings.engine = "CPU";
 				logger.warn("video-bg-renderer", "Switching to CPU mode inside render because GPU resources are missing");
 			}
 			const ctx2d = this.ctx2d;
 			const preCtx2d = this.preCtx2d;
-			// Blend the new frame with the previous one to smooth color changes.
 			preCtx2d.globalAlpha = alpha;
 			preCtx2d.drawImage(bitmap, 0, 0, this.canvas.width, this.canvas.height);
 

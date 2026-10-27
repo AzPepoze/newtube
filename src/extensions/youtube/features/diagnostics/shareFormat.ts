@@ -10,7 +10,6 @@ export interface CaptureSize {
 	height: number;
 }
 
-/** Formats a byte count as KB or MB with one decimal place. */
 export function formatReportSize(bytes: number): string {
 	if (bytes >= MEGABYTE) return `${(bytes / MEGABYTE).toFixed(1)} MB`;
 	return `${(bytes / KILOBYTE).toFixed(1)} KB`;

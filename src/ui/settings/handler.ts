@@ -71,7 +71,6 @@ export async function applyPropertyUpdate(
 		await customCallback(finalValue);
 	}
 
-	// Targeted UI refresh (for name, description, or value changes)
 	if (setting.id) {
 		await refreshSettingUi(setting.id);
 		await triggerSettingUpdate(setting.id);

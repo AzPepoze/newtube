@@ -81,7 +81,6 @@ export async function detectVerticalBars(
 		let top = -1;
 		let bottom = -1;
 
-		// Skip the outermost 5 pixels when scanning from the top.
 		for (let i = 5; i < videoHeight / 2; i++) {
 			pixelsChecked++;
 			if (isDifferentVertical(verticalImgData, (i * 5 + x) * 4)) {
@@ -95,7 +94,6 @@ export async function detectVerticalBars(
 			}
 		}
 
-		// Skip the outermost 5 pixels when scanning from the bottom.
 		for (let i = videoHeight - 5; i > videoHeight / 2; i--) {
 			pixelsChecked++;
 			if (isDifferentVertical(verticalImgData, (i * 5 + x) * 4)) {
@@ -146,7 +144,6 @@ export async function detectHorizontalBars(
 		let left = -1;
 		let right = -1;
 
-		// Skip the outermost 5 pixels when scanning from the left.
 		for (let i = 5; i < videoWidth / 2; i++) {
 			pixelsChecked++;
 			if (isDifferentHorizontal(horizontalImgData, (y * videoWidth + i) * 4)) {
@@ -160,7 +157,6 @@ export async function detectHorizontalBars(
 			}
 		}
 
-		// Skip the outermost 5 pixels when scanning from the right.
 		for (let i = videoWidth - 5; i > videoWidth / 2; i--) {
 			pixelsChecked++;
 			if (isDifferentHorizontal(horizontalImgData, (y * videoWidth + i) * 4)) {

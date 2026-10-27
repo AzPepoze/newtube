@@ -65,12 +65,10 @@ const FONT_DATA_PREFIXES = [
 const FONT_KEYWORD_PATTERN = /^[a-z0-9 .%-]+$/i;
 const LINK_REL_VALUE = "noreferrer noopener";
 
-/** Escapes a value for use inside a double-quoted attribute. */
 function escapeAttribute(value: string): string {
 	return value.replace(/&/g, "&amp;").replace(/"/g, "&quot;").replace(/</g, "&lt;").replace(/>/g, "&gt;");
 }
 
-/** Escapes a value for use as element text content. */
 function escapeText(value: string): string {
 	return value.replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;");
 }
@@ -307,7 +305,6 @@ function buildStyleRule(index: number, style: Record<string, string>): string {
 	return declarations ? `[data-ss-s="${index}"] { ${declarations} }` : "";
 }
 
-/** Escapes a value for use inside a double-quoted CSS string. */
 function escapeCssString(value: string): string {
 	return value.replace(/[\\"]/g, "\\$&").replace(/[\r\n\f]/g, " ");
 }
