@@ -13,6 +13,17 @@ interface ActiveThemeWindow {
 }
 
 let activeThemeWindowInstance: ActiveThemeWindow | null = null;
+const themeManagerListeners = new Set<(open: boolean) => void>();
+
+export function subscribeThemeManagerOpen(listener: (open: boolean) => void): () => void {
+	themeManagerListeners.add(listener);
+	listener(isThemeManagerOpen());
+	return () => themeManagerListeners.delete(listener);
+}
+
+function notifyThemeManagerOpen() {
+	for (const listener of themeManagerListeners) listener(isThemeManagerOpen());
+}
 
 export function isThemeManagerOpen(): boolean {
 	return activeThemeWindowInstance !== null;
@@ -26,6 +37,7 @@ export function closeThemeManager(): void {
 		activeThemeWindowInstance?.windowInstance?.closeWindowHandler?.();
 	} finally {
 		activeThemeWindowInstance = null;
+		notifyThemeManagerOpen();
 	}
 }
 
@@ -46,6 +58,7 @@ export async function showThemeManager(tab: "installed" | "store" = "installed",
 		center: true,
 		onWindowClosed: () => {
 			activeThemeWindowInstance = null;
+			notifyThemeManagerOpen();
 			onClose?.();
 		},
 	});
@@ -54,6 +67,7 @@ export async function showThemeManager(tab: "installed" | "store" = "installed",
 		windowInstance: themeWindow,
 	};
 	activeThemeWindowInstance = activeState;
+	notifyThemeManagerOpen();
 
 	themeWindow.contentElement.style.padding = "20px";
 	themeWindow.contentElement.style.overflowY = "auto";

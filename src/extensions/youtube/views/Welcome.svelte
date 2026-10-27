@@ -1,5 +1,5 @@
 <script lang="ts">
-	import { showThemeManager } from "@ui/themes/themeManagerService";
+	import { showThemeManager, subscribeThemeManagerOpen } from "@ui/themes/themeManagerService";
 	import { onMount } from "svelte";
 	import { backOut, quintOut } from "svelte/easing";
 	import { fade, fly, scale } from "svelte/transition";
@@ -24,6 +24,9 @@
 
 	onMount(() => {
 		visible = true;
+		return subscribeThemeManagerOpen((open) => {
+			themeWindowOpen = open;
+		});
 	});
 
 	function next() {
@@ -46,10 +49,7 @@
 
 	/** Hides the welcome while the Theme window is open. It fades back in when the window closes. */
 	function openThemeWindow() {
-		themeWindowOpen = true;
-		void showThemeManager("installed", () => {
-			themeWindowOpen = false;
-		});
+		void showThemeManager("installed");
 	}
 
 	function finish() {
