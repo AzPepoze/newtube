@@ -5,21 +5,18 @@ import { exportThemeWithSelection } from "@core/theme/exporter";
 import { importThemeZipWithWorkflow } from "@core/theme/importer";
 import { type Category } from "@settings/types/styleshiftTypes";
 import { logger } from "@shared/logger";
-import { showUserConfirmation } from "@ui/window/windowFactory";
+import { showSelection, showUserConfirmation, showUserPrompt } from "@ui/window/windowFactory";
 import { showAllCurrentSave } from "./dangerzone";
+import { openDiagnosticsSandboxWithText, openDiagnosticsViewerWithText } from "./features/diagnostics/export";
 import { applyDiagnosticsSettings, parseDiagnosticsReport } from "./features/diagnostics/replay";
 
 type DevCategory = Category & { insertAfter?: string };
 
-/** Developer-only replay of a diagnostics report captured on another machine. */
-async function importDiagnosticsReport() {
-	const file = await getFile(".json,application/json").catch(() => null);
-	if (!file) return;
-
+async function confirmAndApplyReport(text: string, sourceLabel: string) {
 	try {
-		const report = parseDiagnosticsReport(await file.text());
+		const report = parseDiagnosticsReport(text);
 		const confirmed = await showUserConfirmation(
-			`This replaces your current settings and custom items with the ones captured in "${file.name}". Continue?`,
+			`This replaces your current settings and custom items with the ones captured in ${sourceLabel}. Continue?`,
 			"Import settings from a report",
 			{ confirmLabel: "Apply settings", confirmColor: "var(--theme-0)" },
 		);
@@ -28,6 +25,49 @@ async function importDiagnosticsReport() {
 	} catch (error) {
 		logger.error("diagnostics", "Failed to import settings from a report", error);
 		createError(error instanceof Error ? error.message : "Failed to import the report.");
+	}
+}
+
+/** Developer-only replay of a diagnostics report captured on another machine. */
+async function importDiagnosticsReport() {
+	const file = await getFile(".json,application/json").catch(() => null);
+	if (!file) return;
+
+	await confirmAndApplyReport(await file.text(), `"${file.name}"`);
+}
+
+/** Asks what to do with a pasted diagnostics report. Nothing changes until the user picks. */
+async function pasteDiagnosticsReport() {
+	const text = await showUserPrompt("Paste a report", "Paste the diagnostics JSON here", "", { multiline: true });
+	if (!text || !text.trim()) return;
+
+	const choice = await showSelection(
+		"Choose what to do with this report.",
+		"Paste a report",
+		[
+			{
+				label: "Apply to my settings",
+				color: "var(--theme-0)",
+				description: "Replaces your settings with the report's. You confirm again before anything changes.",
+			},
+			{
+				label: "Test in sandbox",
+				description: "Opens a sandbox with the report's settings and page. Your settings are not changed.",
+			},
+			{
+				label: "Just view",
+				description: "Opens the preview page only. Nothing is applied.",
+			},
+		],
+		{ vertical: true },
+	);
+
+	if (choice === "Apply to my settings") {
+		await confirmAndApplyReport(text, "the pasted report");
+	} else if (choice === "Test in sandbox") {
+		await openDiagnosticsSandboxWithText(text);
+	} else if (choice === "Just view") {
+		await openDiagnosticsViewerWithText(text);
 	}
 }
 
@@ -85,12 +125,23 @@ const devOnlyItems: DevCategory[] = [
 				type: "button",
 				id: "ImportDiagnosticsButton",
 				name: "Import settings from a report",
-				description: "Replays the settings captured in a diagnostics report.",
+				description: "Replays the settings captured in a saved diagnostics file.",
 				clickFunction: importDiagnosticsReport,
 				color: "#3eadad",
 				fontSize: 15,
 				align: "left",
 				icon: "upload",
+			},
+			{
+				type: "button",
+				id: "PasteDiagnosticsButton",
+				name: "Paste a report",
+				description: "Paste a report you received, then choose to apply it, test it in a sandbox or just view it.",
+				clickFunction: pasteDiagnosticsReport,
+				color: "#3eadad",
+				fontSize: 15,
+				align: "left",
+				icon: "content_paste",
 			},
 			{
 				id: "ShowAllCurrentSaveButton",

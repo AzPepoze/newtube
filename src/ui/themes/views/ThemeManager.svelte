@@ -274,7 +274,6 @@
 
 		<div class="actions-right">
 			<label class="card-size-control" title="Adjust theme card size">
-				<Icon name="view_comfy" size={17} />
 				<span>Card size</span>
 				<BasicSlider class="card-size-slider" min={180} max={360} step={10} bind:value={cardMinWidth} />
 				<span class="card-size-value">{cardMinWidth}px</span>
@@ -541,7 +540,11 @@
 		.card-size-control {
 			display: inline-flex;
 			align-items: center;
-			gap: 7px;
+			gap: 9px;
+			min-height: 38px;
+			padding: 0 12px;
+			border-radius: 20px;
+			background: var(--fg-opacity-05);
 			color: var(--font-color-dim);
 			font-size: 12px;
 			white-space: nowrap;

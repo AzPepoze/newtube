@@ -38,7 +38,6 @@
 	const step = $derived(setting.step ?? 1);
 	const unit = $derived(setting.unit ?? "");
 
-	// Normalized position for the fill and value bubble.
 	function getRatio(current: number, low: number, high: number) {
 		if (high === low) return 0;
 		return Math.min(1, Math.max(0, ((Number(current) || 0) - low) / (high - low)));

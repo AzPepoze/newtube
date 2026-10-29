@@ -101,7 +101,6 @@ export async function exportThemeAsZip(name: string, data: any) {
 		await addItemsToZip(data.addOnStyleShiftItems, files, "addOnStyleShiftItems");
 	}
 
-	// 3. Handle any legacy script/CSS properties if they still exist at top level
 	for (const [key, value] of Object.entries(data)) {
 		if (
 			typeof value === "string" &&

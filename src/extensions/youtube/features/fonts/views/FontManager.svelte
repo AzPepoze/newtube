@@ -16,8 +16,6 @@
 
 	let { setting }: { setting: Extract<Setting, { type: "custom" }> } = $props();
 
-	const PREVIEW_TEXT = "Pack my box with five dozen liquor jugs";
-
 	let fonts = $state<FontEntry[]>([]);
 	let pasteText = $state("");
 
@@ -66,6 +64,11 @@
 		return font.isDefault ? undefined : `"${font.fontName}", system-ui`;
 	}
 
+	function getSourceLabel(font: FontEntry): string {
+		if (font.isDefault) return "Built-in";
+		return font.importUrl ? "Google Fonts" : "Found on page";
+	}
+
 	async function init() {
 		fonts = await loadFonts(setting.id);
 		await handleDetectPageFonts();
@@ -90,41 +93,44 @@
 					clickFunction: handleAdd,
 				}}
 			/>
-			<button type="button" class="text-action" onclick={handleDetectPageFonts}>Detect page fonts</button>
+			<Button
+				variant="subtle"
+				fontSize={13.5}
+				setting={{
+					type: "button",
+					name: "Detect page fonts",
+					color: "var(--fg-opacity-20)",
+					align: "center",
+					clickFunction: handleDetectPageFonts,
+				}}
+			/>
 		</div>
 	</div>
 
 	{#if fonts.length > 0}
 		<div class="font-list">
 			{#each fonts as font, i (font.id)}
-				<div class="font-item" class:is-default={font.isDefault} class:is-enabled={font.enabled}>
+				<div class="font-item" class:is-enabled={font.enabled}>
 					<div class="reorder">
 						<IconButton icon="arrowUp" onClick={() => handleMove(i, "up")} className="sort-btn" size={14} />
 						<IconButton icon="arrowDown" onClick={() => handleMove(i, "down")} className="sort-btn" size={14} />
 					</div>
+					<span class="order" title="Load order">{font.enabled ? getLoadOrder(fonts, i) : "–"}</span>
 					<div class="font-info">
-						<div class="name-row">
-							<span class="name">{font.fontName}</span>
-							{#if font.isDefault}
-								<span class="default-badge">Built-in</span>
-							{/if}
-						</div>
-						<span class="sample" style:font-family={getPreviewFamily(font)}>{PREVIEW_TEXT}</span>
+						<span class="name" style:font-family={getPreviewFamily(font)}>{font.fontName}</span>
+						<span class="meta">{getSourceLabel(font)}</span>
 					</div>
 					<div class="actions">
-						{#if font.enabled}
-							<span class="order" title="Load order">{getLoadOrder(fonts, i)}</span>
-						{/if}
-						{#if !font.isDefault}
-							<div class="delete-slot">
+						<div class="delete-slot">
+							{#if !font.isDefault}
 								<IconButton
 									icon="delete"
 									onClick={() => handleRemove(font.id, font.fontName)}
 									className="delete-btn"
 									size={20}
 								/>
-							</div>
-						{/if}
+							{/if}
+						</div>
 						<Checkbox
 							setting={{
 								type: "checkbox",
@@ -185,52 +191,32 @@
 		}
 	}
 
-	.text-action {
-		background: none;
-		border: none;
-		padding: 6px 2px;
-		font: inherit;
-		font-size: 13px;
-		color: var(--theme-0-text);
-		cursor: pointer;
-		text-decoration: underline;
-		text-underline-offset: 3px;
-
-		&:focus-visible {
-			outline: 2px solid var(--theme-0-light);
-			outline-offset: 2px;
-			border-radius: 4px;
-		}
-	}
-
 	.font-list {
 		display: flex;
 		flex-direction: column;
-		gap: 8px;
+		border: 1px solid var(--fg-opacity-08);
+		border-radius: 14px;
+		overflow: hidden;
 	}
 
 	.font-item {
 		display: flex;
 		align-items: center;
-		gap: 14px;
-		padding: 12px 16px;
+		gap: 16px;
+		padding: 14px 18px;
 		background: var(--setting-frame-bg);
-		border: 1px solid var(--fg-opacity-08);
-		border-radius: 12px;
-		transition:
-			background 0.2s,
-			border-color 0.2s;
+		transition: background 0.2s;
+
+		& + & {
+			border-top: 1px solid var(--fg-opacity-08);
+		}
 
 		&:hover {
 			background: var(--fg-opacity-05);
 		}
 
-		&.is-enabled {
-			box-shadow: inset 3px 0 0 var(--theme-0);
-		}
-
-		&:focus-within {
-			border-color: var(--theme-0-30);
+		&:not(.is-enabled) .name {
+			color: var(--fg-opacity-50);
 		}
 
 		@media (prefers-reduced-motion: reduce) {
@@ -238,11 +224,54 @@
 		}
 	}
 
-	.reorder {
+	.order {
+		width: 20px;
+		flex-shrink: 0;
+		text-align: center;
+		font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, "Roboto Mono", "Courier New", monospace;
+		font-size: 13px;
+		font-weight: 700;
+		color: var(--fg-opacity-40);
+
+		.font-item.is-enabled & {
+			color: var(--theme-1);
+		}
+	}
+
+	.font-info {
 		display: flex;
 		flex-direction: column;
-		gap: 4px;
-		opacity: 0.6;
+		gap: 2px;
+		flex: 1;
+		min-width: 0;
+	}
+
+	.name {
+		font-size: 20px;
+		font-weight: 500;
+		color: var(--fg-opacity-100);
+		overflow: hidden;
+		text-overflow: ellipsis;
+		white-space: nowrap;
+	}
+
+	.meta {
+		font-size: 12px;
+		color: var(--fg-opacity-50);
+	}
+
+	.actions {
+		display: flex;
+		align-items: center;
+		gap: 12px;
+		flex-shrink: 0;
+	}
+
+	.reorder {
+		display: flex;
+		flex-shrink: 0;
+		gap: 2px;
+		opacity: 0.5;
 		transition: opacity 0.2s;
 
 		.font-item:hover &,
@@ -250,100 +279,55 @@
 			opacity: 1;
 		}
 
+		@media (hover: none) {
+			opacity: 1;
+		}
+
 		:global(.sort-btn) {
 			padding: 2px !important;
-			height: 22px !important;
-			width: 28px !important;
+			height: 24px !important;
+			width: 24px !important;
 			background: transparent;
-			border: 1px solid var(--fg-opacity-10);
-			border-radius: 6px;
+			border: none;
 		}
-	}
 
-	.font-info {
-		display: flex;
-		flex-direction: column;
-		gap: 4px;
-		flex: 1;
-		min-width: 0;
-	}
-
-	.name-row {
-		display: flex;
-		align-items: center;
-		gap: 8px;
-	}
-
-	.name {
-		font-size: 18px;
-		font-weight: 600;
-		color: var(--fg-opacity-100);
-		overflow: hidden;
-		text-overflow: ellipsis;
-		white-space: nowrap;
-	}
-
-	.sample {
-		font-size: 14px;
-		color: var(--fg-opacity-60);
-		overflow: hidden;
-		text-overflow: ellipsis;
-		white-space: nowrap;
-	}
-
-	.default-badge {
-		font-size: 11px;
-		font-weight: 500;
-		padding: 2px 8px;
-		background: var(--fg-opacity-08);
-		border-radius: 10px;
-		color: var(--fg-opacity-70);
-	}
-
-	.actions {
-		display: flex;
-		align-items: center;
-		gap: 14px;
-		flex-shrink: 0;
-	}
-
-	.order {
-		min-width: 24px;
-		text-align: center;
-		font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, "Roboto Mono", "Courier New", monospace;
-		font-size: 12px;
-		font-weight: 700;
-		color: var(--theme-1);
+		@media (prefers-reduced-motion: reduce) {
+			transition: none;
+		}
 	}
 
 	.delete-slot {
 		display: flex;
-		width: 0;
-		overflow: hidden;
+		width: 32px;
 		flex-shrink: 0;
-		transition: width 0.2s;
-
-		.font-item:hover &,
-		.font-item:focus-within & {
-			width: 32px;
-		}
-
-		@media (hover: none) {
-			width: 32px;
-		}
 
 		:global(.delete-btn) {
 			padding: 6px !important;
 			height: 32px !important;
 			width: 32px !important;
 			flex-shrink: 0;
+			opacity: 0;
 			background: transparent;
 			border: 1px solid transparent;
 			border-radius: 8px;
+			transition: opacity 0.2s;
 
 			&:hover {
-				background: rgba(255, 0, 0, 0.15);
-				border-color: rgba(255, 0, 0, 0.3);
+				background: var(--theme-error-10);
+				border-color: var(--theme-error-30);
+			}
+		}
+
+		.font-item:hover &,
+		.font-item:focus-within & {
+			:global(.delete-btn) {
+				opacity: 1;
+			}
+		}
+
+		@media (hover: none) {
+			:global(.delete-btn) {
+				opacity: 1;
 			}
 		}
 
@@ -352,7 +336,9 @@
 		}
 
 		@media (prefers-reduced-motion: reduce) {
-			transition: none;
+			:global(.delete-btn) {
+				transition: none;
+			}
 		}
 	}
 
@@ -380,8 +366,7 @@
 	}
 
 	@media (prefers-reduced-motion: reduce) {
-		:global(.styleshift-text-editor),
-		.reorder {
+		:global(.styleshift-text-editor) {
 			transition: none;
 		}
 	}

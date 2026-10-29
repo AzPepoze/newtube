@@ -13,6 +13,30 @@ interface ActiveThemeWindow {
 }
 
 let activeThemeWindowInstance: ActiveThemeWindow | null = null;
+const themeManagerListeners = new Set<(open: boolean) => void>();
+const livePreviewListeners = new Set<(active: boolean) => void>();
+let livePreviewActive = false;
+
+export function subscribeLivePreview(listener: (active: boolean) => void): () => void {
+	livePreviewListeners.add(listener);
+	listener(livePreviewActive);
+	return () => livePreviewListeners.delete(listener);
+}
+
+function setLivePreviewActive(active: boolean) {
+	livePreviewActive = active;
+	for (const listener of livePreviewListeners) listener(active);
+}
+
+export function subscribeThemeManagerOpen(listener: (open: boolean) => void): () => void {
+	themeManagerListeners.add(listener);
+	listener(isThemeManagerOpen());
+	return () => themeManagerListeners.delete(listener);
+}
+
+function notifyThemeManagerOpen() {
+	for (const listener of themeManagerListeners) listener(isThemeManagerOpen());
+}
 
 export function isThemeManagerOpen(): boolean {
 	return activeThemeWindowInstance !== null;
@@ -26,6 +50,7 @@ export function closeThemeManager(): void {
 		activeThemeWindowInstance?.windowInstance?.closeWindowHandler?.();
 	} finally {
 		activeThemeWindowInstance = null;
+		notifyThemeManagerOpen();
 	}
 }
 
@@ -46,6 +71,7 @@ export async function showThemeManager(tab: "installed" | "store" = "installed",
 		center: true,
 		onWindowClosed: () => {
 			activeThemeWindowInstance = null;
+			notifyThemeManagerOpen();
 			onClose?.();
 		},
 	});
@@ -54,6 +80,7 @@ export async function showThemeManager(tab: "installed" | "store" = "installed",
 		windowInstance: themeWindow,
 	};
 	activeThemeWindowInstance = activeState;
+	notifyThemeManagerOpen();
 
 	themeWindow.contentElement.style.padding = "20px";
 	themeWindow.contentElement.style.overflowY = "auto";
@@ -76,18 +103,23 @@ export async function showThemeManager(tab: "installed" | "store" = "installed",
  */
 export async function startLivePreviewMode(theme: Theme, isStoreItem = false, closeCurrentWindow?: () => void) {
 	const backupSettings = JSON.parse(JSON.stringify((await getRootValue("currentSettings")) || {}));
-	const originalActiveTheme = await getRootValue("activeTheme");
 	const targetSettings = theme.currentSettings || (theme as any).settings || {};
 	const themeName = theme.themeName || "Preview Theme";
+	setLivePreviewActive(true);
 
-	if (closeCurrentWindow) {
-		closeCurrentWindow();
-	} else if (activeThemeWindowInstance?.windowInstance?.closeWindowHandler) {
-		activeThemeWindowInstance.windowInstance.closeWindowHandler();
+	const managerElement = activeThemeWindowInstance?.windowInstance?.windowElement;
+	const hiddenWindows = Array.from(document.querySelectorAll<HTMLElement>(".styleshift-window-container")).filter(
+		(window) => window !== managerElement && !window.classList.contains("minimized"),
+	);
+	for (const window of hiddenWindows) window.classList.add("minimized");
+	let closing: Promise<void> = Promise.resolve();
+	if (activeThemeWindowInstance?.windowInstance?.closeWindowHandler) {
+		closing = activeThemeWindowInstance.windowInstance.closeWindowHandler();
+	} else {
+		closeCurrentWindow?.();
 	}
 
-	// Apply settings live without persisting to storage
-	await importPresetToSettings(targetSettings, false, themeName);
+	const applying = importPresetToSettings(targetSettings, false);
 
 	const mountPoint = document.createElement("div");
 	mountPoint.className = "styleshift-live-preview-bar-mount";
@@ -96,23 +128,38 @@ export async function startLivePreviewMode(theme: Theme, isStoreItem = false, cl
 	let barInstance: any;
 
 	const cleanup = () => {
-		if (barInstance) unmount(barInstance);
-		mountPoint.remove();
+		if (barInstance) void unmount(barInstance, { outro: true }).then(() => mountPoint.remove());
+		else mountPoint.remove();
 	};
 
 	const handleCancel = async () => {
 		cleanup();
-		// Restore previous settings without saving
-		await importPresetToSettings(backupSettings, false, originalActiveTheme || "Previous Settings");
-		await showThemeManager();
+		for (const window of hiddenWindows) window.classList.remove("minimized");
+		const reopening = closing.then(() => showThemeManager());
+		try {
+			await applying;
+			await importPresetToSettings(backupSettings, false);
+		} finally {
+			try {
+				await reopening;
+			} finally {
+				setLivePreviewActive(false);
+			}
+		}
 	};
 
 	const handleKeep = async () => {
 		cleanup();
-		if (isStoreItem && theme.themeId) {
-			await saveThemeManager(themeName, theme, "EXTENSION", theme.themeId);
+		try {
+			await applying;
+			for (const window of hiddenWindows) window.classList.remove("minimized");
+			if (isStoreItem && theme.themeId) {
+				await saveThemeManager(themeName, theme, "EXTENSION", theme.themeId);
+			}
+			await applyThemeManager(theme.themeId || "custom", themeName, "EXTENSION");
+		} finally {
+			setLivePreviewActive(false);
 		}
-		await applyThemeManager(theme.themeId || "custom", themeName, "EXTENSION");
 	};
 
 	barInstance = mount(LivePreviewBar, {
@@ -189,7 +236,8 @@ export function openThemePreviewOverlay({
 				closeOverlay(() => onApply(t));
 			},
 			onApplyLivePreview: (t: Theme) => {
-				closeOverlay(() => onApplyLivePreview(t));
+				closeOverlay();
+				onApplyLivePreview(t);
 			},
 			onSave: onSave
 				? (t: Theme) => {

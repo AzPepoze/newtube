@@ -21,6 +21,17 @@ interface OutlineBudget {
 	truncated: boolean;
 }
 
+function readElementRect(element: any): LayoutNode["rect"] | undefined {
+	if (typeof element.getBoundingClientRect !== "function") return undefined;
+	const box = element.getBoundingClientRect();
+	return {
+		x: Math.round(box.x),
+		y: Math.round(box.y),
+		width: Math.round(box.width),
+		height: Math.round(box.height),
+	};
+}
+
 function readElementClasses(element: any): string[] | undefined {
 	const raw = typeof element.className === "string" ? element.className : element.className?.baseVal;
 	if (!raw) return undefined;
@@ -42,7 +53,7 @@ function countDescendantElements(element: any): number {
 
 /**
  * Serializes one element and its descendants using structure only: tag, id, classes,
- * role and aria-label. Text nodes, script/style contents and URL-bearing attributes
+ * role, aria-label and box geometry. Text nodes, script/style contents and URL-bearing attributes
  * (`href`, `src`, …) are never read, so nothing sensitive can end up in the report.
  */
 export function outlineElement(element: any, depth: number, budget: OutlineBudget): LayoutNode | null {
@@ -60,6 +71,8 @@ export function outlineElement(element: any, depth: number, budget: OutlineBudge
 	if (role) node.role = role;
 	const ariaLabel = readSafeAttribute(element, "aria-label");
 	if (ariaLabel) node.ariaLabel = ariaLabel;
+	const rect = readElementRect(element);
+	if (rect) node.rect = rect;
 
 	const children: LayoutNode[] = [];
 	const childList = element.children ?? [];

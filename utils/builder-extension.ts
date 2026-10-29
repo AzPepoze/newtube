@@ -217,6 +217,23 @@ export async function buildExtension() {
 			assetNames: "assets/[name]",
 		});
 
+		log.info("Bundling diagnostics page...");
+		await esbuild.build({
+			entryPoints: [path.join(ENTRYPOINTS, "diagnostics/page.ts")],
+			bundle: true,
+			outfile: path.join(BUILD, "diagnostics/page.js"),
+			platform: "browser",
+			minify: isProduction(),
+			external: esbuildExternals,
+			alias: esbuildAliases,
+			plugins: [esbuildSvelte({ compilerOptions: createSvelteCompilerOptions() })],
+			define: {
+				imgbb_api_key: JSON.stringify(process.env.IMGBB_API_KEY || ""),
+				IS_DEV: JSON.stringify(!isProduction()),
+			},
+			loader: esbuildLoaders,
+		});
+
 		log.info("Copying assets and extension files...");
 		fs.copySync(ENTRYPOINTS, BUILD, {
 			filter: (src) => !path.relative(ENTRYPOINTS, src).startsWith("modules") && !src.endsWith(".ts"),

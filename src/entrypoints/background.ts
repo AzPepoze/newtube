@@ -34,7 +34,6 @@ async function execFunction(execText: string): Promise<void> {
 	try {
 		console.debug("StyleShift: Injecting script into Main World");
 
-		// Setup Trusted Types policies first (self-contained)
 		const win = window as any;
 		if (win.trustedTypes && win.trustedTypes.createPolicy) {
 			if (!win.__styleshift_script_policy) {
@@ -176,6 +175,16 @@ async function handleMessage(recivedMsg: ContentScriptMessage, sender: chrome.ru
 		case "openSettingPage": {
 			const url = chrome.runtime.getURL(`setting/styleshift.html?domain=${recivedMsg.data?.domain || ""}`);
 			chrome.tabs.create({ url });
+			return true;
+		}
+
+		case "openDiagnosticsPage": {
+			chrome.tabs.create({ url: chrome.runtime.getURL("diagnostics/diagnostics.html") });
+			return true;
+		}
+
+		case "openSandboxPage": {
+			chrome.tabs.create({ url: chrome.runtime.getURL("setting/sandbox.html?domain=sandbox&sandbox=1") });
 			return true;
 		}
 

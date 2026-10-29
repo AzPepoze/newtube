@@ -27,8 +27,14 @@ import {
 	seedBundledPresets,
 } from "./storage/maintenance";
 import { getRootValue, initializeStorageConnection, persistCachedDataToStorage } from "./storage/manager";
-import { EXTENSION_BASE_URL, IS_FIREFOX, IS_IN_EXTENSION_SETTINGS_PAGE, currentContextDomain } from "./shared/context";
-export { EXTENSION_BASE_URL, IS_FIREFOX, IS_IN_EXTENSION_SETTINGS_PAGE, currentContextDomain };
+import {
+	EXTENSION_BASE_URL,
+	IS_FIREFOX,
+	IS_IN_EXTENSION_SETTINGS_PAGE,
+	IS_SANDBOX,
+	currentContextDomain,
+} from "./shared/context";
+export { EXTENSION_BASE_URL, IS_FIREFOX, IS_IN_EXTENSION_SETTINGS_PAGE, IS_SANDBOX, currentContextDomain };
 
 export const EXTENSION_VERSION = chrome.runtime.getManifest().version;
 export let isExtensionReady = false;
@@ -74,6 +80,12 @@ function normalizeSelectors(): void {
 async function bootstrapExtension(): Promise<void> {
 	await initializeStorageConnection();
 	await initializeDefaultAddOnItems();
+
+	if (IS_SANDBOX) {
+		// Dynamic import: keeps the sandbox code out of the normal startup path and avoids a static import cycle.
+		const { startSandbox } = await import("@extensions/youtube/features/diagnostics/sandbox/sandboxPage");
+		await startSandbox();
+	}
 
 	if (!shouldEnableExtension()) {
 		logger.info("lifecycle", "StyleShift extension logic skipped on this domain (Core active).");

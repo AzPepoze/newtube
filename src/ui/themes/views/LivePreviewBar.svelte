@@ -14,14 +14,13 @@
 <div class="styleshift-main live-preview-bar-wrapper" in:fly={{ y: 40, duration: 300 }} out:fade={{ duration: 200 }}>
 	<div class="live-preview-pill">
 		<div class="info-section">
-			<span class="preview-label">Live Previewing:</span>
+			<span class="preview-label">Previewing</span>
 			<span class="theme-name">{themeName}</span>
 		</div>
 
 		<div class="actions-section">
-			<button class="cancel-btn" onclick={onCancel} title="Exit live preview and restore previous settings">
+			<button class="cancel-btn" onclick={onCancel} title="Cancel preview" aria-label="Cancel preview">
 				<Icon name="close" size={16} />
-				<span>Cancel Preview</span>
 			</button>
 		</div>
 	</div>
@@ -40,13 +39,11 @@
 	.live-preview-pill {
 		display: flex;
 		align-items: center;
-		gap: 20px;
-		padding: 10px 18px;
-		background: var(--bg-overlay-90);
-		backdrop-filter: blur(16px);
+		gap: 12px;
+		padding: 8px 10px 8px 14px;
+		background: var(--bg-main);
 		border: 1px solid var(--fg-opacity-15);
 		border-radius: 30px;
-		box-shadow: 0 12px 35px var(--shadow-color);
 		color: var(--font-color);
 		font-family: inherit;
 	}
@@ -55,7 +52,7 @@
 		display: flex;
 		align-items: center;
 		gap: 8px;
-		font-size: 13.5px;
+		font-size: 13px;
 
 		.preview-label {
 			color: var(--font-color-dim);
@@ -63,7 +60,7 @@
 		}
 
 		.theme-name {
-			font-weight: 700;
+			font-weight: 600;
 			color: var(--font-color);
 			max-width: 200px;
 			white-space: nowrap;
@@ -80,15 +77,14 @@
 		button {
 			display: flex;
 			align-items: center;
-			gap: 6px;
-			padding: 7px 14px;
-			border-radius: 20px;
-			font-size: 12.5px;
-			font-weight: 700;
+			justify-content: center;
+			width: 30px;
+			height: 30px;
+			padding: 0;
+			border-radius: 50%;
 			cursor: pointer;
 			transition: all 0.2s ease;
 			border: none;
-			outline: none;
 		}
 
 		.cancel-btn {

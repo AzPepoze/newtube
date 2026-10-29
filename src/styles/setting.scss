@@ -75,6 +75,22 @@
 		}
 	}
 
+	&[data-theme="dark"] .styleshift-settings-list {
+		scrollbar-color: white transparent;
+
+		&::-webkit-scrollbar-thumb {
+			background: white !important;
+		}
+	}
+
+	&[data-theme="light"] .styleshift-settings-list {
+		scrollbar-color: black transparent;
+
+		&::-webkit-scrollbar-thumb {
+			background: black !important;
+		}
+	}
+
 	.styleshift-all-transition {
 		transition: all 0.3s;
 	}

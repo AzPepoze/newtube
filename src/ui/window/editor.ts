@@ -49,7 +49,6 @@ let resizeObserver: ResizeObserver | null = null;
 
 				windowElement.style.translate = `${calculatedPositionX}px ${calculatedPositionY}px`;
 
-				// Follow the target while it moves.
 				animationFrameId = requestAnimationFrame(updatePosition);
 			}
 

@@ -14,7 +14,7 @@ import { playCelebration } from "@ui/tutorial/celebrationService";
 import { showThemeManager } from "@ui/themes/themeManagerService";
 import { showAlert, showSelection, showUserConfirmation, showUserPrompt } from "@ui/window/windowFactory";
 import { showTryImportOldNPreset } from "./dangerzone";
-import { copyDiagnosticsToClipboard, exportDiagnosticsFile } from "./features/diagnostics/export";
+import { openShareReport } from "./features/diagnostics/export";
 import { showWelcome } from "./welcome";
 
 const diagnosticsLinkStyle = [
@@ -30,13 +30,13 @@ const diagnosticsLinkStyle = [
 const diagnosticsIntroHtml = `
 <div style="display: flex; flex-direction: column; gap: 14px; width: 100%;">
 	<p style="margin: 0;">
-		<b>Create a report</b> so I can find and fix your problem faster.
+		<b>Press Share report</b> so I can find and fix your problem faster. You choose what to share, and the preview shows exactly what is sent.
 	</p>
 	<div>
-		<b>The report includes:</b>
+		<b>By default the report has:</b>
 		<ul style="margin: 6px 0 0; padding-left: 18px; line-height: 1.7;">
 			<li>Your layout, styling, settings and browser info</li>
-			<li>No video titles, comments or account details</li>
+			<li>No video titles, comments or account details (you can switch them on)</li>
 			<li>Nothing is sent automatically</li>
 		</ul>
 	</div>
@@ -507,25 +507,15 @@ const defaultStyleShiftItems: (Category | SeparateCategory)[] = [
 			},
 			{
 				type: "button",
-				id: "CopySupportReportButton",
-				name: "Copy support report",
-				description: "Copies the report to your clipboard.",
-				clickFunction: copyDiagnosticsToClipboard,
+				id: "ShareReportButton",
+				name: "Share report",
+				description:
+					"Builds a report of your layout, styling and settings, then opens a preview. Pick what to include, then copy it or save it as a .json file. Nothing is sent automatically.",
+				clickFunction: openShareReport,
 				color: "#7f5db7",
 				fontSize: 15,
 				align: "left",
-				icon: "content_copy",
-			},
-			{
-				type: "button",
-				id: "SaveSupportReportButton",
-				name: "Save support report",
-				description: "Downloads the report as a .json file.",
-				clickFunction: exportDiagnosticsFile,
-				color: "#3eadad",
-				fontSize: 15,
-				align: "left",
-				icon: "download",
+				icon: "share",
 			},
 		],
 	},
